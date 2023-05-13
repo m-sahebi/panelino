@@ -1,14 +1,13 @@
-import { getServerSession } from 'next-auth';
-import React from 'react';
-import Providers from '@/components/Providers';
-import { authOptions } from '@/pages/api/auth/[...nextauth]';
-import '@/assets/styles/globals.css';
-import NavBar from '@/components/NavBar';
+import { getServerSession } from "next-auth";
+import React from "react";
+import Providers from "@/components/Providers";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import "@/assets/styles/globals.css";
 
 export const metadata = {
   title: {
-    default: 'Panelino',
-    template: '%s | Panelino',
+    default: "Panelino",
+    template: "%s | Panelino",
   },
 };
 
@@ -21,10 +20,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Providers session={session}>
-          <NavBar />
-          {children}
-        </Providers>
+        <Providers session={session}>{children}</Providers>
       </body>
     </html>
   );

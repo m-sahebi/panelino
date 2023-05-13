@@ -1,4 +1,5 @@
-import { compare, hash as hashString } from 'bcryptjs';
+import { compare, hash as hashString } from "bcryptjs";
+import "@/server/utils/server-only";
 
 export async function hashPassword(password: string) {
   return hashString(password, 12);

@@ -1,9 +1,10 @@
 /** @type {import('tailwindcss').Config} */
-const { colors, borderRadius, screens } = require('./src/data/theme');
+const { colors, borderRadius, screens } = require("./src/data/theme");
 
 module.exports = {
-  content: ['./src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: ['class'],
+  content: ["./src/**/*.{js,ts,jsx,tsx}"],
+  darkMode: "class",
+  important: true,
   theme: {
     extend: {
       colors,
@@ -11,5 +12,5 @@ module.exports = {
       screens,
     },
   },
-  plugins: [],
+  plugins: [require("tailwind-dark-aware")({})],
 };

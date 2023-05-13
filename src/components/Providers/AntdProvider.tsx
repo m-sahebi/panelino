@@ -1,16 +1,17 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { useServerInsertedHTML } from 'next/navigation';
-import { StyleProvider, createCache, extractStyle } from '@ant-design/cssinjs';
-import { ConfigProvider, theme } from 'antd';
+import { StyleProvider, createCache, extractStyle } from "@ant-design/cssinjs";
+import { ConfigProvider, theme } from "antd";
+import { useServerInsertedHTML } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { IS_SERVER } from "@/data/configs";
 
 // suppress useLayoutEffect warnings when running outside a browser
 if (!process.browser) React.useLayoutEffect = React.useEffect;
 
 const initDarkMode =
-  typeof window !== 'undefined' &&
-  window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+  !IS_SERVER && window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+if (initDarkMode) document.documentElement.classList.add("dark");
 
 export function AntdProvider({ children }: { children: React.ReactNode }) {
   const [cache] = useState(() => createCache());
@@ -24,14 +25,16 @@ export function AntdProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const onDarkModeChange = (event: MediaQueryListEvent) => {
       setIsDarkMode(event.matches);
+      if (event.matches) document.documentElement.classList.add("dark");
+      else document.documentElement.classList.remove("dark");
     };
     window
-      .matchMedia?.('(prefers-color-scheme: dark)')
-      .addEventListener('change', onDarkModeChange);
+      .matchMedia?.("(prefers-color-scheme: dark)")
+      .addEventListener("change", onDarkModeChange);
     return () =>
       window
-        .matchMedia?.('(prefers-color-scheme: dark)')
-        .removeEventListener('change', onDarkModeChange);
+        .matchMedia?.("(prefers-color-scheme: dark)")
+        .removeEventListener("change", onDarkModeChange);
   }, []);
 
   useServerInsertedHTML(() => {
@@ -49,7 +52,7 @@ export function AntdProvider({ children }: { children: React.ReactNode }) {
   return (
     <ConfigProvider
       theme={{
-        token: { colorPrimary: '#00b96b' },
+        token: { colorPrimary: "#00b96b" },
         algorithm: [isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm],
       }}
     >

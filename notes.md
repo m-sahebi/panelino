@@ -2,16 +2,20 @@
 - bilingual and bidirectional
 
 
-stack:
-Framework: Nextjs + TypeScript
+## Stack
+- Framework: Nextjs + TypeScript
+- Utils: Radash
 
-ORM: Prisma
-Web Server: Nextjs
-Auth: ?
+- ORM: Prisma
+- Web Server: Nextjs + Next-Connect
+- Auth: NextAuth
 
-Mocking: JSON Server? https://www.syncfusion.com/blogs/post/javascript-api-mocking-techniques.aspx
+- Validation: zod
+- UI: Ant
+- State Manager: RTK
+- CSS: Tailwind
+- Dark Mode: tailwind-dark-aware
+- Client Cache: Tanstack Query
 
-Validation: zod
-UI: Ant
-CSS: Tailwind
-Client Cache: Tanstack Query
+- Test: Cypress
+- Runtime: pm2?

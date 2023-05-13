@@ -1,18 +1,16 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-generator client {
-  provider = "prisma-client-js"
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
 }
 
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl", "debian-openssl-3.0.x"]
 }
 
 generator zod {
   provider = "zod-prisma"
-  output   = "./zod" // (default) the directory where generated zod schemas will be saved
+  output   = "./zod.ignore" // (default) the directory where generated zod schemas will be saved
 
   relationModel = false // (default) Create and export both plain and related models.
   // relationModel         = "default" // Do not export model without relations.
@@ -20,7 +18,7 @@ generator zod {
   modelCase = "PascalCase" // (default) Output models using pascal case (ex. UserModel, PostModel)
   // modelCase = "camelCase" // Output models using camel case (ex. userModel, postModel)
 
-  modelSuffix = "Schema" // (default) Suffix to apply to your prisma models when naming Zod schemas
+  modelSuffix = "Model" // (default) Suffix to apply to your prisma models when naming Zod schemas
 
   // useDecimalJs          = false // (default) represent the prisma Decimal type using as a JS number
   useDecimalJs = true // represent the prisma Decimal type using Decimal.js (as Prisma does)
@@ -46,14 +44,14 @@ model User {
 }
 
 model Post {
-  id        Int       @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   title     String
   content   String?
-  published Boolean   @default(false)
-  author    User      @relation(fields: [authorId], references: [id])
+  status    PostStatus @default(DRAFT)
+  author    User       @relation(fields: [authorId], references: [id])
   authorId  Int
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   deletedAt DateTime?
 }
 
@@ -65,4 +63,10 @@ model Flow {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+}
+
+enum PostStatus {
+  PUBLISHED
+  DRAFT
+  ARCHIVED
 }

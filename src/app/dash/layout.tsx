@@ -1,15 +1,14 @@
-import React from 'react';
-import DashTitle from '@/app/dash/DashTitle';
+import React from "react";
+import PanelLayout from "@/layouts/panel/PanelLayout";
 
-export default async function dashboard({
+export const metadata = {
+  title: "Home",
+};
+
+export default async function DashLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div>
-      <DashTitle />
-      {children}
-    </div>
-  );
+  return <PanelLayout>{children}</PanelLayout>;
 }

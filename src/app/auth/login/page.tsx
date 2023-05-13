@@ -1,34 +1,60 @@
-'use client';
+"use client";
 
-import { Button, Checkbox, Form, Input } from 'antd';
-import { signIn } from 'next-auth/react';
+import { GithubOutlined } from "@ant-design/icons";
+import { Button, Divider, Form, Input } from "antd";
+import { message } from "antd/lib";
+import { useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { useEffect } from "react";
+import { IS_DEV } from "@/data/configs";
 
 export default function LoginPage() {
+  const query = useSearchParams();
+
+  useEffect(() => {
+    const error = query?.get("error");
+    if (error)
+      message.error({
+        content: "Invalid Credentials!",
+        key: "serverSigninCredentialsError",
+      });
+    return () => message.destroy("serverSigninCredentialsError");
+  }, [query]);
+
   const onFinish = (values: any): void => {
-    console.log('Success:', values);
+    signIn("credentials", { callbackUrl: "/dash", ...values });
   };
 
   const onFinishFailed = (errorInfo: any): void => {
-    console.log('Failed:', errorInfo);
+    console.log("Failed:", errorInfo);
   };
 
   return (
-    <>
-      <Button onClick={() => signIn('github')}>SignIn</Button>
+    <div className="mx-auto mt-10 mt-[15vh] flex max-w-lg flex-col items-stretch gap-4">
+      <Button onClick={() => signIn("github")} icon={<GithubOutlined />}>
+        Sign in with GitHub
+      </Button>
+      <Divider className={"my-0"}>or</Divider>
       <Form
         name="basic"
-        initialValues={{ remember: true }}
+        initialValues={{}}
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
-        className="max-w-lg mx-auto mt-10"
+        requiredMark={false}
+        labelCol={{ span: 6 }}
+        wrapperCol={{ span: 18 }}
       >
         <Form.Item
-          label="Username"
-          name="username"
+          label="Email"
+          name="email"
           rules={[
             {
               required: true,
-              message: 'Please input your username!',
+              message: "Please input your Email!",
+            },
+            {
+              type: "email",
+              message: "Enter a valid Email!",
             },
           ]}
         >
@@ -40,24 +66,20 @@ export default function LoginPage() {
           name="password"
           rules={[
             {
-              required: true,
-              message: 'Please input your password!',
+              required: !IS_DEV,
+              message: "Please input your password!",
             },
           ]}
         >
           <Input.Password />
         </Form.Item>
 
-        <Form.Item name="remember" valuePropName="checked">
-          <Checkbox>Remember me</Checkbox>
-        </Form.Item>
-
-        <Form.Item>
+        <Form.Item wrapperCol={{ span: 18, offset: 6 }}>
           <Button type="primary" htmlType="submit">
-            Submit
+            Sign in
           </Button>
         </Form.Item>
       </Form>
-    </>
+    </div>
   );
 }

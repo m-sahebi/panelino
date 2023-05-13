@@ -2,6 +2,8 @@
 /.idea
 /.vscode
 *.db
+**/*.ignore
+**/*.ignore.*
 
 # dependencies
 /node_modules
