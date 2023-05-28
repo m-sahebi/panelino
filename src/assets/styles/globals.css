@@ -1,6 +1,6 @@
 /*@tailwind base;*/
 /*@tailwind components;*/
-@import 'antd/dist/reset.css';
+@import "antd/dist/reset.css";
 @tailwind utilities;
 
 :root {
@@ -14,7 +14,7 @@
 body {
   max-width: 1440px;
   margin: 0 auto;
-  @apply flex flex-col text-daw-neutral-900 bg-daw-neutral-100
+  @apply flex flex-col bg-daw-neutral-100 text-daw-neutral-900;
 }
 
 @media (prefers-color-scheme: dark) {

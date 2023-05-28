@@ -9,12 +9,12 @@ import {
   SettingOutlined,
 } from "@ant-design/icons";
 import { Avatar, Button, Menu, Tooltip } from "antd";
-import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
+import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 import React, { useState } from "react";
-import DashTitle from "@/layouts/panel/DashTitle";
-import { AntdMenuItem, getAntdMenuItem } from "@/utils/antd";
-import { cn } from "@/utils/tailwind";
+import DashTitle from "~/layouts/panel/DashTitle";
+import { AntdMenuItem, getAntdMenuItem } from "~/utils/antd";
+import { cn } from "~/utils/tailwind";
 
 type PanelLayoutProps = { children: React.ReactNode };
 
@@ -36,12 +36,12 @@ export default function PanelLayout({ children }: PanelLayoutProps) {
       <aside
         className={cn(
           "sticky top-0 flex h-screen w-64 flex-col items-center py-4",
-          "border-daw-neutral-300 bg-daw-white gap-3 transition-all",
+          "gap-3 transition-all border-daw-neutral-300 bg-daw-white",
           "border-0 border-x border-solid",
           {
             "w-20": isCollapsed,
             "px-3": !isCollapsed,
-          }
+          },
         )}
       >
         <div
@@ -86,7 +86,7 @@ export default function PanelLayout({ children }: PanelLayoutProps) {
             className={cn(
               "mx-1 w-auto self-stretch transition-all",
               "h-10 overflow-hidden rounded-lg text-start",
-              { "text-center": isCollapsed, "ps-6": !isCollapsed }
+              { "text-center": isCollapsed, "ps-6": !isCollapsed },
             )}
             onClick={signOut}
           >

@@ -31,7 +31,7 @@ generator zod {
 }
 
 model User {
-  id        Int       @id @unique @default(autoincrement())
+  id        String    @id @default(uuid())
   password  String?
   email     String    @unique
   name      String?
@@ -44,22 +44,22 @@ model User {
 }
 
 model Post {
-  id        Int        @id @default(autoincrement())
+  id        String     @id @default(uuid())
   title     String
   content   String?
   status    PostStatus @default(DRAFT)
   author    User       @relation(fields: [authorId], references: [id])
-  authorId  Int
+  authorId  String
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   deletedAt DateTime?
 }
 
 model Flow {
-  id        Int       @id @unique @default(autoincrement())
+  id        String    @id @unique @default(uuid())
   content   String?
   owner     User      @relation(fields: [ownerId], references: [id])
-  ownerId   Int
+  ownerId   String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?

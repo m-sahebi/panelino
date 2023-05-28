@@ -3,10 +3,10 @@
 import { GithubOutlined } from "@ant-design/icons";
 import { Button, Divider, Form, Input } from "antd";
 import { message } from "antd/lib";
-import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { IS_DEV } from "@/data/configs";
+import { IS_DEV } from "~/data/configs";
 
 export default function LoginPage() {
   const query = useSearchParams();

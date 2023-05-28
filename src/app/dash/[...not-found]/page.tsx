@@ -1,7 +1,7 @@
 "use client";
 
-import { Empty } from "antd";
+import { notFound } from "next/navigation";
 
 export default function Page() {
-  return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />;
+  return notFound();
 }

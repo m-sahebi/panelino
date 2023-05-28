@@ -1,75 +1,245 @@
-import {
-  ZodBigIntDef,
-  ZodBooleanDef,
-  ZodDateDef,
-  ZodEnumDef,
-  ZodFirstPartyTypeKind,
-  ZodNativeEnumDef,
-  ZodNumberDef,
-  ZodObject,
-  ZodRawShape,
-  ZodStringDef,
-  ZodSymbolDef,
-} from "zod";
+import { omit, pick, shake } from "radash";
+import { z, ZodFirstPartyTypeKind, type Primitive, type ZodTypeDef } from "zod";
+import { ZRes } from "~/data/schemas/z-res";
+import { type Merge, type UnionToTuple } from "~/utils/type";
 
 export type ZodPrimitiveDef =
-  | ZodStringDef
-  | ZodNumberDef
-  | ZodBigIntDef
-  | ZodBooleanDef
-  | ZodSymbolDef
-  | ZodDateDef;
+  | z.ZodStringDef
+  | z.ZodNumberDef
+  | z.ZodBigIntDef
+  | z.ZodBooleanDef
+  | z.ZodSymbolDef
+  | z.ZodDateDef;
+
+export type ZodMainDef =
+  | ZodPrimitiveDef
+  | z.ZodNativeEnumDef
+  | z.ZodEnumDef
+  | z.ZodUnionDef;
 
 export { ZodFirstPartyTypeKind };
 
-export function zModelOmitMeta<TSchema extends ZodRawShape>(
-  schema: ZodObject<TSchema>
-) {
-  return schema.omit({ updatedAt: true, createdAt: true, deletedAt: true });
-}
-
-export function zModelOmitId<TSchema extends ZodRawShape>(
-  schema: ZodObject<TSchema>
-) {
-  return schema.omit({ id: true });
-}
-
-export function zModelOmitIdAndMeta<TSchema extends ZodRawShape>(
-  schema: ZodObject<TSchema>
-) {
-  return zModelOmitId(zModelOmitMeta(schema));
-}
-
-export function zGetSchemaKeysList<TSchema extends ZodRawShape>(
-  schema: ZodObject<TSchema>
-) {
-  return schema.keyof().options;
-}
-
-export function zGetSchemaKeysListAndMeta<
-  TSchema extends ZodRawShape,
-  TKey extends keyof TSchema,
-  TAcc extends {
-    [key in TKey]: ZodPrimitiveDef | ZodNativeEnumDef | ZodEnumDef;
+export function zMakeRes<
+  TShape extends z.ZodRawShape,
+  TObject extends z.ZodArray<z.ZodObject<TShape>>,
+>(
+  dataSchema: TObject,
+): z.ZodObject<
+  typeof ZRes.shape & {
+    items: TObject;
   }
->(schema: ZodObject<TSchema>) {
-  const keysList = schema.keyof().options;
-
-  const keysInfo = (keysList as TKey[]).reduce((acc, val) => {
-    let def = schema.shape[val as any]._def;
-    while (def.innerType) {
-      def = def.innerType._def;
-    }
-
-    acc[val] = def as ZodPrimitiveDef | ZodNativeEnumDef | ZodEnumDef as any;
-    return acc;
-  }, {} as TAcc);
-
-  type K = typeof keysList;
-  return [keysList, keysInfo] as [
-    K extends never ? string[] : K,
-    K extends never
-      ? { [k: string]: ZodPrimitiveDef | ZodNativeEnumDef | ZodEnumDef }
-      : typeof keysInfo
-  ];
+>;
+export function zMakeRes<
+  TShape extends z.ZodRawShape,
+  TObject extends z.ZodObject<TShape>,
+>(
+  dataSchema: TObject,
+): z.ZodObject<
+  typeof ZRes.shape & {
+    items: TObject;
+  }
+>;
+export function zMakeRes<
+  TShape extends z.ZodRawShape,
+  TObject extends z.ZodObject<TShape>,
+>(dataSchema: TObject) {
+  return ZRes.extend({ items: dataSchema });
 }
+
+export function zMakeArrayRes<TShape extends z.ZodRawShape>(
+  shape: z.ZodObject<TShape> | z.ZodArray<z.ZodObject<TShape>>,
+) {
+  return ZRes.extend({ data: shape });
+}
+
+export type ZodInnerDef<TDef extends z.ZodTypeDef> = TDef extends {
+  innerType: { _def: ZodTypeDef };
+}
+  ? ZodInnerDef<TDef["innerType"]["_def"]>
+  : TDef extends {
+      shape: () => { [p: string]: { _def: ZodTypeDef } };
+    }
+  ? {
+      [key in keyof ReturnType<TDef["shape"]>]: ZodInnerDef<
+        ReturnType<TDef["shape"]>[key]["_def"]
+      >;
+    }
+  : TDef;
+
+export function zGetSchemaInnerDef<TOutput, TDef extends z.ZodTypeDef>(
+  zodSchema: z.ZodSchema<TOutput, TDef>,
+) {
+  let def = zodSchema._def;
+  while ((def as any).innerType) {
+    def = (def as any).innerType._def;
+  }
+  return def as ZodInnerDef<TDef>;
+}
+
+export type ZodParsedDef<TDef extends z.ZodTypeDef = z.ZodTypeDef> = Omit<
+  TDef,
+  "errorMap"
+> & {
+  keys?: string[];
+  obj?: { [p: string]: ZodParsedDef<TDef> };
+  arr?: ZodParsedDef<TDef>;
+  optional?: boolean;
+  nullable?: boolean;
+  nullish?: boolean;
+};
+
+export type ZodParseDef<TDef extends ZodParsedDef> = TDef extends {
+  innerType: { _def: z.ZodTypeDef };
+}
+  ? ZodParseDef<
+      Merge<
+        { optional: undefined; nullable: undefined; nullish: undefined },
+        Merge<
+          Omit<TDef["innerType"]["_def"], "errorMap">,
+          TDef extends z.ZodNullableDef
+            ? {
+                nullable: true;
+                nullish: true;
+                optional: TDef["optional"] extends boolean ? TDef["optional"] : undefined;
+              }
+            : TDef extends z.ZodOptionalDef
+            ? {
+                optional: true;
+                nullish: true;
+                nullable: TDef["nullable"] extends boolean ? TDef["nullable"] : undefined;
+              }
+            : object
+        >
+      >
+    >
+  : TDef extends z.ZodObjectDef
+  ? {
+      keys: UnionToTuple<keyof ReturnType<TDef["shape"]>>;
+      obj: {
+        [key in keyof ReturnType<TDef["shape"]>]: ZodParseDef<
+          ReturnType<TDef["shape"]>[key]["_def"]
+        >;
+      };
+      optional: TDef["optional"];
+      nullable: TDef["nullable"];
+      nullish: TDef["nullish"];
+    }
+  : TDef extends z.ZodArrayDef
+  ? {
+      arr: ZodParseDef<TDef["type"]["_def"]>;
+      optional: TDef["optional"];
+      nullable: TDef["nullable"];
+      nullish: TDef["nullish"];
+    }
+  : TDef extends z.ZodUnionDef
+  ? {
+      options: UnionToTuple<TDef["options"][number]["_def"]>;
+      optional: TDef["optional"];
+      nullable: TDef["nullable"];
+      nullish: TDef["nullish"];
+    }
+  : TDef;
+
+function _zParseDef<
+  TDef extends z.ZodTypeDef & {
+    keys?: string[];
+    obj?: { [p: string]: TDef };
+    arr?: TDef;
+    optional?: true;
+    nullable?: true;
+    nullish?: true;
+  },
+>(def: TDef): any {
+  const get = _zParseDef as any;
+  const d = def as any;
+  if ("innerType" in def) {
+    const optional = d.typeName === ZodFirstPartyTypeKind.ZodOptional || def.optional;
+    const nullable = d.typeName === ZodFirstPartyTypeKind.ZodNullable || def.nullable;
+    const nullish = optional || nullable;
+    const description = d.description ?? d.innerType._def.description;
+
+    return get({
+      ...omit(d.innerType._def, ["errorMap"]),
+      ...shake({ optional, nullable, nullish, description }, (v) => !v),
+    } as any);
+  }
+
+  if (d.typeName === ZodFirstPartyTypeKind.ZodObject) {
+    const shape = d.shape();
+    const keys = Object.keys(shape);
+    return {
+      keys,
+      obj: keys.reduce((acc, key) => {
+        acc[key] = get(shape[key]._def);
+        return acc;
+      }, {} as any),
+      ...pick(def, [
+        (def.optional && "optional") as any,
+        (def.nullable && "nullable") as any,
+        (def.nullish && "nullish") as any,
+      ]),
+    } as any;
+  }
+
+  if (d.typeName === ZodFirstPartyTypeKind.ZodArray) {
+    return {
+      arr: get(d["type"]["_def"]),
+      ...pick(def, [
+        (def.optional && "optional") as any,
+        (def.nullable && "nullable") as any,
+        (def.nullish && "nullish") as any,
+      ]),
+    } as any;
+  }
+
+  if (d.typeName === ZodFirstPartyTypeKind.ZodUnion) {
+    return {
+      options: d.options.map((el: any) => el._def),
+      ...pick(def, [
+        (def.optional && "optional") as any,
+        (def.nullable && "nullable") as any,
+        (def.nullish && "nullish") as any,
+      ]),
+    } as any;
+  }
+
+  return def as any;
+}
+
+export function zParseDef<TDef extends z.ZodTypeDef = z.ZodTypeDef>(def: TDef) {
+  return _zParseDef(def) as ZodParseDef<TDef>;
+}
+
+type MappedZodLiterals<T extends readonly Primitive[]> = {
+  -readonly [K in keyof T]: z.ZodLiteral<T[K]>;
+};
+
+function createManyUnion<A extends Readonly<[Primitive, Primitive, ...Primitive[]]>>(
+  literals: A,
+) {
+  return z.union(literals.map((value) => z.literal(value)) as MappedZodLiterals<A>);
+}
+
+function zCreateUnionSchema<T extends readonly []>(values: T): z.ZodNever;
+function zCreateUnionSchema<T extends readonly [Primitive]>(
+  values: T,
+): z.ZodLiteral<T[0]>;
+function zCreateUnionSchema<T extends readonly [Primitive, Primitive, ...Primitive[]]>(
+  values: T,
+): z.ZodUnion<MappedZodLiterals<T>>;
+function zCreateUnionSchema<T extends readonly Primitive[]>(values: T) {
+  if (values.length > 1) {
+    return createManyUnion(
+      values as typeof values & [Primitive, Primitive, ...Primitive[]],
+    );
+  }
+  if (values.length === 1) {
+    return z.literal(values[0]);
+  }
+  if (values.length === 0) {
+    return z.never();
+  }
+  throw new Error("Array must have a length");
+}
+
+export { zCreateUnionSchema };

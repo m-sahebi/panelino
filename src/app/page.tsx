@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import NavBar from "@/components/NavBar";
+import NavBar from "~/components/NavBar";
 
 // export const metadata = {
 //   title: 'Home',
 // };
 
-export default function HomePage() {
+export default function Page() {
   return <NavBar />;
 }

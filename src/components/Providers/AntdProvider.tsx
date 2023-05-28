@@ -1,10 +1,10 @@
 "use client";
 
-import { StyleProvider, createCache, extractStyle } from "@ant-design/cssinjs";
+import { createCache, extractStyle, StyleProvider } from "@ant-design/cssinjs";
 import { ConfigProvider, theme } from "antd";
 import { useServerInsertedHTML } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { IS_SERVER } from "@/data/configs";
+import { IS_SERVER } from "~/data/configs";
 
 // suppress useLayoutEffect warnings when running outside a browser
 if (!process.browser) React.useLayoutEffect = React.useEffect;

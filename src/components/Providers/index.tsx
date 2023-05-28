@@ -3,9 +3,10 @@
 import { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import React from "react";
-import { AntdProvider } from "@/components/Providers/AntdProvider";
+import { AntdProvider } from "~/components/Providers/AntdProvider";
+import { TrpcProvider } from "~/components/Providers/TrpcProvider";
 
-export default function Providers({
+export function Providers({
   children,
   session,
 }: {
@@ -13,8 +14,10 @@ export default function Providers({
   session?: Session | null;
 }) {
   return (
-    <SessionProvider session={session}>
-      <AntdProvider>{children}</AntdProvider>
-    </SessionProvider>
+    <TrpcProvider>
+      <SessionProvider session={session}>
+        <AntdProvider>{children}</AntdProvider>
+      </SessionProvider>
+    </TrpcProvider>
   );
 }

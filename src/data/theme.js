@@ -1,7 +1,7 @@
 // Used in tailwind.config.js
 const colors = {
-  primary: "#00b96b",
-  secondary: "#3978EC",
+  primary: { light: "#00b96b", dark: "#00b96b" },
+  secondary: { light: "#3978EC", dark: "#3978EC" },
 };
 const borderRadius = {
   sm: ".125rem",

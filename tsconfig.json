@@ -21,8 +21,7 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "~/*": ["./*"]
+      "~/*": ["./src/*"],
     },
     "plugins": [
       {
@@ -31,9 +30,11 @@
     ]
   },
   "include": [
+    ".eslintrc.js",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "**/*.js",
     ".next/types/**/*.ts",
     "src/data/types/*.d.ts"
   ],

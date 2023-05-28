@@ -1,7 +1,7 @@
 "use client";
 
+import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { signOut, useSession } from "next-auth/react";
 import React from "react";
 
 export default function NavBar() {
@@ -10,13 +10,20 @@ export default function NavBar() {
   return (
     <nav>
       <Link href={"/"}>Home</Link>
-      {session.data && (
+      {session.data ? (
         <>
           {" | "}
           <Link href={"/dash"}>Dashboard</Link>
           {" | "}
           <Link href="#" onClick={() => signOut()}>
             Log Out
+          </Link>
+        </>
+      ) : (
+        <>
+          {" | "}
+          <Link href="#" onClick={() => signIn()}>
+            Log in
           </Link>
         </>
       )}

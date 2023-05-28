@@ -2,17 +2,13 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: { appDir: true },
-  transpilePackages: ['antd'],
-  // pageExtensions: [
-  //   "page.mdx",
-  //   "page.md",
-  //   "page.jsx",
-  //   "page.js",
-  //   "page.tsx",
-  //   "page.ts",
-  //   "api.js",
-  //   "api.ts",
-  // ],
+  transpilePackages: ["antd"],
+  trailingSlash: true,
+  // eslint: {
+  //   // Warning: This allows production builds to successfully complete even if
+  //   // your project has ESLint errors.
+  //   ignoreDuringBuilds: true,
+  // },
 };
 
 module.exports = nextConfig;
