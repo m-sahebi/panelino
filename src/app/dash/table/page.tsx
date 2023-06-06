@@ -2,9 +2,9 @@ import { isArray } from "radash";
 import { type ZodSchema } from "zod";
 import { appRouter, routerNames, routers, schemasRouter } from "~/_server/routers";
 import { createTRPCContext } from "~/_server/trpc";
-import { trpcCreateCaller } from "~/_server/utils/trpc-create-caller";
+import { trpcCreateCaller } from "~/_server/utils/trpc";
 import ModelTable from "~/app/dash/table/ModelTable";
-import { arrayDiff, inArray } from "~/utils/array";
+import { arrayDiff, inArray } from "~/utils/primitive";
 
 type PageProps = {
   params: Record<string, string | string[]>;
@@ -13,7 +13,7 @@ type PageProps = {
   };
 };
 export default async function Page({ searchParams }: PageProps) {
-  const { _route, _method, ...methodParms } = searchParams;
+  const { _route, _method, ...methodParams } = searchParams;
 
   const methodName = isArray(_method) ? _method[0] : _method ?? "";
   const routerName = isArray(_route) ? _route[0] : _route ?? "";
@@ -26,7 +26,7 @@ export default async function Page({ searchParams }: PageProps) {
         routeName={null}
         dataSchema={null}
         methodName={null}
-        methodParms={null}
+        methodParams={null}
         routesList={routesList}
         methodsList={null}
       />
@@ -44,7 +44,7 @@ export default async function Page({ searchParams }: PageProps) {
         routeName={routerName}
         dataSchema={null}
         methodName={null}
-        methodParms={null}
+        methodParams={null}
         routesList={routesList}
         methodsList={methodsList}
       />
@@ -56,14 +56,14 @@ export default async function Page({ searchParams }: PageProps) {
 
   const methodParamsParseResult = (
     routers[routerName][methodName]._def.inputs[0] as ZodSchema
-  )?.safeParse(methodParms);
+  )?.safeParse(methodParams);
 
   const result =
     (methodParamsParseResult.success &&
       !schemaResult.isMutation &&
       (await appRouter[routerName]
         .createCaller(await createTRPCContext())
-        [methodName](methodParms as any))) ||
+        [methodName]({ ...methodParams, meta: true } as any))) ||
     null;
 
   return (
@@ -72,7 +72,7 @@ export default async function Page({ searchParams }: PageProps) {
       methodsList={methodsList}
       routeName={routerName}
       methodName={methodName}
-      methodParms={methodParms}
+      methodParams={methodParams}
       dataSource={result}
       dataSchema={schemaResult}
     />

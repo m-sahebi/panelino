@@ -1,8 +1,8 @@
-import { schemasRouter } from "~/_server/routers";
+import { getServerAuthSession } from "~/_server/lib/next-auth";
 import { postsRouter } from "~/_server/routers/posts";
-import { paginateParams } from "~/_server/utils/paginate";
-import { trpcCreateCaller } from "~/_server/utils/trpc-create-caller";
+import { trpcCreateCaller } from "~/_server/utils/trpc";
 import { PostsPage } from "~/app/dash/posts/PostsPage";
+import { paginateParams } from "~/utils/helpers";
 
 type PageProps = {
   params: { slug: string };
@@ -15,12 +15,9 @@ export default async function Page({ params, searchParams }: PageProps) {
   ).getMany({
     ...paginateParams(searchParams),
     filter: searchParams.filter as string,
+    groupId: (await getServerAuthSession())?.user.groupId ?? undefined,
+    meta: true,
   });
-  const postsSchema = await (
-    await trpcCreateCaller(schemasRouter)
-  ).getByName({ name: "posts", method: "getMany" });
 
-  return (
-    <PostsPage dataSource={data} dataSchema={postsSchema.output.obj!.items.arr!.obj!} />
-  );
+  return <PostsPage dataSource={data} />;
 }

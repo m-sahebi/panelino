@@ -16,9 +16,7 @@ export function getServersideHeaders(headers: string[] = ["Cookie"]) {
 
 export function tFetch<T>(...args: Parameters<typeof fetch>): Promise<T> {
   const url =
-    (typeof args[0] === "string" &&
-      !ABSOLUTE_URL_REGEX.test(args[0]) &&
-      `${API_URL}/${args[0]}`) ||
+    (typeof args[0] === "string" && !ABSOLUTE_URL_REGEX.test(args[0]) && `${API_URL}/${args[0]}`) ||
     args[0];
   return fetch(url, { headers: getServersideHeaders(), ...args[1] }).then((response) => {
     if (!response.ok) {

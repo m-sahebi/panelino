@@ -8,13 +8,14 @@ function jsonPrettify(object: object) {
       if (/^"/.test(match)) {
         if (/:$/.test(match)) {
           cls = "text-daw-blue-700"; /// key
+          match = match.slice(1).slice(0, -1);
         } else {
           cls = "text-daw-green-700"; /// string
         }
       } else if (/true|false/.test(match)) {
         cls = "text-daw-fuchsia-600"; /// bool
       } else if (/null/.test(match)) {
-        cls = "text-daw-gray-400"; /// null
+        cls = "text-daw-gray-500"; /// null
       }
       return `<span class="${cls}">${match}</span>`;
     },

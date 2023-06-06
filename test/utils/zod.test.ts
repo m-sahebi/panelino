@@ -1,7 +1,6 @@
 import { isArray } from "radash";
 import { z, ZodFirstPartyTypeKind, type Primitive } from "zod";
-
-import { zCreateUnionSchema, zParseDef } from "~/utils/zod";
+import { zodCreateUnionSchema, zodParseDef } from "~/utils/zod";
 
 function deepCheckTypeNotInObject(
   obj: Record<string, any>,
@@ -29,9 +28,9 @@ function deepCheckTypeNotInObject(
 }
 
 describe("zParseDef()", () => {
-  const pd1 = zParseDef(z.number().describe("bye").min(3).optional().describe("hi")._def);
-  const pd2 = zParseDef(z.string().max(30).email().nullable().describe("hi there")._def);
-  const pd3 = zParseDef(z.number().nullish()._def);
+  const pd1 = zodParseDef(z.number().describe("bye").min(3).optional().describe("hi")._def);
+  const pd2 = zodParseDef(z.string().max(30).email().nullable().describe("hi there")._def);
+  const pd3 = zodParseDef(z.number().nullish()._def);
 
   it("has proper typeName", () => {
     expect(pd1.typeName).toBe(ZodFirstPartyTypeKind.ZodNumber);
@@ -66,10 +65,10 @@ describe("zParseDef()", () => {
         o2: z.null().nullish(),
         o3: z.object({ oo1: z.number().optional() }).nullable(),
       }),
-      u: zCreateUnionSchema(["first", "second"]),
+      u: zodCreateUnionSchema(["first", "second"]),
     })
     .optional();
-  const parsedDef = zParseDef(s._def);
+  const parsedDef = zodParseDef(s._def);
 
   it("is (almost) serializable", () => {
     expect(deepCheckTypeNotInObject(parsedDef)).toBeUndefined();

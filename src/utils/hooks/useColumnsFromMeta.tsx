@@ -1,37 +1,43 @@
 import { SearchOutlined } from "@ant-design/icons";
 import { Button, DatePicker, Input, InputNumber, Select, Tag, Tooltip, type InputRef } from "antd";
-import type { RangePickerProps } from "antd/es/date-picker";
+import { type RangePickerProps } from "antd/es/date-picker";
 import { type ColumnsType, type ColumnType } from "antd/es/table";
 import { type FilterConfirmProps } from "antd/es/table/interface";
 import { PresetColors } from "antd/es/theme/interface/presetColors";
 import { debounce, omit } from "radash";
 import { useCallback, useEffect, useMemo, useRef, useState, type Key, type Ref } from "react";
-import { type z } from "zod";
 import { DATE_TIME_FORMAT } from "~/data/configs";
+import {
+  TableColumnType,
+  type TableColumnFilter,
+  type TableColumnOptions,
+} from "~/data/schemas/table";
 import { colors } from "~/data/theme";
 import { dayjs } from "~/lib/dayjs";
 import { useQueryParams } from "~/utils/hooks/useQueryParams";
-import { jsonParse } from "~/utils/primitive";
+import { camelCasePrettify, jsonParse } from "~/utils/primitive";
 import { cn } from "~/utils/tailwind";
-import { ZodFirstPartyTypeKind, type ZodParsedDef } from "~/utils/zod";
 
 const renderers = {
-  [ZodFirstPartyTypeKind.ZodDate]: (parsedDef: z.ZodDateDef) => (text: string) => {
+  [TableColumnType.DATE]: (filter: TableColumnFilter[TableColumnType.DATE]) => (text: string) => {
     const d = dayjs(text);
     return <Tooltip title={d.format("YYYY-MM-DD HH:mm")}>{dayjs().from(d)}</Tooltip>;
   },
-  [ZodFirstPartyTypeKind.ZodNativeEnum]: (schemaDefVal: z.ZodNativeEnumDef) => (text: string) => {
-    const keys = Object.keys(schemaDefVal.values);
+  [TableColumnType.ENUM]: (filter: TableColumnFilter[TableColumnType.ENUM]) => (text: string) => {
+    const keys = filter.values;
     let i = keys.indexOf(text);
     i = i === -1 ? 0 : i;
     const d = dayjs(text);
     return <Tag color={PresetColors[i]}>{text}</Tag>;
   },
+  mono: (_filter: any) => (text: string) => {
+    return <pre>{text}</pre>;
+  },
 };
 
 const getInputComponent = {
-  [ZodFirstPartyTypeKind.ZodString]:
-    (parsedDef: z.ZodTypeDef) =>
+  [TableColumnType.STRING]:
+    (filter: TableColumnFilter[TableColumnType.STRING]) =>
     (
       ref: Ref<InputRef>,
       value: string | undefined,
@@ -50,8 +56,8 @@ const getInputComponent = {
           onPressEnter={doSearch}
         />
       ),
-  [ZodFirstPartyTypeKind.ZodEnum]:
-    (parsedDef: z.ZodTypeDef) =>
+  [TableColumnType.ENUM]:
+    (filter: TableColumnFilter[TableColumnType.ENUM]) =>
     (
       ref: Ref<InputRef>,
       value: string | undefined,
@@ -64,14 +70,14 @@ const getInputComponent = {
           allowClear
           value={value?.split(".")}
           onChange={(val) => setSelectedKeys(val?.length ? [val.join(".")] : [])}
-          options={Object.keys((parsedDef as { values: object }).values).map((el) => ({
+          options={(filter as { values: string[] }).values.map((el) => ({
             label: el,
             value: el,
           }))}
         ></Select>
       ),
-  [ZodFirstPartyTypeKind.ZodNumber]:
-    (parsedDef: z.ZodTypeDef) =>
+  [TableColumnType.NUMBER]:
+    (filter: TableColumnFilter[TableColumnType.NUMBER]) =>
     (
       ref: Ref<HTMLInputElement>,
       value: string | undefined,
@@ -89,8 +95,8 @@ const getInputComponent = {
           onPressEnter={doSearch}
         />
       ),
-  [ZodFirstPartyTypeKind.ZodDate]:
-    (parsedDef: z.ZodTypeDef) =>
+  [TableColumnType.DATE]:
+    (filter: TableColumnFilter[TableColumnType.DATE]) =>
     (
       ref: Ref<any>,
       value: string | undefined,
@@ -125,12 +131,15 @@ function joinStringArray(value: string | string[]) {
   return value.join(".");
 }
 
-export const useColumnsFromSchema = <
-  TDef extends {
-    [p: string]: ZodParsedDef<z.ZodTypeDef & { typeName?: string }>;
+export const useColumnsFromMeta = <
+  TData extends object,
+  TMeta extends {
+    [p: string]: TableColumnOptions | null;
+  } = {
+    [p: string]: TableColumnOptions | null;
   },
 >(
-  schemaDef: TDef,
+  columnsMeta: TMeta,
 ) => {
   const { queryParams, setQueryParams } = useQueryParams();
 
@@ -189,11 +198,17 @@ export const useColumnsFromSchema = <
   const getColumnSearchProps = useCallback(
     (dataIndex: string | string[]): ColumnType<object> => {
       const _dataIndex = joinStringArray(dataIndex);
-      const i = _dataIndex in schemaDef && schemaDef[_dataIndex].typeName;
+      const i =
+        _dataIndex in columnsMeta &&
+        columnsMeta[_dataIndex]?.filterable &&
+        columnsMeta[_dataIndex]?.type?.typeName;
       const inputComponent =
         i &&
         i in getInputComponent &&
-        getInputComponent[i as keyof typeof getInputComponent](schemaDef[_dataIndex]);
+        getInputComponent[i as keyof typeof getInputComponent](
+          columnsMeta[_dataIndex]?.type as any,
+        );
+
       return !inputComponent
         ? {}
         : {
@@ -272,21 +287,24 @@ export const useColumnsFromSchema = <
             // },
           };
     },
-    [searches, schemaDef],
+    [searches, columnsMeta],
   );
 
-  const columns: ColumnsType<object> = useMemo(
+  const columns: ColumnsType<TData> = useMemo(
     () =>
-      Object.keys(schemaDef).map((key) => ({
-        title: key,
+      Object.keys(columnsMeta).map((key) => ({
+        title: columnsMeta[key]?.title || camelCasePrettify(key),
         dataIndex: key,
-        render: (renderers as any)[schemaDef[key].typeName!]?.(schemaDef[key]),
-        sorter: true,
+        render: columnsMeta[key]?.mono
+          ? renderers.mono(columnsMeta[key]?.type)
+          : (renderers as any)[columnsMeta[key]?.type?.typeName as any]?.(columnsMeta[key]?.type) ??
+            String,
+        sorter: columnsMeta[key]?.sortable,
         ellipsis: true,
         className: "max-w-[200px]",
         ...getColumnSearchProps(key),
-      })),
-    [schemaDef],
+      })) as ColumnsType<TData>,
+    [columnsMeta],
   );
 
   return { columns, searchedColumns, searches };

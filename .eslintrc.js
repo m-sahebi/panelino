@@ -45,6 +45,8 @@ const config = {
         "@typescript-eslint/no-unsafe-assignment": "off",
         "@typescript-eslint/restrict-plus-operands": "off",
         "@typescript-eslint/ban-types": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/require-await": "off",
         "import/prefer-default-export": "off",
         "import/no-named-default": "off",
         "func-names": "off",

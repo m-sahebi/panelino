@@ -1,6 +1,6 @@
 import { useSearchParams } from "next/navigation";
 import { shake } from "radash";
-import { toNumber } from "~/utils/to-number";
+import { toNumber } from "~/utils/primitive";
 
 export function usePaginationQueryParams() {
   const { get } = useSearchParams();

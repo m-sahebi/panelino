@@ -2,33 +2,29 @@
 
 import { Table } from "antd";
 import { type SorterResult } from "antd/es/table/interface";
+import { useSession } from "next-auth/react";
 import { pick } from "radash";
 import { trpc, type RouterOutputs } from "~/lib/trpc";
-import { useColumnsFromSchema } from "~/utils/hooks/useColumnsFromSchema";
+import { useColumnsFromMeta } from "~/utils/hooks/useColumnsFromMeta";
 import { usePaginationQueryParams } from "~/utils/hooks/usePaginationQueryParams";
 import { useQueryParams } from "~/utils/hooks/useQueryParams";
-import { type ZodParsedDef } from "~/utils/zod";
 
-export function PostsPage({
-  dataSource,
-  dataSchema,
-}: {
-  dataSource: RouterOutputs["posts"]["getMany"];
-  dataSchema: {
-    [p: string]: ZodParsedDef;
-  };
-}) {
+export function PostsPage({ dataSource }: { dataSource: RouterOutputs["posts"]["getMany"] }) {
   const paginationParams = usePaginationQueryParams();
   const { queryParams, setQueryParams } = useQueryParams();
+  const { data: session } = useSession();
 
-  const { columns } = useColumnsFromSchema(dataSchema);
   const { data } = trpc.posts.getMany.useQuery(
     {
       ...paginationParams,
       ...(pick(queryParams, ["filter", "sort", "order"]) as any),
+      groupId: session?.user.groupId,
+      meta: true,
     },
     { initialData: dataSource },
   );
+
+  const { columns } = useColumnsFromMeta<typeof dataSource.items[number]>(data.meta?.columns || {});
 
   return (
     <Table
@@ -52,6 +48,7 @@ export function PostsPage({
       }}
       columns={columns}
       dataSource={data.items}
+      rowKey={(el) => el.id}
     ></Table>
   );
 }

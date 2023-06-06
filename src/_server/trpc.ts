@@ -7,13 +7,15 @@
  * need to use are documented accordingly near the end.
  */
 
+import "~/_server/utils/server-only";
+import { UserRole } from "@prisma/client";
 import { initTRPC } from "@trpc/server";
 import { type Session } from "next-auth";
 import superjson from "superjson";
 import { ZodError } from "zod";
+import { ROLE_PERMISSIONS, type PermissionGroup } from "~/_server/data/roles";
 import { getServerAuthSession } from "~/_server/lib/next-auth";
 import { prisma } from "~/_server/lib/prisma";
-import "~/_server/utils/server-only";
 
 /**
  * 1. CONTEXT
@@ -24,6 +26,7 @@ import "~/_server/utils/server-only";
  */
 type CreateContextOptions = {
   session: Session | null;
+  permissions: PermissionGroup;
 };
 
 /**
@@ -40,6 +43,7 @@ export const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
     prisma,
+    permissions: opts.permissions,
   };
 };
 
@@ -52,11 +56,16 @@ export const createInnerTRPCContext = (opts: CreateContextOptions) => {
 export const createTRPCContext = async () => {
   // Get the session from the server using the getServerSession wrapper function
   const session = await getServerAuthSession();
+  const permissions = ROLE_PERMISSIONS[session?.user.role || UserRole.GUEST] as PermissionGroup;
 
   return createInnerTRPCContext({
     session,
+    permissions,
   });
 };
+
+type RouterMeta = { minPermissions?: PermissionGroup };
+type RouterContext = typeof createTRPCContext;
 
 /**
  * 2. INITIALIZATION
@@ -65,19 +74,21 @@ export const createTRPCContext = async () => {
  * ZodErrors so that you get typesafety on the frontend if your procedure fails due to validation
  * errors on the backend.
  */
-
-const t = initTRPC.context<typeof createTRPCContext>().create({
-  transformer: superjson,
-  errorFormatter({ shape, error }) {
-    return {
-      ...shape,
-      data: {
-        ...shape.data,
-        zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
-      },
-    };
-  },
-});
+const t = initTRPC
+  .context<RouterContext>()
+  .meta<RouterMeta>()
+  .create({
+    transformer: superjson,
+    errorFormatter({ shape, error }) {
+      return {
+        ...shape,
+        data: {
+          ...shape.data,
+          zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
+        },
+      };
+    },
+  });
 
 /**
  * 3. ROUTER & PROCEDURE (THE IMPORTANT BIT)

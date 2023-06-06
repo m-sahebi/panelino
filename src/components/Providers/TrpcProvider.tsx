@@ -1,7 +1,7 @@
 "use client";
 
 import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactNode } from "react";
+import { type ReactNode } from "react";
 import { queryClient } from "~/lib/tanstack-query";
 import { trpcReact, trpcReactClient } from "~/lib/trpc";
 

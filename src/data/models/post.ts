@@ -6,10 +6,10 @@ export const PostModel = z.object({
   title: z.string(),
   content: z.string().nullish(),
   status: z.nativeEnum(PostStatus),
-  authorId: z.string().describe("relation.user"),
+  authorId: z.string().describe("relation=user"),
   createdAt: z.date(),
   updatedAt: z.date(),
   deletedAt: z.date().nullish(),
 });
 
-export type PostModelType = z.infer<typeof PostModel>;
+export type PostModel = z.infer<typeof PostModel>;

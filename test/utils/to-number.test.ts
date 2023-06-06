@@ -1,4 +1,4 @@
-import { toNumber } from "~/utils/to-number";
+import { toNumber } from "~/utils/primitive";
 
 describe("toNumber()", function () {
   it("with bad value", function () {

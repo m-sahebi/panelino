@@ -15,14 +15,14 @@ export default function NavBar() {
           {" | "}
           <Link href={"/dash"}>Dashboard</Link>
           {" | "}
-          <Link href="#" onClick={() => signOut()}>
+          <Link href="#" onClick={() => void signOut()}>
             Log Out
           </Link>
         </>
       ) : (
         <>
           {" | "}
-          <Link href="#" onClick={() => signIn()}>
+          <Link href="#" onClick={() => void signIn()}>
             Log in
           </Link>
         </>

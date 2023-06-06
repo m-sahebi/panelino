@@ -1,16 +1,12 @@
-import { diff } from "radash";
+import { diff, omit } from "radash";
 import { z, type ZodObject, type ZodRawShape } from "zod";
 import { postsRouter } from "~/_server/routers/posts";
 import { usersRouter } from "~/_server/routers/users";
 import { createTRPCRouter, publicProcedure } from "~/_server/trpc";
 import { type UnionKeys, type UnionToTuple } from "~/utils/type";
-import {
-  zCreateUnionSchema,
-  zParseDef,
-  type ZodMainDef,
-  type ZodParsedDef,
-} from "~/utils/zod";
+import { zodCreateUnionSchema } from "~/utils/zod";
 import "~/_server/utils/server-only";
+import { zerialize } from "zodex";
 
 /**
  * This is the primary router for your server.
@@ -34,7 +30,7 @@ type _RouterNames = keyof _Routers;
 export const schemasRouter = createTRPCRouter({
   getRoutes: publicProcedure.query(() => _routerNames),
   getRouteMethods: publicProcedure
-    .input(z.object({ route: zCreateUnionSchema(_routerNames) }))
+    .input(z.object({ route: zodCreateUnionSchema(_routerNames) }))
     .query(
       ({ input: { route } }) =>
         diff(Object.keys(_routers[route]), excludedMethods) as UnionToTuple<
@@ -66,12 +62,13 @@ export const schemasRouter = createTRPCRouter({
     .query(({ input: { name, method }, ctx }) => {
       const methodDef = (_routers[name]._def.procedures as any)[method]._def;
 
-      const inDef = (methodDef.inputs[0] as ZodObject<ZodRawShape>)._def;
-      const outDef = (methodDef.output! as ZodObject<ZodRawShape>)._def;
-
+      const input = zerialize(methodDef.inputs[0] as ZodObject<ZodRawShape>);
+      const output = zerialize(
+        z.object(omit(methodDef.output.shape, ["meta"])) as ZodObject<ZodRawShape>,
+      );
       return {
-        output: zParseDef(outDef) as unknown as ZodParsedDef<ZodMainDef>,
-        input: zParseDef(inDef) as unknown as ZodParsedDef<ZodMainDef>,
+        output,
+        input,
         isMutation: !!methodDef.mutation,
       };
     }),

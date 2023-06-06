@@ -1,6 +1,5 @@
 import { omit, pick, shake } from "radash";
-import { z, ZodFirstPartyTypeKind, type Primitive, type ZodTypeDef } from "zod";
-import { ZRes } from "~/data/schemas/z-res";
+import { z, ZodFirstPartyTypeKind, type Primitive } from "zod";
 import { type Merge, type UnionToTuple } from "~/utils/type";
 
 export type ZodPrimitiveDef =
@@ -11,75 +10,33 @@ export type ZodPrimitiveDef =
   | z.ZodSymbolDef
   | z.ZodDateDef;
 
-export type ZodMainDef =
-  | ZodPrimitiveDef
-  | z.ZodNativeEnumDef
-  | z.ZodEnumDef
-  | z.ZodUnionDef;
+export type ZodMainDef = ZodPrimitiveDef | z.ZodNativeEnumDef | z.ZodEnumDef | z.ZodUnionDef;
 
 export { ZodFirstPartyTypeKind };
 
-export function zMakeRes<
-  TShape extends z.ZodRawShape,
-  TObject extends z.ZodArray<z.ZodObject<TShape>>,
->(
-  dataSchema: TObject,
-): z.ZodObject<
-  typeof ZRes.shape & {
-    items: TObject;
-  }
->;
-export function zMakeRes<
-  TShape extends z.ZodRawShape,
-  TObject extends z.ZodObject<TShape>,
->(
-  dataSchema: TObject,
-): z.ZodObject<
-  typeof ZRes.shape & {
-    items: TObject;
-  }
->;
-export function zMakeRes<
-  TShape extends z.ZodRawShape,
-  TObject extends z.ZodObject<TShape>,
->(dataSchema: TObject) {
-  return ZRes.extend({ items: dataSchema });
-}
+// export type ZodInnerDef<TDef extends z.ZodTypeDef> = TDef extends {
+//   innerType: { _def: ZodTypeDef };
+// }
+//   ? ZodInnerDef<TDef["innerType"]["_def"]>
+//   : TDef extends {
+//       shape: () => { [p: string]: { _def: ZodTypeDef } };
+//     }
+//   ? {
+//       [key in keyof ReturnType<TDef["shape"]>]: ZodInnerDef<ReturnType<TDef["shape"]>[key]["_def"]>;
+//     }
+//   : TDef;
+//
+// export function zGetSchemaInnerDef<TOutput, TDef extends z.ZodTypeDef>(
+//   zodSchema: z.ZodSchema<TOutput, TDef>,
+// ) {
+//   let def = zodSchema._def;
+//   while ((def as any).innerType) {
+//     def = (def as any).innerType._def;
+//   }
+//   return def as ZodInnerDef<TDef>;
+// }
 
-export function zMakeArrayRes<TShape extends z.ZodRawShape>(
-  shape: z.ZodObject<TShape> | z.ZodArray<z.ZodObject<TShape>>,
-) {
-  return ZRes.extend({ data: shape });
-}
-
-export type ZodInnerDef<TDef extends z.ZodTypeDef> = TDef extends {
-  innerType: { _def: ZodTypeDef };
-}
-  ? ZodInnerDef<TDef["innerType"]["_def"]>
-  : TDef extends {
-      shape: () => { [p: string]: { _def: ZodTypeDef } };
-    }
-  ? {
-      [key in keyof ReturnType<TDef["shape"]>]: ZodInnerDef<
-        ReturnType<TDef["shape"]>[key]["_def"]
-      >;
-    }
-  : TDef;
-
-export function zGetSchemaInnerDef<TOutput, TDef extends z.ZodTypeDef>(
-  zodSchema: z.ZodSchema<TOutput, TDef>,
-) {
-  let def = zodSchema._def;
-  while ((def as any).innerType) {
-    def = (def as any).innerType._def;
-  }
-  return def as ZodInnerDef<TDef>;
-}
-
-export type ZodParsedDef<TDef extends z.ZodTypeDef = z.ZodTypeDef> = Omit<
-  TDef,
-  "errorMap"
-> & {
+export type ZodParsedDef<TDef extends z.ZodTypeDef = z.ZodTypeDef> = Omit<TDef, "errorMap"> & {
   keys?: string[];
   obj?: { [p: string]: ZodParsedDef<TDef> };
   arr?: ZodParsedDef<TDef>;
@@ -140,7 +97,7 @@ export type ZodParseDef<TDef extends ZodParsedDef> = TDef extends {
     }
   : TDef;
 
-function _zParseDef<
+function _zodParseDef<
   TDef extends z.ZodTypeDef & {
     keys?: string[];
     obj?: { [p: string]: TDef };
@@ -150,7 +107,7 @@ function _zParseDef<
     nullish?: true;
   },
 >(def: TDef): any {
-  const get = _zParseDef as any;
+  const get = _zodParseDef as any;
   const d = def as any;
   if ("innerType" in def) {
     const optional = d.typeName === ZodFirstPartyTypeKind.ZodOptional || def.optional;
@@ -206,32 +163,29 @@ function _zParseDef<
   return def as any;
 }
 
-export function zParseDef<TDef extends z.ZodTypeDef = z.ZodTypeDef>(def: TDef) {
-  return _zParseDef(def) as ZodParseDef<TDef>;
+export function zodParseDef<TDef extends z.ZodTypeDef = z.ZodTypeDef>(def: TDef) {
+  return _zodParseDef(def) as ZodParseDef<TDef>;
 }
 
 type MappedZodLiterals<T extends readonly Primitive[]> = {
   -readonly [K in keyof T]: z.ZodLiteral<T[K]>;
 };
 
-function createManyUnion<A extends Readonly<[Primitive, Primitive, ...Primitive[]]>>(
+////
+function zodCreateManyUnion<A extends Readonly<[Primitive, Primitive, ...Primitive[]]>>(
   literals: A,
 ) {
   return z.union(literals.map((value) => z.literal(value)) as MappedZodLiterals<A>);
 }
 
-function zCreateUnionSchema<T extends readonly []>(values: T): z.ZodNever;
-function zCreateUnionSchema<T extends readonly [Primitive]>(
-  values: T,
-): z.ZodLiteral<T[0]>;
-function zCreateUnionSchema<T extends readonly [Primitive, Primitive, ...Primitive[]]>(
+function zodCreateUnionSchema<T extends readonly []>(values: T): z.ZodNever;
+function zodCreateUnionSchema<T extends readonly [Primitive]>(values: T): z.ZodLiteral<T[0]>;
+function zodCreateUnionSchema<T extends readonly [Primitive, Primitive, ...Primitive[]]>(
   values: T,
 ): z.ZodUnion<MappedZodLiterals<T>>;
-function zCreateUnionSchema<T extends readonly Primitive[]>(values: T) {
+function zodCreateUnionSchema<T extends readonly Primitive[]>(values: T) {
   if (values.length > 1) {
-    return createManyUnion(
-      values as typeof values & [Primitive, Primitive, ...Primitive[]],
-    );
+    return zodCreateManyUnion(values as typeof values & [Primitive, Primitive, ...Primitive[]]);
   }
   if (values.length === 1) {
     return z.literal(values[0]);
@@ -242,4 +196,4 @@ function zCreateUnionSchema<T extends readonly Primitive[]>(values: T) {
   throw new Error("Array must have a length");
 }
 
-export { zCreateUnionSchema };
+export { zodCreateUnionSchema };

@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { ZRes } from "~/data/schemas/z-res";
+import { Res } from "~/data/schemas/res";
 
-export const ZPaginatedRes = z
+export const PaginatedRes = z
   .object({
     total: z.number(),
     page: z.number(),
     pageSize: z.number(),
   })
-  .extend(ZRes.shape);
+  .extend(Res.shape);

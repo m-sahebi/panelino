@@ -1,6 +1,6 @@
-type UnionToIntersectionFn<T> = (
-  T extends unknown ? (k: () => T) => void : never
-) extends (k: infer Intersection) => void
+type UnionToIntersectionFn<T> = (T extends unknown ? (k: () => T) => void : never) extends (
+  k: infer Intersection,
+) => void
   ? Intersection
   : never;
 type GetUnionLast<T> = UnionToIntersectionFn<T> extends () => infer Last ? Last : never;
