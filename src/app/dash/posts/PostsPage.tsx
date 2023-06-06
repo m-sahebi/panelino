@@ -1,34 +1,31 @@
 "use client";
 
 import { Table } from "antd";
-import { type SorterResult } from "antd/es/table/interface";
+import { useSession } from "next-auth/react";
 import { pick } from "radash";
 import { trpc, type RouterOutputs } from "~/lib/trpc";
-import { useColumnsFromSchema } from "~/utils/hooks/useColumnsFromSchema";
+import { useAntTableOnChange } from "~/utils/hooks/useAntTableOnChange";
+import { useColumnsFromMeta } from "~/utils/hooks/useColumnsFromMeta";
 import { usePaginationQueryParams } from "~/utils/hooks/usePaginationQueryParams";
 import { useQueryParams } from "~/utils/hooks/useQueryParams";
-import { type ZodParsedDef } from "~/utils/zod";
 
-export function PostsPage({
-  dataSource,
-  dataSchema,
-}: {
-  dataSource: RouterOutputs["posts"]["getMany"];
-  dataSchema: {
-    [p: string]: ZodParsedDef;
-  };
-}) {
+export function PostsPage({ dataSource }: { dataSource: RouterOutputs["posts"]["getMany"] }) {
   const paginationParams = usePaginationQueryParams();
-  const { queryParams, setQueryParams } = useQueryParams();
+  const { queryParams } = useQueryParams();
+  const { data: session } = useSession();
 
-  const { columns } = useColumnsFromSchema(dataSchema);
   const { data } = trpc.posts.getMany.useQuery(
     {
       ...paginationParams,
-      ...(pick(queryParams, ["filter", "sort", "order"]) as any),
+      ...(pick(queryParams, ["search", "filter", "sort", "order"]) as any),
+      groupId: session?.user.groupId,
+      meta: "TRUE",
     },
     { initialData: dataSource },
   );
+  type Item = typeof dataSource.items[number];
+  const { columns } = useColumnsFromMeta<Item>(data.meta?.columns || {});
+  const { handleTableChange } = useAntTableOnChange<Item>();
 
   return (
     <Table
@@ -38,20 +35,10 @@ export function PostsPage({
         pageSize: dataSource.pageSize,
         total: dataSource.total,
       }}
-      onChange={({ current, pageSize, total }, filters, sorter, { action }) => {
-        if (action === "paginate") setQueryParams({ page: current, pageSize });
-        if (action === "sort") {
-          const s = sorter as SorterResult<object>;
-          if (!s.column) setQueryParams({ sort: undefined, order: undefined });
-          else
-            setQueryParams({
-              sort: s.field as string,
-              order: { ascend: "asc", descend: "desc" }[s.order as string],
-            });
-        }
-      }}
+      onChange={handleTableChange}
       columns={columns}
       dataSource={data.items}
-    ></Table>
+      rowKey={(el) => el.id}
+    />
   );
 }

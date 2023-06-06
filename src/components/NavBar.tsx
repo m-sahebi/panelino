@@ -9,20 +9,20 @@ export default function NavBar() {
 
   return (
     <nav>
-      <Link href={"/"}>Home</Link>
+      <Link href="/">Home</Link>
       {session.data ? (
         <>
           {" | "}
-          <Link href={"/dash"}>Dashboard</Link>
+          <Link href={{ pathname: "/dash" }}>Dashboard</Link>
           {" | "}
-          <Link href="#" onClick={() => signOut()}>
+          <Link href="#" onClick={() => void signOut()}>
             Log Out
           </Link>
         </>
       ) : (
         <>
           {" | "}
-          <Link href="#" onClick={() => signIn()}>
+          <Link href="#" onClick={() => void signIn()}>
             Log in
           </Link>
         </>

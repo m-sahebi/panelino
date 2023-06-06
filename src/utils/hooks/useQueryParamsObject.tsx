@@ -3,5 +3,6 @@ import { useMemo } from "react";
 
 export function useQueryParamsObject() {
   const sp = useSearchParams();
-  return useMemo(() => Object.fromEntries(sp), [sp.toString()]);
+  const queryParams = useMemo(() => Object.fromEntries(sp), [sp]);
+  return { queryParams };
 }

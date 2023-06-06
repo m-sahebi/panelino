@@ -1,8 +1,7 @@
-"use client";
+import { getServerAuthSession } from "~/_server/lib/next-auth";
+import JsonPrettied from "~/components/JsonPrettied";
 
-import { useSession } from "next-auth/react";
-
-export default function DashPage() {
-  const session = useSession();
-  return <pre>{JSON.stringify(session.data, null, 2)}</pre>;
+export default async function DashPage() {
+  const session = await getServerAuthSession();
+  return <JsonPrettied object={session} />;
 }

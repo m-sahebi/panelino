@@ -9,8 +9,7 @@ import { IS_SERVER } from "~/data/configs";
 // suppress useLayoutEffect warnings when running outside a browser
 if (!process.browser) React.useLayoutEffect = React.useEffect;
 
-const initDarkMode =
-  !IS_SERVER && window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+const initDarkMode = !IS_SERVER && window.matchMedia?.("(prefers-color-scheme: dark)").matches;
 if (initDarkMode) document.documentElement.classList.add("dark");
 
 export function AntdProvider({ children }: { children: React.ReactNode }) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Session } from "next-auth";
+import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import React from "react";
 import { AntdProvider } from "~/components/Providers/AntdProvider";
@@ -21,3 +21,19 @@ export function Providers({
     </TrpcProvider>
   );
 }
+
+/// TODO antd findDomNode console error workaround
+// eslint-disable-next-line
+const consoleError = console.error.bind(console);
+// eslint-disable-next-line
+console.error = (errObj, ...args) => {
+  if (
+    (process.env.NODE_ENV === "development" &&
+      // typeof errObj.message === "string" &&
+      args.includes("findDOMNode")) ||
+    String(errObj).startsWith("Warning: Extra attributes from the server:")
+  ) {
+    return;
+  }
+  consoleError(errObj, ...args);
+};

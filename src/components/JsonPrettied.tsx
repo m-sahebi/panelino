@@ -1,3 +1,5 @@
+import { cn } from "~/utils/tailwind";
+
 function jsonPrettify(object: object) {
   let json = JSON.stringify(object, null, 2);
   json = json.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -8,20 +10,26 @@ function jsonPrettify(object: object) {
       if (/^"/.test(match)) {
         if (/:$/.test(match)) {
           cls = "text-daw-blue-700"; /// key
+          match = match.slice(1).slice(0, -2) + ":";
         } else {
           cls = "text-daw-green-700"; /// string
         }
       } else if (/true|false/.test(match)) {
         cls = "text-daw-fuchsia-600"; /// bool
       } else if (/null/.test(match)) {
-        cls = "text-daw-gray-400"; /// null
+        cls = "text-daw-gray-500"; /// null
       }
       return `<span class="${cls}">${match}</span>`;
     },
   );
 }
 
-type JsonPrettiedProps = { object: object };
-export default function JsonPrettied({ object }: JsonPrettiedProps) {
-  return <pre dangerouslySetInnerHTML={{ __html: jsonPrettify(object) }}></pre>;
+type JsonPrettiedProps = { object: object | null | undefined; className?: string };
+export default function JsonPrettied({ object, className = "" }: JsonPrettiedProps) {
+  return (
+    <pre
+      className={cn("whitespace-pre-wrap", className)}
+      dangerouslySetInnerHTML={{ __html: object ? jsonPrettify(object) : String(object) }}
+    />
+  );
 }

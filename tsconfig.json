@@ -35,6 +35,7 @@
     "**/*.ts",
     "**/*.tsx",
     "**/*.js",
+    "**/*.cjs",
     ".next/types/**/*.ts",
     "src/data/types/*.d.ts"
   ],

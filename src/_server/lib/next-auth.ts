@@ -1,24 +1,20 @@
+import "~/_server/utils/server-only";
 import crypto from "crypto";
-import NextAuth, {
-  getServerSession,
-  type AuthOptions,
-  type DefaultSession,
-} from "next-auth";
+import { UserRole } from "@prisma/client";
+import NextAuth, { getServerSession, type AuthOptions, type DefaultSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GithubProvider from "next-auth/providers/github";
+import { pick } from "radash";
 import { prisma } from "~/_server/lib/prisma";
 import { verifyPassword } from "~/_server/utils/crypto";
 import { IS_DEV } from "~/data/configs";
-import "~/_server/utils/server-only";
 
 declare module "next-auth" {
-  /**
-   * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
-   */
   interface Session {
     user: {
-      /** The user's postal address. */
       id: string;
+      role: UserRole;
+      groupId: string | null;
     } & DefaultSession["user"];
   }
 }
@@ -26,6 +22,8 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     id: string;
+    role: UserRole;
+    groupId: string | null;
     accessToken?: string;
   }
 }
@@ -33,13 +31,16 @@ declare module "next-auth/jwt" {
 export const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   session: { strategy: "jwt" },
+  pages: {
+    signIn: "/auth/login",
+    error: "/auth/login",
+  },
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_ID!,
       clientSecret: process.env.GITHUB_SECRET!,
     }),
     CredentialsProvider({
-      // The name to display on the sign in form (e.g. 'Sign in with...')
       name: "Credentials",
       credentials: {
         email: {
@@ -58,9 +59,8 @@ export const authOptions: AuthOptions = {
           });
 
           if (user?.password) {
-            if (await verifyPassword(credentials?.password || "", user.password))
-              return user as any;
-          } else if (IS_DEV) return user as any;
+            if (await verifyPassword(credentials?.password || "", user.password)) return user;
+          } else if (IS_DEV) return user;
         } catch (e: any) {
           // eslint-disable-next-line no-console
           console.error(e);
@@ -70,9 +70,6 @@ export const authOptions: AuthOptions = {
       },
     }),
   ],
-  pages: {
-    signIn: "/auth/login",
-  },
   callbacks: {
     async signIn({ account, profile, user }) {
       try {
@@ -84,13 +81,13 @@ export const authOptions: AuthOptions = {
               email: user.email,
             },
           });
-
           if (searchedUser?.deletedAt) return false;
 
           if (!searchedUser)
             await prisma.user.create({
               data: {
                 email: user.email,
+                role: UserRole.USER,
                 name: user.name,
                 githubId: user.id,
               },
@@ -121,25 +118,25 @@ export const authOptions: AuthOptions = {
         const mainUser = (await prisma.user.findUnique({
           where: { email: user.email! },
         }))!;
+        if (!mainUser)
+          throw new Error(`Can't find user with email ${user.email!} when creating JWT`);
 
-        newToken.name = mainUser.name;
-        newToken.id = mainUser.id;
-        newToken.accessToken = account.access_token;
-        return newToken;
+        if (account.access_token) newToken.accessToken = account.access_token;
+
+        return { ...newToken, ...pick(mainUser, ["id", "name", "role", "groupId"]) };
       }
       return token;
     },
     async session({ session, token, user }) {
-      const newSession = {
+      return {
         ...session,
-        user: { ...session.user, id: token.id },
+        user: { ...session.user, ...pick(token, ["id", "role", "groupId"]) },
       };
-      return newSession;
     },
   },
 };
 export default NextAuth(authOptions);
 
-export const getServerAuthSession = () => {
+export function getServerAuthSession() {
   return getServerSession(authOptions);
-};
+}

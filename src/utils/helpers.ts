@@ -1,5 +1,5 @@
 import { MAX_PAGE_SIZE, PAGE_SIZE } from "~/data/configs";
-import { toNumber } from "~/utils/to-number";
+import { toNumber } from "~/utils/primitive";
 
 export function paginate(
   {

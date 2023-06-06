@@ -1,17 +1,31 @@
 import { TRPCError } from "@trpc/server";
+import { type Permission } from "~/_server/data/roles";
 import { publicProcedure, trpcMiddleware } from "~/_server/trpc";
 
 /**
  * Reusable middleware that enforces users are logged in before running the procedure.
  */
-const authMiddleware = trpcMiddleware(({ ctx, next }) => {
+const authMiddleware = trpcMiddleware(({ ctx, next, meta }) => {
   if (!ctx.session || !ctx.session.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
+
+  const minPerms = meta?.minPermissions;
+  const permissions = ctx.permissions;
+
+  if (
+    minPerms &&
+    Object.keys(minPerms).some(
+      (perm) => minPerms[perm as Permission]! > (permissions[perm as Permission] ?? 0),
+    )
+  )
+    throw new TRPCError({ code: "FORBIDDEN" });
+
   return next({
     ctx: {
       // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
+      session: ctx.session,
+      permissions,
     },
   });
 });

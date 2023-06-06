@@ -2,15 +2,15 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "~/_server/procedures/protected";
 import { createTRPCRouter, publicProcedure } from "~/_server/trpc";
-import { paginate } from "~/_server/utils/paginate";
+import { makeResSchema, parseFilter } from "~/_server/utils/helpers";
 import { UserModel } from "~/data/models/user";
-import { ZId } from "~/data/schemas/z-id";
-import { ZPaginatedReq } from "~/data/schemas/z-paginated-req";
-import { ZPaginatedRes } from "~/data/schemas/z-paginated-res";
-import { jsonParse } from "~/utils/json-parse";
-import { parseFilter } from "~/utils/query-filter";
+import { Id } from "~/data/schemas/id";
+import { PaginatedReq } from "~/data/schemas/paginated-req";
+import { PaginatedRes } from "~/data/schemas/paginated-res";
+import { paginate } from "~/utils/helpers";
+import { jsonParse } from "~/utils/primitive";
 import { type UnionToTuple } from "~/utils/type";
-import { zCreateUnionSchema, zMakeRes, zParseDef } from "~/utils/zod";
+import { zodCreateUnionSchema, zodParseDef } from "~/utils/zod";
 
 const UserModelNoDeletedAt = UserModel.omit({ deletedAt: true });
 const UserModelNoMeta = UserModelNoDeletedAt.omit({
@@ -19,17 +19,15 @@ const UserModelNoMeta = UserModelNoDeletedAt.omit({
 });
 const UserModelNoMetaAndId = UserModelNoMeta.omit({ id: true });
 
-const getManyOutputSchema = zMakeRes(z.array(UserModelNoMeta)).merge(ZPaginatedRes);
-const getManyOutputItemsParsedDef = zParseDef<z.ZodTypeDef>(
+const getManyOutputSchema = makeResSchema(z.array(UserModelNoMeta)).merge(PaginatedRes);
+const getManyOutputItemsParsedDef = zodParseDef<z.ZodTypeDef>(
   getManyOutputSchema.shape.items.element._def,
 );
 
 export const usersRouter = createTRPCRouter({
   getById: publicProcedure
-    .input(ZId)
-    .output(
-      zMakeRes(UserModel.omit({ createdAt: true, updatedAt: true, deletedAt: true })),
-    )
+    .input(Id)
+    .output(makeResSchema(UserModel.omit({ createdAt: true, updatedAt: true, deletedAt: true })))
     .query(async ({ input: { id }, ctx: { prisma, session } }) => {
       const user = await prisma.user.findFirst({
         where: { id, deletedAt: null },
@@ -41,9 +39,7 @@ export const usersRouter = createTRPCRouter({
     }),
   getByEmail: publicProcedure
     .input(z.object({ email: z.string().email() }))
-    .output(
-      zMakeRes(UserModel.omit({ createdAt: true, updatedAt: true, deletedAt: true })),
-    )
+    .output(makeResSchema(UserModel.omit({ createdAt: true, updatedAt: true, deletedAt: true })))
     .query(async ({ input: { email }, ctx: { prisma, session } }) => {
       const user = await prisma.user.findFirst({
         where: { email, deletedAt: null },
@@ -55,15 +51,15 @@ export const usersRouter = createTRPCRouter({
     }),
   getMany: publicProcedure
     .input(
-      ZPaginatedReq.merge(
+      PaginatedReq.merge(
         z
           .object({
-            sort: zCreateUnionSchema(
+            sort: zodCreateUnionSchema(
               Object.keys(UserModelNoMeta.shape) as UnionToTuple<
-                keyof (typeof UserModelNoMeta)["shape"]
+                keyof typeof UserModelNoMeta["shape"]
               >,
             ),
-            order: zCreateUnionSchema(["asc", "desc"] as const),
+            order: zodCreateUnionSchema(["asc", "desc"] as const),
             filter: z.string(),
           })
           .partial(),
@@ -91,7 +87,7 @@ export const usersRouter = createTRPCRouter({
     }),
   create: protectedProcedure
     .input(UserModelNoMetaAndId)
-    .output(zMakeRes(UserModelNoMeta))
+    .output(makeResSchema(UserModelNoMeta))
     .mutation(async ({ input: { ...newUser }, ctx: { prisma, session } }) => {
       const user = await prisma.user.create({
         data: newUser,
@@ -101,7 +97,7 @@ export const usersRouter = createTRPCRouter({
     }),
   update: protectedProcedure
     .input(UserModelNoMeta.partial().required({ id: true }))
-    .output(zMakeRes(UserModelNoMeta))
+    .output(makeResSchema(UserModelNoMeta))
     .mutation(async ({ input: { ...updatedUser }, ctx: { prisma, session } }) => {
       const user = await prisma.user.findFirst({
         where: { id: updatedUser.id, deletedAt: null },
@@ -117,8 +113,8 @@ export const usersRouter = createTRPCRouter({
       };
     }),
   delete: protectedProcedure
-    .input(ZId)
-    .output(zMakeRes(UserModelNoMeta))
+    .input(Id)
+    .output(makeResSchema(UserModelNoMeta))
     .mutation(async ({ input: { id }, ctx: { prisma, session } }) => {
       const user = await prisma.user.updateMany({
         where: { id, deletedAt: null },
