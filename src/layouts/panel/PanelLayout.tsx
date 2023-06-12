@@ -14,13 +14,12 @@ import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 import React, { useState } from "react";
+import { GlobalSearchProvider, useGlobalSearch } from "~/components/GlobalSearch";
 import { ROLE_META } from "~/data/roles";
 import DashTitle from "~/layouts/panel/DashTitle";
 import { getAntMenuItem, type AntMenuItem } from "~/utils/ant";
 import { useSessionStrict } from "~/utils/hooks/useSessionStrict";
 import { cn } from "~/utils/tailwind";
-
-type PanelLayoutProps = { children: React.ReactNode };
 
 const items: AntMenuItem[] = [
   getAntMenuItem("Home", "home", <MailOutlined />),
@@ -29,7 +28,9 @@ const items: AntMenuItem[] = [
   getAntMenuItem("Table", "table", <SettingOutlined />),
 ];
 
-export default function PanelLayout({ children }: PanelLayoutProps) {
+type PanelLayoutProps = { children: React.ReactNode };
+function InnerPanelLayout({ children }: PanelLayoutProps) {
+  const { toggleGlobalSearch } = useGlobalSearch();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const segment = useSelectedLayoutSegment()?.split("/")[0] || "home";
   const router = useRouter();
@@ -42,7 +43,7 @@ export default function PanelLayout({ children }: PanelLayoutProps) {
       <aside
         className={cn(
           "sticky top-0 flex h-screen w-64 flex-col items-center py-4",
-          "gap-3 transition-all",
+          "gap-3 transition-all duration-500",
           {
             "w-20": isCollapsed,
             "px-3": !isCollapsed,
@@ -124,14 +125,15 @@ export default function PanelLayout({ children }: PanelLayoutProps) {
               "mx-1 flex w-auto cursor-pointer items-center justify-center self-stretch",
             )}
             type={isCollapsed ? "text" : "default"}
-            icon={<SearchOutlined />}
+            icon={<SearchOutlined className={cn({ "text-daw-neutral-400": !isCollapsed })} />}
+            onClick={toggleGlobalSearch}
           >
             {!isCollapsed && (
-              <div className="w-full text-start">
-                <span className="text-daw-neutral-400">&nbsp;&nbsp;Search...</span>
-                <Typography.Text keyboard className="-mt-0.25 float-right">
-                  /
-                </Typography.Text>
+              <div className="flex w-full items-center text-start">
+                <span className="float-left flex-1 truncate text-daw-neutral-400">
+                  &nbsp;&nbsp;Search...
+                </span>
+                <Typography.Text keyboard>/</Typography.Text>
               </div>
             )}
           </Button>
@@ -158,5 +160,13 @@ export default function PanelLayout({ children }: PanelLayoutProps) {
         {children}
       </main>
     </div>
+  );
+}
+
+export function PanelLayout({ children, ...p }: PanelLayoutProps) {
+  return (
+    <GlobalSearchProvider>
+      <InnerPanelLayout {...p}>{children}</InnerPanelLayout>
+    </GlobalSearchProvider>
   );
 }

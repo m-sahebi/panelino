@@ -1,5 +1,5 @@
 import React from "react";
-import PanelLayout from "~/layouts/panel/PanelLayout";
+import { PanelLayout } from "~/layouts/panel/PanelLayout";
 
 export const metadata = {
   title: "Home",

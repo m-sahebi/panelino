@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import "~/assets/styles/globals.css";
 
 export const metadata = {
@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return children;
 }

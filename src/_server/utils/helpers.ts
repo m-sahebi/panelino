@@ -1,9 +1,11 @@
 import { z } from "zod";
-import { type SzEnum, type SzObject, type SzType } from "zodex";
+import { zerialize, type SzEnum, type SzObject, type SzType } from "zodex";
 import { DATE_TIME_FORMAT } from "~/data/configs";
+import { PaginatedRes } from "~/data/schemas/paginated-res";
 import { Res } from "~/data/schemas/res";
 import { PrimitiveType, TableColumnOptions } from "~/data/schemas/table";
 import { dayjs } from "~/lib/dayjs";
+import { assert } from "~/utils/primitive";
 
 export function makeResSchema<
   TShape extends z.ZodRawShape,
@@ -28,10 +30,9 @@ export function makeResSchema<TShape extends z.ZodRawShape, TObject extends z.Zo
   return Res.extend({ items: dataSchema });
 }
 
-export function makeResMeta<
-  TShape extends [string, string, ...string[]],
-  TEnum extends z.ZodEnum<TShape>,
->(columnsNames: TEnum) {
+export function makeResMeta<TShape extends [string, ...string[]], TEnum extends z.ZodEnum<TShape>>(
+  columnsNames: TEnum,
+) {
   return z.object({
     meta: z
       .object({
@@ -75,4 +76,39 @@ export function parseFilter<T extends Record<string, SzType>>(
     }
   });
   return where;
+}
+
+export function makeOptionsForMethodGetMany<
+  TShape extends Record<string, z.ZodTypeAny>,
+  TColMeta extends { [p in keyof TShape]?: TableColumnOptions | null },
+>(
+  outputItemsSchema: z.ZodObject<TShape>,
+  generallySearchableColumns: (keyof TColMeta)[],
+  columnsMeta: TColMeta,
+) {
+  const sortableColumns: (keyof TColMeta)[] = [];
+  const filterableColumns: (keyof TColMeta)[] = [];
+  const keys = Object.keys(columnsMeta) as (keyof TColMeta)[];
+
+  keys.forEach((k) => {
+    const m = columnsMeta[k];
+    if (m?.filterable) filterableColumns.push(k);
+    if (m?.sortable) sortableColumns.push(k);
+  });
+
+  const [k1, ...k2] = keys;
+  assert(typeof k1 === "string");
+
+  return {
+    columnsMeta,
+    sortableColumns,
+    filterableColumns,
+    generallySearchableColumns,
+    outputSchema: makeResSchema(z.array(outputItemsSchema))
+      .merge(PaginatedRes)
+      .merge(
+        makeResMeta(z.enum([k1, ...(k2 as unknown as Exclude<keyof TColMeta, number | symbol>[])])),
+      ),
+    outputItemsSchemaParsed: zerialize(outputItemsSchema),
+  };
 }

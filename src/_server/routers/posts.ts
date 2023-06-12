@@ -1,16 +1,14 @@
 import { PostStatus, type Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-import { listify, mapValues, objectify } from "radash";
+import { listify, mapValues, objectify, pick } from "radash";
 import { z } from "zod";
-import { zerialize } from "zodex";
 import { AccessLevel, Permission } from "~/_server/data/roles";
 import { protectedProcedure } from "~/_server/procedures/protected";
 import { createTRPCRouter, publicProcedure } from "~/_server/trpc";
-import { makeResMeta, makeResSchema, parseFilter } from "~/_server/utils/helpers";
+import { makeOptionsForMethodGetMany, makeResSchema, parseFilter } from "~/_server/utils/helpers";
 import { PostModel } from "~/data/models/post";
 import { Id } from "~/data/schemas/id";
 import { PaginatedReq } from "~/data/schemas/paginated-req";
-import { PaginatedRes } from "~/data/schemas/paginated-res";
 import { TableColumnType } from "~/data/schemas/table";
 import { paginate } from "~/utils/helpers";
 import { jsonParse } from "~/utils/primitive";
@@ -22,13 +20,44 @@ const PostModelNoMeta = PostModelNoDeletedAt.omit({
 });
 const PostModelNoMetaAndId = PostModelNoMeta.omit({ id: true });
 
-const GetManyOutput = makeResSchema(z.array(PostModelNoDeletedAt))
-  .merge(PaginatedRes)
-  .merge(makeResMeta(PostModelNoDeletedAt.keyof()));
-const GetManyOutputItemsParsed = zerialize(GetManyOutput.shape.items.element);
-
-const generalSearchableColumns = ["id", "title", "content"];
-// const filterableColumns: []
+const opt = makeOptionsForMethodGetMany(PostModelNoDeletedAt, ["id", "title", "content"], {
+  ...mapValues(PostModelNoDeletedAt.shape, () => null),
+  id: {
+    ...{ type: `${TableColumnType.STRING}` },
+    title: "id",
+    filterable: true,
+    sortable: true,
+    mono: true,
+  },
+  title: {
+    ...{ type: TableColumnType.STRING },
+    filterable: true,
+    sortable: true,
+  },
+  content: {
+    ...{ type: TableColumnType.STRING },
+    filterable: true,
+    sortable: true,
+  },
+  status: {
+    ...{
+      type: TableColumnType.ENUM,
+      values: listify(PostStatus, (key, val) => val),
+    },
+    filterable: true,
+    sortable: true,
+  },
+  createdAt: {
+    ...{ type: TableColumnType.DATE },
+    filterable: true,
+    sortable: true,
+  },
+  updatedAt: {
+    ...{ type: TableColumnType.DATE },
+    filterable: true,
+    sortable: true,
+  },
+});
 
 export const postsRouter = createTRPCRouter({
   getMany: publicProcedure
@@ -43,7 +72,7 @@ export const postsRouter = createTRPCRouter({
         meta: z.enum(["TRUE", "FALSE"]).optional(),
       }),
     )
-    .output(GetManyOutput)
+    .output(opt.outputSchema)
     .query(
       async ({
         input: { search, sort, order, filter, userId, groupId, meta, ...p },
@@ -114,17 +143,20 @@ export const postsRouter = createTRPCRouter({
         const s = decodeURIComponent(search ?? "");
         whereQuery = {
           ...(filter
-            ? parseFilter(jsonParse(decodeURIComponent(filter ?? "")), GetManyOutputItemsParsed)
+            ? parseFilter(
+                pick(jsonParse(decodeURIComponent(filter ?? "")), opt.filterableColumns),
+                opt.outputItemsSchemaParsed,
+              )
             : {}),
           OR: s
             ? listify(
                 parseFilter(
                   objectify(
-                    generalSearchableColumns,
+                    opt.generallySearchableColumns,
                     (c) => c,
                     () => s,
                   ),
-                  GetManyOutputItemsParsed,
+                  opt.outputItemsSchemaParsed,
                 ),
                 (k, v) => ({ [k]: v }),
               )
@@ -132,7 +164,7 @@ export const postsRouter = createTRPCRouter({
           ...whereQuery,
         };
 
-        // TODO to use this, we need client side reconciliation when paginating out of the boundary
+        // TODO to use this, we need client side reconciliation when paginating is out of the boundary
         // const [posts, total] = await prisma.$transaction([
         //   prisma.post.findMany({
         //     where: whereQuery,
@@ -145,7 +177,7 @@ export const postsRouter = createTRPCRouter({
         const [prismaPage, page] = paginate(p, total);
         const posts = await prisma.post.findMany({
           where: whereQuery,
-          orderBy: sort && { [sort]: order },
+          orderBy: (sort && opt.sortableColumns.includes(sort) && { [sort]: order }) || undefined,
           ...prismaPage,
         });
 
@@ -155,46 +187,7 @@ export const postsRouter = createTRPCRouter({
           items: posts,
           ...(meta === "TRUE"
             ? {
-                meta: {
-                  columns: {
-                    ...mapValues(PostModelNoDeletedAt.shape, () => null),
-                    id: {
-                      ...{ type: TableColumnType.STRING },
-                      title: "id",
-                      filterable: true,
-                      sortable: true,
-                      mono: true,
-                    },
-                    title: {
-                      ...{ type: TableColumnType.STRING },
-                      filterable: true,
-                      sortable: true,
-                    },
-                    content: {
-                      ...{ type: TableColumnType.STRING },
-                      filterable: true,
-                      sortable: true,
-                    },
-                    status: {
-                      ...{
-                        type: TableColumnType.ENUM,
-                        values: listify(PostStatus, (key, val) => val),
-                      },
-                      filterable: true,
-                      sortable: true,
-                    },
-                    createdAt: {
-                      ...{ type: TableColumnType.DATE },
-                      filterable: true,
-                      sortable: true,
-                    },
-                    updatedAt: {
-                      ...{ type: TableColumnType.DATE },
-                      filterable: true,
-                      sortable: true,
-                    },
-                  },
-                },
+                meta: { columns: opt.columnsMeta },
               }
             : {}),
         };
