@@ -53,11 +53,11 @@ const GlobalSearch = memo(function GlobalSearch() {
   const inputRef = useRef<SelectRef>(null);
 
   const searchLengthIsGteLimit = (searchDebounced?.length ?? 0) >= SEARCH_MIN_LENGTH;
-  const { data, isFetching } = trpc.posts.getMany.useQuery(
+  const { data, isLoading } = trpc.posts.getMany.useQuery(
     { search: searchDebounced, page, pageSize },
     {
       enabled: searchLengthIsGteLimit,
-      keepPreviousData: searchLengthIsGteLimit,
+      // keepPreviousData: searchLengthIsGteLimit,
     },
   );
 
@@ -73,7 +73,7 @@ const GlobalSearch = memo(function GlobalSearch() {
 
   const dropdownRender = useCallback(
     (menu: ReactNode) => (
-      <Spin size="large" spinning={isFetching} indicator={<LoadingOutlined />}>
+      <Spin size="large" spinning={isLoading} indicator={<LoadingOutlined />}>
         {menu}
         <Divider className="my-2" />
         <Pagination
@@ -81,7 +81,8 @@ const GlobalSearch = memo(function GlobalSearch() {
           size="small"
           className="m-1"
           current={data?.page}
-          pageSize={data?.pageSize}
+          // WORKAROUND cuz ant throws err when passing undefined to pageSize prop
+          {...(data?.pageSize ? {pageSize:data.pageSize} : {})}
           total={data?.total}
           onChange={(page, pageSize) => {
             setPage(page);
@@ -90,7 +91,7 @@ const GlobalSearch = memo(function GlobalSearch() {
         />
       </Spin>
     ),
-    [isFetching, data],
+    [isLoading, data],
   );
 
   return (
@@ -118,7 +119,7 @@ const GlobalSearch = memo(function GlobalSearch() {
             allowClear
             showSearch
             className="m-0 w-full flex-1 px-3 py-2"
-            open={!!data}
+            open={searchLengthIsGteLimit || !!data}
             popupClassName="p-3"
             value={search}
             autoClearSearchValue={false}
@@ -137,7 +138,7 @@ const GlobalSearch = memo(function GlobalSearch() {
               // value: v.id,
               label: <div className="text-base">{v.title}</div>,
             }))}
-            notFoundContent={data == null ? null : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+            notFoundContent={data == null ? <div className="h-32" /> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
             dropdownRender={dropdownRender}
             dropdownAlign={{ offset: [-12, 20] }}
           />

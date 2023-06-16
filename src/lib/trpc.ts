@@ -8,7 +8,6 @@ import { httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCNext } from "@trpc/next";
 import { createTRPCReact } from "@trpc/react-query";
 import { type inferRouterInputs, type inferRouterOutputs } from "@trpc/server";
-import superjson from "superjson";
 import { type AppRouter } from "~/_server/routers";
 import { APP_BASE_URL } from "~/data/configs";
 
@@ -24,7 +23,7 @@ const config = {
    *
    * @see https://trpc.io/docs/data-transformers
    */
-  transformer: superjson,
+  // transformer: superjson,
 
   /**
    * Links used to determine request flow from client to server.

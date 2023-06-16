@@ -7,6 +7,7 @@ import { protectedProcedure } from "~/_server/procedures/protected";
 import { createTRPCRouter, publicProcedure } from "~/_server/trpc";
 import { makeOptionsForMethodGetMany, makeResSchema, parseFilter } from "~/_server/utils/helpers";
 import { PostModel } from "~/data/models/post";
+import { UserModel } from "~/data/models/user";
 import { Id } from "~/data/schemas/id";
 import { PaginatedReq } from "~/data/schemas/paginated-req";
 import { TableColumnType } from "~/data/schemas/table";
@@ -20,44 +21,50 @@ const PostModelNoMeta = PostModelNoDeletedAt.omit({
 });
 const PostModelNoMetaAndId = PostModelNoMeta.omit({ id: true });
 
-const opt = makeOptionsForMethodGetMany(PostModelNoDeletedAt, ["id", "title", "content"], {
-  ...mapValues(PostModelNoDeletedAt.shape, () => null),
-  id: {
-    ...{ type: `${TableColumnType.STRING}` },
-    title: "id",
-    filterable: true,
-    sortable: true,
-    mono: true,
-  },
-  title: {
-    ...{ type: TableColumnType.STRING },
-    filterable: true,
-    sortable: true,
-  },
-  content: {
-    ...{ type: TableColumnType.STRING },
-    filterable: true,
-    sortable: true,
-  },
-  status: {
-    ...{
-      type: TableColumnType.ENUM,
-      values: listify(PostStatus, (key, val) => val),
+const opt = makeOptionsForMethodGetMany(
+  PostModelNoDeletedAt.extend({
+    author: UserModel.omit({ deletedAt: true, updatedAt: true, createdAt: true }),
+  }),
+  ["id", "title", "content"],
+  {
+    ...mapValues(PostModelNoDeletedAt.shape, () => null),
+    id: {
+      ...{ type: `${TableColumnType.STRING}` },
+      title: "id",
+      filterable: true,
+      sortable: true,
+      mono: true,
     },
-    filterable: true,
-    sortable: true,
+    title: {
+      ...{ type: TableColumnType.STRING },
+      filterable: true,
+      sortable: true,
+    },
+    content: {
+      ...{ type: TableColumnType.STRING },
+      filterable: true,
+      sortable: true,
+    },
+    status: {
+      ...{
+        type: TableColumnType.ENUM,
+        values: listify(PostStatus, (key, val) => val),
+      },
+      filterable: true,
+      sortable: true,
+    },
+    createdAt: {
+      ...{ type: TableColumnType.DATE },
+      filterable: true,
+      sortable: true,
+    },
+    updatedAt: {
+      ...{ type: TableColumnType.DATE },
+      filterable: true,
+      sortable: true,
+    },
   },
-  createdAt: {
-    ...{ type: TableColumnType.DATE },
-    filterable: true,
-    sortable: true,
-  },
-  updatedAt: {
-    ...{ type: TableColumnType.DATE },
-    filterable: true,
-    sortable: true,
-  },
-});
+);
 
 export const postsRouter = createTRPCRouter({
   getMany: publicProcedure
@@ -76,11 +83,11 @@ export const postsRouter = createTRPCRouter({
     .query(
       async ({
         input: { search, sort, order, filter, userId, groupId, meta, ...p },
-        ctx: { prisma, session, permissions },
+        ctx: { prisma, session, userPermissions },
       }) => {
         const uid = session?.user.id;
         const gid = session?.user.groupId ?? undefined;
-        const readPerm = permissions[Permission.POST_READ] ?? AccessLevel.NONE;
+        const readPerm = userPermissions[Permission.POST_READ] ?? AccessLevel.NONE;
         let whereQuery: Prisma.PostWhereInput = { deletedAt: null };
 
         switch (readPerm) {
@@ -179,6 +186,7 @@ export const postsRouter = createTRPCRouter({
           where: whereQuery,
           orderBy: (sort && opt.sortableColumns.includes(sort) && { [sort]: order }) || undefined,
           ...prismaPage,
+          include: { author: true },
         });
 
         return {
@@ -197,10 +205,10 @@ export const postsRouter = createTRPCRouter({
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .output(makeResSchema(PostModelNoDeletedAt))
-    .query(async ({ input: { id }, ctx: { prisma, session, permissions } }) => {
+    .query(async ({ input: { id }, ctx: { prisma, session, userPermissions } }) => {
       const uid = session?.user.id;
       const gid = session?.user.groupId ?? undefined;
-      const readPerm = permissions[Permission.POST_READ] ?? AccessLevel.NONE;
+      const readPerm = userPermissions[Permission.POST_READ] ?? AccessLevel.NONE;
 
       const post = await prisma.post.findFirst({
         where: { id, deletedAt: null },
@@ -243,10 +251,10 @@ export const postsRouter = createTRPCRouter({
     .input(PostModelNoMetaAndId.partial({ authorId: true }))
     .output(makeResSchema(PostModelNoDeletedAt))
     .mutation(
-      async ({ input: { authorId, ...newPost }, ctx: { prisma, session, permissions } }) => {
+      async ({ input: { authorId, ...newPost }, ctx: { prisma, session, userPermissions } }) => {
         const uid = session?.user.id;
         const gid = session?.user.groupId ?? undefined;
-        const createPerm = permissions[Permission.POST_CREATE];
+        const createPerm = userPermissions[Permission.POST_CREATE];
 
         switch (createPerm) {
           case AccessLevel.SELF:
@@ -281,10 +289,10 @@ export const postsRouter = createTRPCRouter({
     .meta({ minPermissions: { [Permission.POST_UPDATE]: AccessLevel.SELF } })
     .input(PostModelNoMeta.partial().required({ id: true }))
     .output(makeResSchema(PostModelNoDeletedAt))
-    .mutation(async ({ input: { ...updatedPost }, ctx: { prisma, session, permissions } }) => {
+    .mutation(async ({ input: { ...updatedPost }, ctx: { prisma, session, userPermissions } }) => {
       const uid = session?.user.id;
       const gid = session?.user.groupId ?? undefined;
-      const updatePerm = permissions[Permission.POST_UPDATE];
+      const updatePerm = userPermissions[Permission.POST_UPDATE];
 
       const post = await prisma.post.findFirst({
         where: { id: updatedPost.id, deletedAt: null },
@@ -325,10 +333,10 @@ export const postsRouter = createTRPCRouter({
     .meta({ minPermissions: { [Permission.POST_DELETE]: AccessLevel.SELF } })
     .input(Id)
     .output(makeResSchema(PostModelNoDeletedAt))
-    .mutation(async ({ input: { id }, ctx: { prisma, session, permissions } }) => {
+    .mutation(async ({ input: { id }, ctx: { prisma, session, userPermissions } }) => {
       const uid = session?.user.id;
       const gid = session?.user.groupId ?? undefined;
-      const deletePerm = permissions[Permission.POST_DELETE];
+      const deletePerm = userPermissions[Permission.POST_DELETE];
 
       const post = await prisma.post.findFirst({
         where: { id, deletedAt: null },

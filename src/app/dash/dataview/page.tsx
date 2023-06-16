@@ -3,7 +3,7 @@ import { type ZodSchema } from "zod";
 import { appRouter, routerNames, routers, schemasRouter } from "~/_server/routers";
 import { createTRPCContext } from "~/_server/trpc";
 import { trpcCreateCaller } from "~/_server/utils/trpc";
-import ModelTable from "~/app/dash/table/ModelTable";
+import DataViewPage from "~/app/dash/dataview/DataViewPage";
 import { arrayDiff, inArray } from "~/utils/primitive";
 
 type PageProps = {
@@ -21,7 +21,7 @@ export default async function Page({ searchParams }: PageProps) {
 
   if (!inArray(routesList, routerName))
     return (
-      <ModelTable
+      <DataViewPage
         dataSource={null}
         routeName={null}
         dataSchema={null}
@@ -39,7 +39,7 @@ export default async function Page({ searchParams }: PageProps) {
 
   if (!inArray(methodsList, methodName))
     return (
-      <ModelTable
+      <DataViewPage
         dataSource={null}
         routeName={routerName}
         dataSchema={null}
@@ -52,7 +52,7 @@ export default async function Page({ searchParams }: PageProps) {
 
   const schemaResult =
     routers[routerName][methodName] &&
-    (await schemasCaller.getByName({ name: routerName, method: methodName }));
+    (await schemasCaller.getByMethodName({ name: routerName, method: methodName }));
 
   const methodParamsParseResult = (
     routers[routerName][methodName]._def.inputs[0] as ZodSchema
@@ -67,7 +67,7 @@ export default async function Page({ searchParams }: PageProps) {
     null;
 
   return (
-    <ModelTable
+    <DataViewPage
       routesList={routesList}
       methodsList={methodsList}
       routeName={routerName}

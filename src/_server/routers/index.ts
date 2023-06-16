@@ -1,12 +1,12 @@
+import "~/_server/utils/server-only";
 import { diff, omit } from "radash";
 import { z, type ZodObject, type ZodRawShape } from "zod";
+import { zerialize } from "zodex";
 import { postsRouter } from "~/_server/routers/posts";
 import { usersRouter } from "~/_server/routers/users";
 import { createTRPCRouter, publicProcedure } from "~/_server/trpc";
 import { type UnionKeys, type UnionToTuple } from "~/utils/type";
 import { zodCreateUnionSchema } from "~/utils/zod";
-import "~/_server/utils/server-only";
-import { zerialize } from "zodex";
 
 /**
  * This is the primary router for your server.
@@ -24,7 +24,7 @@ type _Routers = typeof _routers;
 type _RouterNames = keyof _Routers;
 
 /**
- * This router exposes all routers' input and output schema def
+ * This router exposes all routers' input and output schema
  *
  */
 export const schemasRouter = createTRPCRouter({
@@ -37,7 +37,7 @@ export const schemasRouter = createTRPCRouter({
           Exclude<keyof _Routers[typeof route], "_def" | "createCaller" | "getErrorShape">
         >,
     ),
-  getByName: publicProcedure
+  getByMethodName: publicProcedure
     .input(function (val) {
       if (val != null && typeof val === "object")
         if ("name" in val && "method" in val) {

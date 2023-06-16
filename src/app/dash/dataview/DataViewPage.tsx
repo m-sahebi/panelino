@@ -1,99 +1,25 @@
 "use client";
 
-import { Button, Collapse, Form, Input, InputNumber, Select, Switch, Table } from "antd";
+import { Button, Collapse, Form, Select, Table } from "antd";
 import { message } from "antd/lib";
 import { useMemo } from "react";
 import { type RouterName } from "~/_server/routers";
+import { AntFormItem } from "~/components/antFormItem";
 import JsonPrettied from "~/components/JsonPrettied";
 import { trpc, type RouterInputs, type RouterOutputs } from "~/lib/trpc";
 import { useAntTableOnChange } from "~/utils/hooks/useAntTableOnChange";
 import { useColumnsFromMeta } from "~/utils/hooks/useColumnsFromMeta";
 import { usePaginationQueryParams } from "~/utils/hooks/usePaginationQueryParams";
 import { useQueryParams } from "~/utils/hooks/useQueryParams";
-import { camelCasePrettify } from "~/utils/primitive";
 import { type Nullish } from "~/utils/type";
 
-const getFormItem = {
-  ["string"]: (p: string, t: any): React.ReactNode => (
-    <Form.Item
-      className="m-0"
-      key={p}
-      name={p}
-      label={camelCasePrettify(p)}
-      rules={[{ required: !t.isOptional }]}
-    >
-      <Input />
-    </Form.Item>
-  ),
-  ["number"]: (p: string, t: any): React.ReactNode => (
-    <Form.Item
-      className="m-0"
-      key={p}
-      name={p}
-      label={camelCasePrettify(p)}
-      rules={[{ required: !t.isOptional }]}
-    >
-      <InputNumber className="w-full" />
-    </Form.Item>
-  ),
-  ["union"]: (p: string, t: any): React.ReactNode => {
-    return (
-      <Form.Item
-        className="m-0"
-        key={p}
-        name={p}
-        label={camelCasePrettify(p)}
-        rules={[{ required: !t.isOptional }]}
-      >
-        <Select
-          allowClear={t.isOptional}
-          options={(t as { options: any[] }).options.map((el) => ({
-            label: camelCasePrettify(el.value),
-            value: el.value,
-          }))}
-        />
-      </Form.Item>
-    );
-  },
-  ["enum"]: (p: string, t: any): React.ReactNode => {
-    return (
-      <Form.Item
-        className="m-0"
-        key={p}
-        name={p}
-        label={camelCasePrettify(p)}
-        rules={[{ required: !t.isOptional }]}
-      >
-        <Select
-          allowClear={t.isOptional}
-          options={(t as { values: any[] }).values.map((el) => ({
-            label: camelCasePrettify(el),
-            value: el,
-          }))}
-        />
-      </Form.Item>
-    );
-  },
-  ["boolean"]: (p: string, t: any): React.ReactNode => (
-    <Form.Item
-      className="m-0"
-      key={p}
-      name={p}
-      label={camelCasePrettify(p)}
-      rules={[{ required: !t.isOptional }]}
-    >
-      <Switch />
-    </Form.Item>
-  ),
-};
-
-export default function ModelTable<
+export default function DataViewPage<
   TRouteUnion extends Exclude<RouterName, "schemas">,
   TRoute extends Nullish<TRouteUnion>,
   TData extends Nullish<Record<string, any>>, //TRoute extends TRoutes ? RouterOutputs[TRoute] : Nullish
   TMethodName extends Nullish<TRoute extends TRouteUnion ? keyof RouterInputs[TRoute] : Nullish>,
   TSchema extends Nullish<
-    TRoute extends TRouteUnion ? RouterOutputs["schemas"]["getByName"] : Nullish
+    TRoute extends TRouteUnion ? RouterOutputs["schemas"]["getByMethodName"] : Nullish
   >,
   TMehodParams extends Nullish<
     TRoute extends TRouteUnion
@@ -196,7 +122,7 @@ export default function ModelTable<
           <Collapse.Panel key={1} header="Parameters">
             <div className="mb-6 grid gap-4 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
               {dataSchemaEntries.map(([p, t]) => {
-                return getFormItem[t.type as keyof typeof getFormItem]?.(p, t);
+                return AntFormItem[t.type as keyof typeof AntFormItem]?.(p, t);
               })}
             </div>
             {dataSchemaEntries.length ? (

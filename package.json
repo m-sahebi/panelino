@@ -24,7 +24,9 @@
     "@types/node": "18.15.11",
     "@types/react": "18.0.33",
     "@types/react-dom": "18.0.11",
+    "@uploadthing/react": "^4.1.2",
     "antd": "^5.5.2",
+    "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
     "clsx": "^1.2.1",
     "dayjs": "^1.11.7",
@@ -35,11 +37,13 @@
     "radash": "^10.8.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-dropzone": "^14.2.3",
     "react-hotkeys-hook": "^4.4.0",
     "react-icons": "^4.8.0",
     "react-use": "^17.4.0",
     "superjson": "^1.12.3",
     "tailwind-merge": "^1.12.0",
+    "uploadthing": "^4.1.2",
     "zod": "^3.21.4",
     "zod-validation-error": "^1.3.0",
     "zodex": "^0.3.5"
@@ -63,5 +67,12 @@
     "ts-jest": "^29.1.0",
     "typescript": "5.0.4",
     "zod-prisma": "^0.5.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "@trivago/prettier-plugin-sort-imports>@babel/core": "7.20.12",
+      "@trivago/prettier-plugin-sort-imports>@babel/parser": "7.20.15",
+      "@trivago/prettier-plugin-sort-imports>@babel/traverse": "7.20.13"
+    }
   }
 }

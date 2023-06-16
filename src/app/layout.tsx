@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import React from "react";
+import React, { StrictMode } from "react";
 import { authOptions } from "~/_server/lib/next-auth";
 import { Providers } from "~/components/Providers";
 import "~/assets/styles/globals.css";
@@ -16,7 +16,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <body>
-        <Providers session={session}>{children}</Providers>
+        <StrictMode>
+          <Providers session={session}>{children}</Providers>
+        </StrictMode>
       </body>
     </html>
   );

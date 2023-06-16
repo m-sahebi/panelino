@@ -11,7 +11,6 @@ import "~/_server/utils/server-only";
 import { UserRole } from "@prisma/client";
 import { initTRPC } from "@trpc/server";
 import { type Session } from "next-auth";
-import superjson from "superjson";
 import { ZodError } from "zod";
 import { ROLE_PERMISSIONS, type PermissionGroup } from "~/_server/data/roles";
 import { getServerAuthSession } from "~/_server/lib/next-auth";
@@ -26,7 +25,7 @@ import { prisma } from "~/_server/lib/prisma";
  */
 type CreateContextOptions = {
   session: Session | null;
-  permissions: PermissionGroup;
+  userPermissions: PermissionGroup;
 };
 
 /**
@@ -43,7 +42,7 @@ export const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     session: opts.session,
     prisma,
-    permissions: opts.permissions,
+    userPermissions: opts.userPermissions,
   };
 };
 
@@ -56,11 +55,11 @@ export const createInnerTRPCContext = (opts: CreateContextOptions) => {
 export const createTRPCContext = async () => {
   // Get the session from the server using the getServerSession wrapper function
   const session = await getServerAuthSession();
-  const permissions = ROLE_PERMISSIONS[session?.user.role || UserRole.GUEST] as PermissionGroup;
+  const userPermissions = ROLE_PERMISSIONS[session?.user.role || UserRole.GUEST] as PermissionGroup;
 
   return createInnerTRPCContext({
     session,
-    permissions,
+    userPermissions,
   });
 };
 
@@ -78,7 +77,7 @@ const t = initTRPC
   .context<RouterContext>()
   .meta<RouterMeta>()
   .create({
-    transformer: superjson,
+    // transformer: superjson,
     errorFormatter({ shape, error }) {
       return {
         ...shape,

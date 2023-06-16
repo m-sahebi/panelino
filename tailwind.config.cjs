@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 /** @type {import('tailwindcss').Config} */
 const { colors, borderRadius, screens } = require("./src/data/theme.js");
 
 module.exports = {
-  content: ["./src/**/*.{js,ts,jsx,tsx}", "!./.next/**/*.{css}"],
+  content: ["./src/**/*.{js,ts,jsx,tsx}"],
   darkMode: "class",
   important: true,
   theme: {

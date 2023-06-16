@@ -6,6 +6,7 @@ import { Res } from "~/data/schemas/res";
 import { PrimitiveType, TableColumnOptions } from "~/data/schemas/table";
 import { dayjs } from "~/lib/dayjs";
 import { assert } from "~/utils/primitive";
+import { type UnionToTuple } from "~/utils/type";
 
 export function makeResSchema<
   TShape extends z.ZodRawShape,
@@ -99,10 +100,14 @@ export function makeOptionsForMethodGetMany<
   const [k1, ...k2] = keys;
   assert(typeof k1 === "string");
 
+  type TKeysTuple = UnionToTuple<keyof TColMeta>;
+
   return {
-    columnsMeta,
-    sortableColumns,
-    filterableColumns,
+    // TODO change function parameters to recieve filterable and sortable columns
+    // instead of including them in columnsMeta
+    columnsMeta: columnsMeta,
+    sortableColumns: sortableColumns,
+    filterableColumns: filterableColumns,
     generallySearchableColumns,
     outputSchema: makeResSchema(z.array(outputItemsSchema))
       .merge(PaginatedRes)

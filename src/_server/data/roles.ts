@@ -7,26 +7,6 @@ export enum AccessLevel {
   ALL,
 }
 
-// export enum PERMISSIONS = [
-//   "user.create",
-//   "user.read",
-//   "user.update",
-//   "user.delete",
-//
-//   "group.create",
-//   "group.read",
-//   "group.update",
-//   "group.delete",
-//
-//   "post_published.read",
-//   "post.create",
-//   "post.read",
-//   "post.update",
-//   "post.delete",
-// ] as const;
-//
-// export type Permission = typeof PERMISSIONS[number];
-
 export enum Permission {
   USER_CREATE = "USER_CREATE",
   USER_READ = "USER_READ",
@@ -43,9 +23,7 @@ export enum Permission {
   POST_UPDATE = "POST_UPDATE",
   POST_DELETE = "POST_DELETE",
 }
-export type PermissionLevel = AccessLevel;
-export type PermissionGroup = { [p in Permission]?: PermissionLevel };
-
+export type PermissionGroup = { [p in Permission]?: AccessLevel };
 export type RolePermissions = { [p in UserRole]: PermissionGroup };
 
 export const ROLE_PERMISSIONS = {

@@ -11,7 +11,7 @@ const authMiddleware = trpcMiddleware(({ ctx, next, meta }) => {
   }
 
   const minPerms = meta?.minPermissions;
-  const permissions = ctx.permissions;
+  const permissions = ctx.userPermissions;
 
   if (
     minPerms &&
@@ -25,7 +25,7 @@ const authMiddleware = trpcMiddleware(({ ctx, next, meta }) => {
     ctx: {
       // infers the `session` as non-nullable
       session: ctx.session,
-      permissions,
+      permissions: userPermissions,
     },
   });
 });

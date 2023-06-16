@@ -31,20 +31,23 @@ generator zod {
 }
 
 model User {
-  id        String     @id @unique @default(nanoid(7))
-  password  String?
-  email     String     @unique
-  name      String?
-  githubId  String?    @unique
-  role      UserRole   @default(USER)
-  status    UserStatus @default(ACTIVE)
-  group     Group?     @relation(fields: [groupId], references: [id])
-  groupId   String?
-  posts     Post[]
-  flows     Flow[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  deletedAt DateTime?
+  id            String     @id @unique @default(nanoid(7))
+  password      String?
+  email         String     @unique
+  name          String?
+  image         File?      @relation("ProfileImage", fields: [imageId], references: [id])
+  imageId       String?
+  githubId      String?    @unique
+  role          UserRole   @default(USER)
+  status        UserStatus @default(ACTIVE)
+  group         Group?     @relation(fields: [groupId], references: [id])
+  groupId       String?
+  posts         Post[]
+  flows         Flow[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
+  uploadedFiles File[]     @relation("UploadedFiles")
 }
 
 model Group {
@@ -76,6 +79,15 @@ model Flow {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+}
+
+model File {
+  id            String  @id @unique @default(nanoid(12))
+  key           String
+  mimeType      String?
+  createdBy     User    @relation("UploadedFiles", fields: [createdById], references: [id])
+  createdById   String
+  usedByAsImage User[]  @relation("ProfileImage")
 }
 
 enum PostStatus {

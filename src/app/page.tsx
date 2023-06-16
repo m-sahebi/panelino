@@ -1,12 +1,9 @@
-"use client";
+import { HomePage } from "~/app/HomePage";
 
-import React from "react";
-import NavBar from "~/components/NavBar";
-
-// export const metadata = {
-//   title: 'Home',
-// };
+export const metadata = {
+  title: "Home",
+};
 
 export default function Page() {
-  return <NavBar />;
+  return <HomePage />;
 }

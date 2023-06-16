@@ -8,3 +8,7 @@ export const PAGE_SIZE = 10;
 export const MAX_PAGE_SIZE = 100;
 
 export const DATE_TIME_FORMAT = "YYYY-MM-DD_HH-mm";
+
+export const REQUEST_TIMEOUT = 10000;
+
+export const FILE_UPLOAD_SIZE_LIMIT = 5000000;
