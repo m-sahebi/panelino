@@ -48,9 +48,10 @@ export function HomePage() {
       <WindowScrollYTracker limit={20} onPassLimit={(s) => setScrolled(s)} />
       <div
         className={cn(
-          "sticky top-0 z-10 mx-auto mb-6 mt-4 w-[948px] max-w-full px-6 transition-all duration-300",
+          "sticky top-0 z-10 mx-auto mb-6 mt-4 w-[948px] max-w-full border-0 border-transparent px-6 transition-all duration-300",
           {
-            "w-full bg-neutral-200 bg-opacity-70 dark:bg-neutral-800 dark:bg-opacity-70": scrolled,
+            "w-full border-0 border-b-2 border-solid bg-neutral-200 bg-opacity-70 border-daw-neutral-300 dark:bg-neutral-800 dark:bg-opacity-70 ":
+              scrolled,
           },
         )}
         style={{ backdropFilter: "blur(4px)" }}
