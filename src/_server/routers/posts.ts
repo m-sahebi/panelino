@@ -5,7 +5,7 @@ import { z } from "zod";
 import { AccessLevel, Permission } from "~/_server/data/roles";
 import { protectedProcedure } from "~/_server/procedures/protected";
 import { createTRPCRouter, publicProcedure } from "~/_server/trpc";
-import { makeOptionsForMethodGetMany, makeResSchema, parseFilter } from "~/_server/utils/helpers";
+import { getOptionsForMethodGetMany, makeResSchema, parseFilter } from "~/_server/utils/helpers";
 import { PostModel } from "~/data/models/post";
 import { UserModel } from "~/data/models/user";
 import { Id } from "~/data/schemas/id";
@@ -21,7 +21,7 @@ const PostModelNoMeta = PostModelNoDeletedAt.omit({
 });
 const PostModelNoMetaAndId = PostModelNoMeta.omit({ id: true });
 
-const opt = makeOptionsForMethodGetMany(
+const opt = getOptionsForMethodGetMany(
   PostModelNoDeletedAt.extend({
     author: UserModel.omit({ deletedAt: true, updatedAt: true, createdAt: true }),
   }),

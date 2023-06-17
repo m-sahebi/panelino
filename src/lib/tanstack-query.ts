@@ -1,8 +1,8 @@
 import { QueryClient, type QueryFunctionContext } from "@tanstack/react-query";
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
 import { isObject } from "radash";
 import { REQUEST_TIMEOUT } from "~/data/configs";
-import { assert } from "~/utils/primitive";
+import { assertIt } from "~/utils/primitive";
 
 export const request = axios.create({
   baseURL: "http://localhost:3000",
@@ -17,8 +17,8 @@ export function rqFetch<TQueryKey extends readonly unknown[], TBody>({
   signal,
   meta,
 }: QueryFunctionContext<TQueryKey> & { meta: AxiosRequestConfig<TBody> | undefined }) {
-  assert(typeof queryKey[0] === "string");
-  assert(queryKey[1] === undefined || isObject(queryKey[1]));
+  assertIt(typeof queryKey[0] === "string");
+  assertIt(queryKey[1] === undefined || isObject(queryKey[1]));
   return request({
     url: queryKey[0],
     signal,

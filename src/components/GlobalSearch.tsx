@@ -82,7 +82,7 @@ const GlobalSearch = memo(function GlobalSearch() {
           className="m-1"
           current={data?.page}
           // WORKAROUND cuz ant throws err when passing undefined to pageSize prop
-          {...(data?.pageSize ? {pageSize:data.pageSize} : {})}
+          {...(data?.pageSize ? { pageSize: data.pageSize } : {})}
           total={data?.total}
           onChange={(page, pageSize) => {
             setPage(page);
@@ -132,7 +132,7 @@ const GlobalSearch = memo(function GlobalSearch() {
             listItemHeight={34}
             onChange={setSearch}
             onSearch={setSearch}
-            onSelect={console.log}
+            // onSelect={}
             options={data?.items.map((v) => ({
               key: v.id,
               // value: v.id,

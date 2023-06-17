@@ -5,7 +5,7 @@ import { PaginatedRes } from "~/data/schemas/paginated-res";
 import { Res } from "~/data/schemas/res";
 import { PrimitiveType, TableColumnOptions } from "~/data/schemas/table";
 import { dayjs } from "~/lib/dayjs";
-import { assert } from "~/utils/primitive";
+import { assertIt } from "~/utils/primitive";
 import { type UnionToTuple } from "~/utils/type";
 
 export function makeResSchema<
@@ -79,7 +79,7 @@ export function parseFilter<T extends Record<string, SzType>>(
   return where;
 }
 
-export function makeOptionsForMethodGetMany<
+export function getOptionsForMethodGetMany<
   TShape extends Record<string, z.ZodTypeAny>,
   TColMeta extends { [p in keyof TShape]?: TableColumnOptions | null },
 >(
@@ -98,7 +98,7 @@ export function makeOptionsForMethodGetMany<
   });
 
   const [k1, ...k2] = keys;
-  assert(typeof k1 === "string");
+  assertIt(typeof k1 === "string");
 
   type TKeysTuple = UnionToTuple<keyof TColMeta>;
 

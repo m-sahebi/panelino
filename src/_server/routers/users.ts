@@ -4,13 +4,13 @@ import { listify, mapValues, objectify, pick } from "radash";
 import { z } from "zod";
 import { protectedProcedure } from "~/_server/procedures/protected";
 import { createTRPCRouter, publicProcedure } from "~/_server/trpc";
-import { makeOptionsForMethodGetMany, makeResSchema, parseFilter } from "~/_server/utils/helpers";
+import { getOptionsForMethodGetMany, makeResSchema, parseFilter } from "~/_server/utils/helpers";
 import { UserModel } from "~/data/models/user";
 import { Id } from "~/data/schemas/id";
 import { PaginatedReq } from "~/data/schemas/paginated-req";
 import { TableColumnType } from "~/data/schemas/table";
 import { paginate } from "~/utils/helpers";
-import { jsonParse } from "~/utils/primitive";
+import { getNonNullable, jsonParse } from "~/utils/primitive";
 
 const UserModelNoDeletedAt = UserModel.omit({ deletedAt: true });
 const UserModelNoMeta = UserModelNoDeletedAt.omit({
@@ -19,7 +19,7 @@ const UserModelNoMeta = UserModelNoDeletedAt.omit({
 });
 const UserModelNoMetaAndId = UserModelNoMeta.omit({ id: true });
 
-const opt = makeOptionsForMethodGetMany(UserModelNoMeta, ["id", "name", "email"], {
+const opt = getOptionsForMethodGetMany(UserModelNoMeta, ["id", "name", "email"], {
   ...mapValues(UserModelNoMeta.shape, () => null),
   id: {
     ...{ type: `${TableColumnType.STRING}` },
@@ -59,7 +59,7 @@ export const usersRouter = createTRPCRouter({
       }),
     )
     .output(opt.outputSchema)
-    .query(async ({ input: { sort, order, filter, search, ...p }, ctx: { prisma, session } }) => {
+    .query(async ({ input: { sort, order, filter, search, ...p }, ctx: { prisma } }) => {
       const total = await prisma.user.count({ where: { deletedAt: null } });
       const [prismaPage, page] = paginate(p, total);
       let whereQuery: Prisma.UserWhereInput = { deletedAt: null };
@@ -101,7 +101,7 @@ export const usersRouter = createTRPCRouter({
   getById: publicProcedure
     .input(Id)
     .output(makeResSchema(UserModel.omit({ createdAt: true, updatedAt: true, deletedAt: true })))
-    .query(async ({ input: { id }, ctx: { prisma, session } }) => {
+    .query(async ({ input: { id }, ctx: { prisma } }) => {
       const user = await prisma.user.findFirst({
         where: { id, deletedAt: null },
       });
@@ -113,7 +113,7 @@ export const usersRouter = createTRPCRouter({
   getByEmail: publicProcedure
     .input(z.object({ email: z.string().email() }))
     .output(makeResSchema(UserModel.omit({ createdAt: true, updatedAt: true, deletedAt: true })))
-    .query(async ({ input: { email }, ctx: { prisma, session } }) => {
+    .query(async ({ input: { email }, ctx: { prisma } }) => {
       const user = await prisma.user.findFirst({
         where: { email, deletedAt: null },
       });
@@ -125,7 +125,7 @@ export const usersRouter = createTRPCRouter({
   create: protectedProcedure
     .input(UserModelNoMetaAndId)
     .output(makeResSchema(UserModelNoMeta))
-    .mutation(async ({ input: { ...newUser }, ctx: { prisma, session } }) => {
+    .mutation(async ({ input: { ...newUser }, ctx: { prisma } }) => {
       const user = await prisma.user.create({
         data: newUser,
       });
@@ -135,7 +135,7 @@ export const usersRouter = createTRPCRouter({
   update: protectedProcedure
     .input(UserModelNoMeta.partial().required({ id: true }))
     .output(makeResSchema(UserModelNoMeta))
-    .mutation(async ({ input: { ...updatedUser }, ctx: { prisma, session } }) => {
+    .mutation(async ({ input: { ...updatedUser }, ctx: { prisma } }) => {
       const user = await prisma.user.findFirst({
         where: { id: updatedUser.id, deletedAt: null },
       });
@@ -152,7 +152,7 @@ export const usersRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(Id)
     .output(makeResSchema(UserModelNoMeta))
-    .mutation(async ({ input: { id }, ctx: { prisma, session } }) => {
+    .mutation(async ({ input: { id }, ctx: { prisma } }) => {
       const user = await prisma.user.updateMany({
         where: { id, deletedAt: null },
         data: { deletedAt: new Date() },
@@ -160,6 +160,6 @@ export const usersRouter = createTRPCRouter({
 
       if (!user.count) throw new TRPCError({ code: "NOT_FOUND" });
 
-      return { items: (await prisma.user.findUnique({ where: { id } }))! };
+      return { items: getNonNullable(await prisma.user.findUnique({ where: { id } })) };
     }),
 });

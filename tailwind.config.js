@@ -1,6 +1,6 @@
-/** @type {import('tailwindcss').Config} */
 const { colors, borderRadius, screens } = require("./src/data/theme.js");
 
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
   darkMode: "class",

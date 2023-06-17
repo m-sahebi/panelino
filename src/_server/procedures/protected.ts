@@ -11,12 +11,12 @@ const authMiddleware = trpcMiddleware(({ ctx, next, meta }) => {
   }
 
   const minPerms = meta?.minPermissions;
-  const permissions = ctx.userPermissions;
+  const userPermissions = ctx.userPermissions;
 
   if (
     minPerms &&
     Object.keys(minPerms).some(
-      (perm) => minPerms[perm as Permission]! > (permissions[perm as Permission] ?? 0),
+      (perm) => (minPerms[perm as Permission] ?? 0) > (userPermissions[perm as Permission] ?? 0),
     )
   )
     throw new TRPCError({ code: "FORBIDDEN" });
@@ -25,7 +25,7 @@ const authMiddleware = trpcMiddleware(({ ctx, next, meta }) => {
     ctx: {
       // infers the `session` as non-nullable
       session: ctx.session,
-      permissions: userPermissions,
+      userPermissions,
     },
   });
 });

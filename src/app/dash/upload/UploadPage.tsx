@@ -2,6 +2,7 @@
 
 import { UploadOutlined } from "@ant-design/icons";
 import { Button, message, Upload, type UploadProps } from "antd";
+import Image from "next/image";
 import React, { useState } from "react";
 
 const props: UploadProps = {
@@ -13,7 +14,7 @@ export function UploadPage({ token }: { token?: string }) {
   const [imageName, setImageName] = useState<string>();
   return (
     <div className="flex flex-col gap-6">
-      {imageName && <img className="w-full" src={`/api/files/${imageName}`} alt="kossher" />}
+      {imageName && <Image className="w-full" src={`/api/files/${imageName}`} alt="kossher" />}
       <Upload
         {...props}
         headers={token ? { Authorization: token } : undefined}

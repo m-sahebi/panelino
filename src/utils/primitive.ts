@@ -24,8 +24,13 @@ export function toNumber(str: unknown, defaultValue: number | undefined = undefi
   return num;
 }
 
-export function assert(condition: any, errorMsg?: string): asserts condition {
+export function assertIt(condition: any, errorMsg?: string): asserts condition {
   if (!condition) throw new Error(errorMsg || "assertion error");
+}
+
+export function getNonNullable<T>(value: T, errorMsg?: string): NonNullable<T> {
+  if (value == null) throw new Error(errorMsg || "assertion error");
+  return value;
 }
 
 /// Array and Object

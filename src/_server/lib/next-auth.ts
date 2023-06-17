@@ -8,6 +8,8 @@ import { pick } from "radash";
 import { prisma } from "~/_server/lib/prisma";
 import { verifyPassword } from "~/_server/utils/crypto";
 import { IS_DEV } from "~/data/configs";
+import { Env } from "~/data/env";
+import { assertIt } from "~/utils/primitive";
 
 declare module "next-auth" {
   interface Session {
@@ -37,8 +39,8 @@ export const authOptions: AuthOptions = {
   },
   providers: [
     GithubProvider({
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
+      clientId: Env.GITHUB_ID,
+      clientSecret: Env.GITHUB_SECRET,
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -50,7 +52,7 @@ export const authOptions: AuthOptions = {
         },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials, _req) {
         try {
           const user = await prisma.user.findUnique({
             where: {
@@ -71,7 +73,7 @@ export const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ account, profile, user }) {
+    async signIn({ account, user }) {
       try {
         if (account?.provider === "github") {
           if (!user.email) return false;
@@ -110,16 +112,18 @@ export const authOptions: AuthOptions = {
       if (account) {
         const newToken = { ...token };
 
+        assertIt(user.email, 'no email for "user" found');
+
         newToken.picture = `https://www.gravatar.com/avatar/${crypto
           .createHash("md5")
-          .update(user.email!)
+          .update(user.email)
           .digest("hex")}?d=retro`;
 
-        const mainUser = (await prisma.user.findUnique({
-          where: { email: user.email! },
-        }))!;
+        const mainUser = await prisma.user.findUnique({
+          where: { email: user.email },
+        });
         if (!mainUser)
-          throw new Error(`Can't find user with email ${user.email!} when creating JWT`);
+          throw new Error(`Can't find user with email ${user.email} when creating JWT`);
 
         if (account.access_token) newToken.accessToken = account.access_token;
 
@@ -127,7 +131,7 @@ export const authOptions: AuthOptions = {
       }
       return token;
     },
-    async session({ session, token, user }) {
+    async session({ session, token, user: _user }) {
       return {
         ...session,
         user: { ...session.user, ...pick(token, ["id", "role", "groupId"]) },

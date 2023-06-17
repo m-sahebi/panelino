@@ -1,3 +1,4 @@
+import "~/data/env";
 import { getServerSession } from "next-auth";
 import React, { StrictMode } from "react";
 import { authOptions } from "~/_server/lib/next-auth";

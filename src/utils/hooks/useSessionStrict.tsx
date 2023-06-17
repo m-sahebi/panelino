@@ -1,9 +1,9 @@
 import { useSession } from "next-auth/react";
 import { type UseSessionOptions } from "next-auth/src/react/types";
-import { assert } from "~/utils/primitive";
+import { assertIt } from "~/utils/primitive";
 
 export function useSessionStrict(options?: Omit<UseSessionOptions<true>, "required">) {
   const s = useSession({ ...options, required: true });
-  assert(s.status === "authenticated");
+  assertIt(s.data, `No session found, session status: ${s.status}`);
   return s;
 }

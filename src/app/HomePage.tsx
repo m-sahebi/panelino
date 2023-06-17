@@ -1,8 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { Menu, Tooltip } from "antd";
-import { useSession } from "next-auth/react";
 import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { useWindowScroll } from "react-use";
@@ -30,16 +28,18 @@ const WindowScrollYTracker = React.memo(function ScrollTracker({
     if (y > limit && prevY.current <= limit) onPassLimit(true);
     else if (y <= limit && prevY.current > limit) onPassLimit(false);
     prevY.current = y;
+    // no need to recall onPassLimit on reference change
+    /* eslint-disable react-hooks/exhaustive-deps */
   }, [limit, y]);
 
   return null;
 });
 
 export function HomePage() {
-  const { data: session } = useSession();
+  // const { data: session } = useSession();
   const { data: posts } = trpc.posts.getMany.useQuery({});
   const [scrolled, setScrolled] = useState(false);
-  const { data } = useQuery({ queryKey: ["https://dev.to/api/articles"] });
+  // const { data } = useQuery({ queryKey: ["https://dev.to/api/articles"] });
   const router = useRouter();
   const segment = useSelectedLayoutSegment()?.split("/")[0] ?? "";
 

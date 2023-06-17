@@ -36,13 +36,7 @@ export default function LoginPage() {
   }, [query]);
 
   const onFinish = (values: any) => {
-    void signIn("credentials", { callbackUrl: "/dash", ...values })
-      .then(console.log)
-      .catch(console.error);
-  };
-
-  const onFinishFailed = (errorInfo: any): void => {
-    console.error("Failed:", errorInfo);
+    void signIn("credentials", { callbackUrl: "/", ...values });
   };
 
   return (
@@ -56,10 +50,7 @@ export default function LoginPage() {
         layout="vertical"
         initialValues={{}}
         onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
         requiredMark={false}
-        // labelCol={{ span: 6 }}
-        // wrapperCol={{ span: 18 }}
       >
         <Form.Item
           label="Email"
