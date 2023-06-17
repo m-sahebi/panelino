@@ -65,7 +65,7 @@ export function HomePage() {
         >
           <nav className="max-w-[900px] flex-1 self-center transition-all">
             <Menu
-              className={cn("border-0 bg-transparent leading-8")}
+              className={cn("border-0 bg-transparent leading-6")}
               mode="horizontal"
               selectedKeys={[`/${segment}`]}
               items={HOME_MAINMENU_ITEMS}
