@@ -1,6 +1,6 @@
 "use client";
 
-import { UploadOutlined } from "@ant-design/icons";
+import { FileOutlined, UploadOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { Button, message, Slider, Upload } from "antd";
 import Image from "next/image";
@@ -19,7 +19,7 @@ export function FilesPage() {
         action="/api/files"
         // listType="picture"
         showUploadList={{ showDownloadIcon: true, showRemoveIcon: true, showPreviewIcon: true }}
-        accept=".png,.jpg,.jpeg,.webp,.gif"
+        // accept=".png,.jpg,.jpeg,.webp,.gif"
         onChange={(info) => {
           if (["removed"].includes(info.file.status as string)) {
             const res = info.file.response.items as ApiFilePostResponseType["items"];
@@ -49,7 +49,7 @@ export function FilesPage() {
       </Upload.Dragger>
       <div className="flex items-center gap-3">
         Zoom:
-        <Slider className="flex-1" min={40} max={300} value={zoom} onChange={setZoom} />
+        <Slider className="flex-1" min={40} max={300} step={10} value={zoom} onChange={setZoom} />
       </div>
       <div
         className="grid w-full place-content-center place-items-center justify-between"
@@ -73,13 +73,17 @@ export function FilesPage() {
                 height: `${zoom / 10}rem`,
               }}
             >
-              <Image
-                width={zoom * 1.6}
-                height={zoom * 1.6}
-                src={`/api/files/${file.id}`}
-                alt={file.key}
-                className="max-h-full max-w-full rounded object-contain"
-              />
+              {file.mimeType?.startsWith("image") ? (
+                <Image
+                  width={zoom * 1.6}
+                  height={zoom * 1.6}
+                  src={`/api/files/${file.id}`}
+                  alt={file.key}
+                  className="max-h-full max-w-full rounded object-contain"
+                />
+              ) : (
+                <FileOutlined />
+              )}
             </div>
             <span
               title={file.id + "." + file.key.split(".").at(-1)}
