@@ -1,11 +1,11 @@
 import { QueryClient, type QueryFunctionContext } from "@tanstack/react-query";
 import axios, { type AxiosRequestConfig } from "axios";
 import { isObject } from "radash";
-import { REQUEST_TIMEOUT } from "~/data/configs";
+import { API_URL, REQUEST_TIMEOUT } from "~/data/configs";
 import { assertIt } from "~/utils/primitive";
 
 export const request = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: API_URL,
   timeout: REQUEST_TIMEOUT,
   headers: {
     "Content-Type": "application/json",

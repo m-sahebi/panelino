@@ -1,9 +1,15 @@
+import { type Prisma } from "@prisma/client";
 import { NextResponse, type NextRequest } from "next/server";
 import { getServerAuthSession } from "~/_server/lib/next-auth";
 import { prisma } from "~/_server/lib/prisma";
 import { FILE_UPLOAD_SIZE_LIMIT, IS_DEV } from "~/data/configs";
+import { formatBytes } from "~/utils/primitive";
 
+export type ApiFilePostResponseType = { items: Prisma.FileGetPayload<{}> };
 export async function POST(req: NextRequest) {
+  const session = await getServerAuthSession();
+  if (!session) return NextResponse.json({}, { status: 401 });
+
   const formData = await req.formData();
 
   const file = formData.get("myFile") as Blob | null;
@@ -11,11 +17,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "File blob is required." }, { status: 400 });
   }
   if (file.size > FILE_UPLOAD_SIZE_LIMIT)
-    return NextResponse.json({ message: "File should be smaller than 5mb" }, { status: 400 });
+    return NextResponse.json(
+      { message: `File should be smaller than ${formatBytes(FILE_UPLOAD_SIZE_LIMIT)}` },
+      { status: 400 },
+    );
   try {
-    const session = await getServerAuthSession();
-    if (!session) return NextResponse.json({}, { status: 401 });
-
     const res = await fetch("http://localhost:9009/f/upload", {
       method: "POST",
       body: formData,
@@ -31,12 +37,27 @@ export async function POST(req: NextRequest) {
     const f = await prisma.file.create({
       data: { key: data.fileName, createdById: session.user.id, mimeType: data.mimeType },
     });
-    return NextResponse.json(f, { status: 201 });
+    return NextResponse.json({ items: f }, { status: 201 });
   } catch (e: any) {
     console.error(e);
     return NextResponse.json(
       { message: IS_DEV ? e.toString() : "Something went wrong!" },
       { status: 500 },
     );
+  }
+}
+
+export type ApiFilesGetResponseType = { items: Prisma.FileGetPayload<{}>[] };
+export async function GET() {
+  try {
+    const session = await getServerAuthSession();
+    if (!session) return NextResponse.json({}, { status: 401 });
+
+    const files = await prisma.file.findMany({ where: { createdById: session.user.id } });
+
+    return NextResponse.json({ items: files });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({}, { status: 500 });
   }
 }

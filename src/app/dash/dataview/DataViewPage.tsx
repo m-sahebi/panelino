@@ -8,7 +8,7 @@ import { type RouterName } from "~/_server/routers";
 import { AntFormItem } from "~/components/AntFormItem";
 import JsonPrettied from "~/components/JsonPrettied";
 import { trpc, type RouterInputs, type RouterOutputs } from "~/lib/trpc";
-import { useAntTableOnChange } from "~/utils/hooks/useAntTableOnChange";
+import { useAntTableHandleChange } from "~/utils/hooks/useAntTableHandleChange";
 import { useColumnsFromMeta } from "~/utils/hooks/useColumnsFromMeta";
 import { usePaginationQueryParams } from "~/utils/hooks/usePaginationQueryParams";
 import { useQueryParams } from "~/utils/hooks/useQueryParams";
@@ -62,7 +62,7 @@ export default function DataViewPage<
       (dataSchema?.output?.properties?.items as any)?.element?.properties ??
       {},
   );
-  const { handleTableChange } = useAntTableOnChange();
+  const { handleTableChange } = useAntTableHandleChange();
 
   const { mutate, isLoading: isLoadingM } = (trpc as any)[routeName]?.[methodName]?.useMutation({
     onError: (e: any) => message.error(e.toString()),

@@ -25,7 +25,7 @@ export async function tFetch<T>(...args: Parameters<typeof fetch>) {
   const res = await fetch(url, { headers: getServersideHeaders(), ...args[1] });
   const result = await res.json();
   if (!res.ok) {
-    return { data: null, error: result, res };
+    throw { data: null, error: result, res };
   }
   return { data: result as T, error: null, res };
 }

@@ -22,6 +22,4 @@ const EnvSchema = z
 
 export const Env = EnvSchema.parse(process.env);
 
-const g = globalThis as unknown as { _isEnvLogged: boolean | undefined };
-if (!g._isEnvLogged) console.info("Env vars:", IS_DEV ? Env : Object.keys(Env));
-if (IS_DEV) g._isEnvLogged = true;
+if (!IS_DEV) console.info("Env vars:", Object.keys(Env));

@@ -82,7 +82,7 @@ model Flow {
 }
 
 model File {
-  id            String  @id @unique @default(nanoid(12))
+  id            String  @id @unique @default(nanoid(20))
   key           String
   mimeType      String?
   createdBy     User    @relation("UploadedFiles", fields: [createdById], references: [id])

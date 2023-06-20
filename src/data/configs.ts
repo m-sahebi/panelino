@@ -1,4 +1,26 @@
+import { IBM_Plex_Sans } from "next/font/google";
 import { getNonNullable } from "~/utils/primitive";
+
+export const FONT_SANS = IBM_Plex_Sans({
+  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-sans",
+  fallback: [
+    "-apple-system",
+    "BlinkMacSystemFont",
+    "'Segoe UI'",
+    "Roboto",
+    "'Helvetica Neue'",
+    "Arial",
+    "'Noto Sans'",
+    "sans-serif",
+    "'Apple Color Emoji'",
+    "'Segoe UI Emoji'",
+    "'Segoe UI Symbol'",
+    "'Noto Color Emoji'",
+  ],
+});
 
 export const IS_DEV = process.env.NODE_ENV !== "production";
 export const IS_SERVER = typeof window === "undefined";

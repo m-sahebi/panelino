@@ -8,7 +8,7 @@ import { pick } from "radash";
 import { prisma } from "~/_server/lib/prisma";
 import { verifyPassword } from "~/_server/utils/crypto";
 import { IS_DEV } from "~/data/configs";
-import { Env } from "~/data/env";
+import { Env } from "~/env";
 import { assertIt } from "~/utils/primitive";
 
 declare module "next-auth" {

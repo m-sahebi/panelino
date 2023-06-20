@@ -8,7 +8,7 @@ module.exports = {
   plugins: [require("@ianvs/prettier-plugin-sort-imports"), require("prettier-plugin-tailwindcss")],
   overrides: [
     {
-      files: ["*.ts", "*.tsx"],
+      files: ["*.ts", "*.tsx", "*.mjs", "*.js"],
       options: {
         parser: "typescript",
         importOrderParserPlugins: ["typescript", "jsx"],

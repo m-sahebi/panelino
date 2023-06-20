@@ -26,7 +26,7 @@ export function ProfileIcon({
   const role = user?.role || UserRole.GUEST;
   const widthAvatar = avatarWidth ?? "2.5rem";
   const heightAvatar = avatarWidth ?? "2.5rem";
-  const widthCollapsed = collapsedWidth ?? "11rem";
+  const widthCollapsed = collapsedWidth ?? "10rem";
 
   return (
     <div className={cn("transition-all", className)}>
@@ -78,9 +78,13 @@ export function ProfileIcon({
           </div>
         </Popover>
         <div
-          className={cn("flex flex-shrink flex-col justify-around self-stretch truncate", {
-            "h-0": collapsed,
-          })}
+          className={cn(
+            "flex flex-shrink flex-col justify-around self-stretch truncate transition-all",
+            {
+              "h-0": collapsed,
+            },
+          )}
+          style={{ height: heightAvatar }}
         >
           <div className="truncate font-bold">{user ? user.name : "Guest"}</div>
           {user?.email ? (

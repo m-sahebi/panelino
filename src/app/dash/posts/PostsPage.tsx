@@ -4,7 +4,7 @@ import { Table } from "antd";
 import { useSession } from "next-auth/react";
 import { pick } from "radash";
 import { trpc, type RouterOutputs } from "~/lib/trpc";
-import { useAntTableOnChange } from "~/utils/hooks/useAntTableOnChange";
+import { useAntTableHandleChange } from "~/utils/hooks/useAntTableHandleChange";
 import { useColumnsFromMeta } from "~/utils/hooks/useColumnsFromMeta";
 import { usePaginationQueryParams } from "~/utils/hooks/usePaginationQueryParams";
 import { useQueryParams } from "~/utils/hooks/useQueryParams";
@@ -23,9 +23,10 @@ export function PostsPage({ dataSource }: { dataSource: RouterOutputs["posts"]["
     },
     { initialData: dataSource },
   );
-  type Item = typeof dataSource.items[number];
-  const { columns } = useColumnsFromMeta<Item>(data.meta?.columns || {});
-  const { handleTableChange } = useAntTableOnChange<Item>();
+
+  type Item = (typeof dataSource.items)[number];
+  const { columns } = useColumnsFromMeta<Item>(data?.meta?.columns || {});
+  const { handleTableChange } = useAntTableHandleChange<Item>();
 
   return (
     <Table
@@ -37,7 +38,7 @@ export function PostsPage({ dataSource }: { dataSource: RouterOutputs["posts"]["
       }}
       onChange={handleTableChange}
       columns={columns}
-      dataSource={data.items}
+      dataSource={data?.items}
       rowKey={(el) => el.id}
     />
   );

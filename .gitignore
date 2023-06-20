@@ -4,6 +4,7 @@
 *.db
 **/*.ignore
 **/*.ignore.*
+/.swc
 
 # dependencies
 /node_modules
@@ -31,7 +32,6 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # local env files
-.env
 .env
 
 # vercel

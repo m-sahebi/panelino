@@ -51,7 +51,10 @@ export function AntdProvider({ children }: { children: React.ReactNode }) {
   return (
     <ConfigProvider
       theme={{
-        token: { colorPrimary: "#00b96b" },
+        token: {
+          colorPrimary: "#00b96b",
+          fontFamily: "inherit",
+        },
         algorithm: [isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm],
       }}
     >
