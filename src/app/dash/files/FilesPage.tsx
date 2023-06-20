@@ -3,6 +3,7 @@
 import { UploadOutlined } from "@ant-design/icons";
 import { useQuery } from "@tanstack/react-query";
 import { Button, message, Slider, Upload } from "antd";
+import Image from "next/image";
 import React, { useState } from "react";
 import { type ApiFilePostResponseType, type ApiFilesGetResponseType } from "~/app/api/files/route";
 import { queryClient } from "~/lib/tanstack-query";
@@ -72,7 +73,9 @@ export function FilesPage() {
                 height: `${zoom / 10}rem`,
               }}
             >
-              <img
+              <Image
+                width={zoom * 1.6}
+                height={zoom * 1.6}
                 src={`/api/files/${file.id}`}
                 alt={file.key}
                 className="max-h-full max-w-full rounded object-contain"

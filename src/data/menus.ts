@@ -6,7 +6,7 @@ export const DASH_SIDEMENU_ITEMS: AntMenuItem[] = [
   getAntMenuItem("Posts", "/posts", AppstoreOutlined),
   getAntMenuItem("Users", "/users", SettingOutlined),
   getAntMenuItem("Data View", "/dataview", SettingOutlined),
-  getAntMenuItem("Upload", "/upload", SettingOutlined),
+  getAntMenuItem("Upload", "/files", SettingOutlined),
 ];
 
 export const HOME_MAINMENU_ITEMS: AntMenuItem[] = [
