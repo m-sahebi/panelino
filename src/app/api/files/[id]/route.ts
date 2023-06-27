@@ -12,7 +12,10 @@ export async function GET(req: Request) {
 
     const { pathname } = new URL(req.url);
     const fileId = pathname.split("/").at(-1);
-    const file = await prisma.file.findUnique({ where: { id: fileId } });
+    const file = await prisma.file.findUnique({
+      where: { id: fileId },
+      select: { name: true, key: true },
+    });
 
     if (!file) return NextResponse.json({ error: "Not Found" }, { status: 404 });
     // if (file.createdById !== session.user.id) return NextResponse.json({}, { status: 403 });
@@ -24,7 +27,9 @@ export async function GET(req: Request) {
     }
     const blob = await res.blob();
 
-    return new Response(blob);
+    const headers = new Headers();
+    headers.append("Content-Disposition", `inline; filename="${file.name}"`);
+    return new Response(blob, { headers });
   } catch (e) {
     console.error(e);
     return NextResponse.json({}, { status: 500 });

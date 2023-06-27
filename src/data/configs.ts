@@ -1,5 +1,5 @@
 import { IBM_Plex_Sans } from "next/font/google";
-import { getNonNullable } from "~/utils/primitive";
+import { nonNullable } from "~/utils/primitive";
 
 export const FONT_SANS = IBM_Plex_Sans({
   weight: ["300", "400", "500", "600", "700"],
@@ -25,11 +25,11 @@ export const FONT_SANS = IBM_Plex_Sans({
 export const IS_DEV = process.env.NODE_ENV !== "production";
 export const IS_SERVER = typeof window === "undefined";
 
-export const BASE_URL = getNonNullable(process.env.NEXT_PUBLIC_BASE_URL);
+export const BASE_URL = nonNullable(process.env.NEXT_PUBLIC_BASE_URL);
 export const API_URL = `${BASE_URL}/api`;
 
 export const PAGE_SIZE = 10;
-export const MAX_PAGE_SIZE = 100;
+export const PAGE_SIZE_LIMIT = 100;
 
 export const DATE_TIME_FORMAT = "YYYY-MM-DD_HH-mm";
 

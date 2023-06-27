@@ -32,10 +32,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: err.message }, { status: res.status });
     }
 
-    const data = (await res.json()) as { fileName: string; mimeType: string; size: number };
+    const data = (await res.json()) as {
+      fileName: string;
+      mimeType: string;
+      size: number;
+      originalName: string;
+    };
 
     const f = await prisma.file.create({
-      data: { key: data.fileName, createdById: session.user.id, mimeType: data.mimeType },
+      data: {
+        key: data.fileName,
+        name: data.originalName,
+        createdById: session.user.id,
+        mimeType: data.mimeType,
+      },
     });
     return NextResponse.json({ items: f }, { status: 201 });
   } catch (e: any) {

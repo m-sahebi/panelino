@@ -1,4 +1,4 @@
-import { MAX_PAGE_SIZE, PAGE_SIZE } from "~/data/configs";
+import { PAGE_SIZE, PAGE_SIZE_LIMIT } from "~/data/configs";
 import { toNumber } from "~/utils/primitive";
 
 export function paginate(
@@ -15,7 +15,7 @@ export function paginate(
   },
   total?: number,
 ) {
-  const ps = Math.min(Math.max(pageSize ?? limit ?? PAGE_SIZE, 1), MAX_PAGE_SIZE);
+  const ps = Math.min(Math.max(pageSize ?? limit ?? PAGE_SIZE, 1), PAGE_SIZE_LIMIT);
   let p = Math.max(page ?? Math.floor((offset ?? 0) / ps) + 1, 1);
 
   if (total) {

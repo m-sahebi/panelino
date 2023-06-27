@@ -1,6 +1,11 @@
 import { diff as radashDiff } from "radash";
 import { type Nullish, type UnionToTuple } from "~/utils/type";
 
+export function fileNameExtSplit(text: string) {
+  const idx = text.lastIndexOf(".");
+  return [text.slice(0, idx), text.slice(idx + 1)];
+}
+
 export function formatBytes(bytes: number, decimals = 1) {
   if (bytes == 0) return "0 Bytes";
   const k = 1024;
@@ -37,8 +42,8 @@ export function assertIt(condition: any, errorMsg?: string): asserts condition {
   if (!condition) throw new Error(errorMsg || "assertion error");
 }
 
-export function getNonNullable<T>(value: T, errorMsg?: string): NonNullable<T> {
-  if (value == null) throw new Error(errorMsg || "assertion error");
+export function nonNullable<T>(value: T, errorMsg?: string): NonNullable<T> {
+  if (value == null) throw new Error(errorMsg || "value is null or undefined");
   return value;
 }
 

@@ -10,7 +10,7 @@ import { Id } from "~/data/schemas/id";
 import { PaginatedReq } from "~/data/schemas/paginated-req";
 import { TableColumnType } from "~/data/schemas/table";
 import { paginate } from "~/utils/helpers";
-import { getNonNullable, jsonParse } from "~/utils/primitive";
+import { jsonParse, nonNullable } from "~/utils/primitive";
 
 const UserModelNoDeletedAt = UserModel.omit({ deletedAt: true });
 const UserModelNoMeta = UserModelNoDeletedAt.omit({
@@ -160,6 +160,6 @@ export const usersRouter = createTRPCRouter({
 
       if (!user.count) throw new TRPCError({ code: "NOT_FOUND" });
 
-      return { items: getNonNullable(await prisma.user.findUnique({ where: { id } })) };
+      return { items: nonNullable(await prisma.user.findUnique({ where: { id } })) };
     }),
 });
