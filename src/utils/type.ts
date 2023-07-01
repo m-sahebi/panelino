@@ -21,6 +21,7 @@ export type Merge<T extends object, R extends object> = Omit<T, keyof R> & R;
 
 export type UnionKeys<T> = T extends any ? keyof T : never;
 
-export type EnumToUnionString<T> = keyof T;
+export type ToString<T extends string | number | bigint | boolean | null | undefined> =
+  T extends any ? `${T}` : never;
 
-export type EnumToString<T extends string> = `${T}`;
+export type ObjectValues<T> = T[keyof T];

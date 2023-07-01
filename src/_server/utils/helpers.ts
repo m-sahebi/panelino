@@ -3,7 +3,8 @@ import { zerialize, type SzEnum, type SzObject, type SzType } from "zodex";
 import { DATE_TIME_FORMAT } from "~/data/configs";
 import { PaginatedRes } from "~/data/schemas/paginated-res";
 import { Res } from "~/data/schemas/res";
-import { PrimitiveType, TableColumnOptions } from "~/data/schemas/table";
+import { TableColumnOptions } from "~/data/schemas/table";
+import { SzDataType } from "~/data/types/basic";
 import { dayjs } from "~/lib/dayjs";
 import { assertIt } from "~/utils/primitive";
 
@@ -54,9 +55,9 @@ export function parseFilter<T extends Record<string, SzType>>(
   const keys = Object.keys(parsedOutput.properties);
   keys.forEach((k) => {
     const val = rawFilter[k];
-    if (obj[k].type === PrimitiveType.STRING && typeof val === "string")
+    if (obj[k].type === SzDataType.STRING && typeof val === "string")
       where[k] = { contains: val, mode: "insensitive" };
-    else if (obj[k].type === PrimitiveType.NUMBER && typeof val === "number")
+    else if (obj[k].type === SzDataType.NUMBER && typeof val === "number")
       where[k] = { equals: val };
     else if (obj[k].type === "enum" && typeof val === "string")
       where[k] = val
@@ -64,7 +65,7 @@ export function parseFilter<T extends Record<string, SzType>>(
             in: val.split(".").filter((val) => (obj[k] as SzEnum<any>).values.includes(val)),
           }
         : undefined;
-    else if (obj[k].type === PrimitiveType.DATE && typeof val === "string") {
+    else if (obj[k].type === SzDataType.DATE && typeof val === "string") {
       const vals = val.split(".");
       const rawFrom = dayjs(vals[0], DATE_TIME_FORMAT);
       const from = rawFrom.isValid() ? rawFrom.toDate() : undefined;

@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!res.ok) {
-      const err = await res.json();
+      const err = (await res.json()) as { message: string };
       return NextResponse.json({ message: err.message }, { status: res.status });
     }
 
@@ -66,8 +66,11 @@ export async function GET() {
     const files = await prisma.file.findMany({ where: { createdById: session.user.id } });
 
     return NextResponse.json({ items: files });
-  } catch (e) {
+  } catch (e: any) {
     console.error(e);
-    return NextResponse.json({}, { status: 500 });
+    return NextResponse.json(
+      { message: IS_DEV ? e.toString() : "Something went wrong!" },
+      { status: 500 },
+    );
   }
 }

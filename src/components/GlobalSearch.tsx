@@ -69,7 +69,7 @@ const GlobalSearch = memo(function GlobalSearch() {
     }
   }, [globalSearchState]);
 
-  useHotkeys("/", toggleGlobalSearch, [toggleGlobalSearch]);
+  useHotkeys("/", toggleGlobalSearch, {}, [toggleGlobalSearch]);
 
   const dropdownRender = useCallback(
     (menu: ReactNode) => (
@@ -138,7 +138,13 @@ const GlobalSearch = memo(function GlobalSearch() {
               // value: v.id,
               label: <div className="text-base">{v.title}</div>,
             }))}
-            notFoundContent={data == null ? <div className="h-32" /> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+            notFoundContent={
+              data == null ? (
+                <div className="h-32" />
+              ) : (
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              )
+            }
             dropdownRender={dropdownRender}
             dropdownAlign={{ offset: [-12, 20] }}
           />

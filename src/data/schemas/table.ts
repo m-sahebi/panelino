@@ -2,30 +2,17 @@ import { listify } from "radash";
 import { z } from "zod";
 import { type SzEnum } from "zodex";
 import { type SzDate, type SzNumber, type SzPrimitive, type SzString } from "zodex/dist/types";
-import { type UnionToTuple } from "~/utils/type";
-
-export enum PrimitiveType {
-  STRING = "string",
-  NUMBER = "number",
-  BOOLEAN = "boolean",
-  NAN = "nan",
-  BIGINT = "bigInt",
-  DATE = "date",
-  UNDEFINED = "undefined",
-  NULL = "null",
-  ANY = "any",
-  UNKNOWN = "unknown",
-  NEVER = "never",
-  VOID = "void",
-}
+import { type SzDataType } from "~/data/types/basic";
+import { type ObjectValues, type ToString, type UnionToTuple } from "~/utils/type";
 
 export enum TableColumnType {
-  STRING = PrimitiveType.STRING,
-  NUMBER = PrimitiveType.NUMBER,
-  DATE = PrimitiveType.DATE,
+  STRING = "string",
+  NUMBER = "number",
+  DATE = "date",
   ENUM = "enum",
-  BOOLEAN = PrimitiveType.BOOLEAN,
+  BOOLEAN = "boolean",
 }
+const _test: ObjectValues<SzDataType> = {} as ToString<TableColumnType>;
 
 export const TableColumnFilter = {
   [TableColumnType.STRING]: z.object({
@@ -51,20 +38,22 @@ export const TableColumnFilter = {
     type: z.literal(`${TableColumnType.BOOLEAN}`),
   }),
 };
-const _s: z.infer<typeof TableColumnFilter[TableColumnType.STRING]> = {} as unknown as SzString;
-const _n: z.infer<typeof TableColumnFilter[TableColumnType.NUMBER]> = {} as unknown as SzNumber;
-const _d: z.infer<typeof TableColumnFilter[TableColumnType.DATE]> = {} as unknown as SzDate;
-const _e: z.infer<typeof TableColumnFilter[TableColumnType.ENUM]> = {} as unknown as SzEnum<any>;
-const _b: SzPrimitive = {} as unknown as z.infer<typeof TableColumnFilter[TableColumnType.BOOLEAN]>;
+const _s: z.infer<(typeof TableColumnFilter)[TableColumnType.STRING]> = {} as SzString;
+const _n: z.infer<(typeof TableColumnFilter)[TableColumnType.NUMBER]> = {} as SzNumber;
+const _d: z.infer<(typeof TableColumnFilter)[TableColumnType.DATE]> = {} as SzDate;
+const _e: z.infer<(typeof TableColumnFilter)[TableColumnType.ENUM]> = {} as SzEnum<any>;
+const _b: SzPrimitive = {} as unknown as z.infer<
+  (typeof TableColumnFilter)[TableColumnType.BOOLEAN]
+>;
 
 export type TableColumnFilter = {
-  [p in TableColumnType]: z.infer<typeof TableColumnFilter[p]>;
+  [p in TableColumnType]: z.infer<(typeof TableColumnFilter)[p]>;
 };
 
 export const TableColumnOptions = z
   .union(
     listify(TableColumnFilter, (k, v) => v) as UnionToTuple<
-      typeof TableColumnFilter[TableColumnType]
+      (typeof TableColumnFilter)[TableColumnType]
     >,
   )
   .and(
