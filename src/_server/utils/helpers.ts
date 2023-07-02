@@ -6,7 +6,7 @@ import { Res } from "~/data/schemas/res";
 import { TableColumnOptions } from "~/data/schemas/table";
 import { SzDataType } from "~/data/types/basic";
 import { dayjs } from "~/lib/dayjs";
-import { assertIt } from "~/utils/primitive";
+import { invariant } from "~/utils/primitive";
 
 export function makeResSchema<
   TShape extends z.ZodRawShape,
@@ -98,7 +98,7 @@ export function getOptionsForMethodGetMany<
   });
 
   const [k1, ...k2] = keys;
-  assertIt(typeof k1 === "string");
+  invariant(typeof k1 === "string");
 
   return {
     // TODO change function parameters to recieve filterable and sortable columns

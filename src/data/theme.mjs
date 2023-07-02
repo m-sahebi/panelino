@@ -4,8 +4,11 @@ export const fontFamily = {
 };
 
 export const colors = {
-  primary: { light: "#00b96b", dark: "#00b96b" },
-  secondary: { light: "#3978EC", dark: "#3978EC" },
+  // TODO fix compile error on this line
+  // primary: "var(--color-primary) / <alpha-value>)",
+  // secondary: "var(--color-secondary) / <alpha-value>)",
+  primary: "#00b96b",
+  secondary: "#3978EC",
 };
 
 export const borderRadius = {

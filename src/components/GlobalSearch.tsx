@@ -1,6 +1,14 @@
 import { LoadingOutlined } from "@ant-design/icons";
 import { AutoComplete, ConfigProvider, Divider, Empty, Modal, Pagination, Spin } from "antd";
-import React, { memo, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type PropsWithChildren,
+  type ReactNode,
+} from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { createStateContext, useDebounce } from "react-use";
 import { trpc } from "~/lib/trpc";
@@ -55,10 +63,7 @@ const GlobalSearch = memo(function GlobalSearch() {
   const searchLengthIsGteLimit = (searchDebounced?.length ?? 0) >= SEARCH_MIN_LENGTH;
   const { data, isLoading } = trpc.posts.getMany.useQuery(
     { search: searchDebounced, page, pageSize },
-    {
-      enabled: searchLengthIsGteLimit,
-      // keepPreviousData: searchLengthIsGteLimit,
-    },
+    { enabled: searchLengthIsGteLimit },
   );
 
   useEffect(() => {
@@ -107,13 +112,6 @@ const GlobalSearch = memo(function GlobalSearch() {
         destroyOnClose
       >
         <div className="relative flex w-full items-center">
-          {/*<div className="absolute bottom-0 left-0 top-0 flex items-center">*/}
-          {/*  {isFetching ? (*/}
-          {/*    <Spin indicator={<LoadingOutlined className="text-lg" />} />*/}
-          {/*  ) : (*/}
-          {/*    <SearchOutlined className="text-lg text-daw-neutral-400" />*/}
-          {/*  )}{" "}*/}
-          {/*</div>*/}
           <AutoComplete
             onKeyDown={(ev) => ev.key === "Escape" && toggleGlobalSearch()}
             allowClear
@@ -154,7 +152,7 @@ const GlobalSearch = memo(function GlobalSearch() {
   );
 });
 
-export function GlobalSearchProvider({ children }: { children: ReactNode }) {
+export function GlobalSearchProvider({ children }: PropsWithChildren) {
   return (
     <_GlobalSearchProvider>
       <GlobalSearch />

@@ -1,9 +1,13 @@
 import { diff as radashDiff } from "radash";
 import { type Nullish, type UnionToTuple } from "~/utils/type";
 
-export function fileNameExtSplit(text: string) {
-  const idx = text.lastIndexOf(".");
-  return [text.slice(0, idx), text.slice(idx + 1)];
+export function fileNameExtSplit(fullName: string) {
+  const idx = fullName.lastIndexOf(".");
+  if (idx === -1) return [fullName, ""];
+  const name = fullName.slice(0, idx);
+  // file name is like `.example`
+  if (!name) return [fullName, ""];
+  return [name, fullName.slice(idx + 1)];
 }
 
 export function formatBytes(bytes: number, decimals = 1) {
@@ -38,7 +42,12 @@ export function toNumber(str: unknown, defaultValue: number | undefined = undefi
   return num;
 }
 
-export function assertIt(condition: any, errorMsg?: string): asserts condition {
+export function clamp(value: number, min: number, max: number) {
+  invariant(max >= min, `min value (${min}) is higher than max (${max})`);
+  return Math.min(Math.max(value, min), max);
+}
+
+export function invariant(condition: any, errorMsg?: string): asserts condition {
   if (!condition) throw new Error(errorMsg || "assertion error");
 }
 
@@ -76,4 +85,9 @@ export function enumToArray<T>(en: T) {
     (arr as any).push(enumMember);
   }
   return arr;
+}
+
+export function windowClearSelection() {
+  if (typeof window === "undefined") return;
+  window.getSelection?.()?.removeAllRanges();
 }

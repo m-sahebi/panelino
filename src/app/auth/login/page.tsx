@@ -2,10 +2,10 @@
 
 import { GithubOutlined } from "@ant-design/icons";
 import { Button, Divider, Form, Input } from "antd";
-import { message } from "antd/lib";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { globalMessage } from "~/components/Providers/AntdProvider";
 import { IS_DEV } from "~/data/configs";
 
 const errors = {
@@ -28,11 +28,11 @@ export default function LoginPage() {
   useEffect(() => {
     const error = query?.get("error");
     if (error)
-      void message.error({
+      void globalMessage.error({
         content: (errors as any)[error] ?? errors.default,
         key: "serverSigninError",
       });
-    return () => message.destroy("serverSigninError");
+    return () => globalMessage.destroy("serverSigninError");
   }, [query]);
 
   const onFinish = (values: any) => {

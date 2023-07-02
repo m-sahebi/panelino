@@ -9,7 +9,7 @@ import { prisma } from "~/_server/lib/prisma";
 import { verifyPassword } from "~/_server/utils/crypto";
 import { IS_DEV } from "~/data/configs";
 import { Env } from "~/env";
-import { assertIt } from "~/utils/primitive";
+import { invariant } from "~/utils/primitive";
 
 declare module "next-auth" {
   interface Session {
@@ -112,7 +112,7 @@ export const authOptions: AuthOptions = {
       if (account) {
         const newToken = { ...token };
 
-        assertIt(user.email, 'no email for "user" found');
+        invariant(user.email, 'no email for "user" found');
 
         newToken.picture = `https://www.gravatar.com/avatar/${crypto
           .createHash("md5")

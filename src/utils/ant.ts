@@ -1,5 +1,6 @@
 import { type DatePickerProps, type MenuProps, type Select } from "antd";
 import { type RangePickerProps } from "antd/es/date-picker";
+import { type ModalStaticFunctions } from "antd/es/modal/confirm";
 import type Link from "next/link";
 import type React from "react";
 import { createElement, type Component, type RefObject } from "react";
@@ -32,3 +33,5 @@ export type SelectRef<
 > = T extends RefObject<infer I> ? I : never;
 export type RangePickerRef = Component<RangePickerProps>;
 export type DatePickerRef = Component<DatePickerProps>;
+
+export type ModalFactory = Omit<ModalStaticFunctions, "warn">;

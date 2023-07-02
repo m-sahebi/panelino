@@ -1,10 +1,15 @@
 "use client";
 
 import { createCache, extractStyle, StyleProvider } from "@ant-design/cssinjs";
-import { ConfigProvider, theme } from "antd";
+import { ConfigProvider, message, Modal, theme } from "antd";
+import { type MessageInstance } from "antd/es/message/interface";
+import useMessage from "antd/es/message/useMessage";
+import useModal from "antd/es/modal/useModal";
 import { useServerInsertedHTML } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, type PropsWithChildren } from "react";
 import { IS_SERVER } from "~/data/configs";
+import { colors } from "~/data/theme.mjs";
+import { type ModalFactory } from "~/utils/ant";
 
 // suppress useLayoutEffect warnings when running outside a browser
 if (!process.browser) React.useLayoutEffect = React.useEffect;
@@ -12,7 +17,15 @@ if (!process.browser) React.useLayoutEffect = React.useEffect;
 const initDarkMode = !IS_SERVER && window.matchMedia?.("(prefers-color-scheme: dark)").matches;
 if (initDarkMode) document.documentElement.classList.add("dark");
 
-export function AntdProvider({ children }: { children: React.ReactNode }) {
+export let globalModal: ModalFactory = Modal;
+export let globalMessage: MessageInstance = message;
+export function AntdProvider({ children }: PropsWithChildren) {
+  const [modal, modalContextHolder] = useModal();
+  const [message, messageContextHolder] = useMessage();
+  if (globalModal === Modal) {
+    globalModal = modal;
+    globalMessage = message;
+  }
   const [cache] = useState(() => createCache());
   const [isDarkMode, setIsDarkMode] = useState(initDarkMode);
   const [isInit, setIsInit] = useState(false);
@@ -52,13 +65,15 @@ export function AntdProvider({ children }: { children: React.ReactNode }) {
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: "#00b96b",
+          colorPrimary: colors.primary,
           fontFamily: "inherit",
         },
         algorithm: [isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm],
       }}
     >
       <StyleProvider hashPriority="high" cache={cache}>
+        {modalContextHolder}
+        {messageContextHolder}
         {children}
       </StyleProvider>
     </ConfigProvider>

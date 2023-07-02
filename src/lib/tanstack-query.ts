@@ -4,13 +4,13 @@ import {
   type QueryFunctionContext,
   type QueryKey,
 } from "@tanstack/react-query";
-import { message } from "antd";
 import axios, { type AxiosError, type AxiosRequestConfig } from "axios";
 import { isObject } from "radash";
 import { type SimpleMerge } from "type-fest/source/merge";
+import { globalMessage } from "~/components/Providers/AntdProvider";
 import { API_URL, REQUEST_TIMEOUT } from "~/data/configs";
 import { generatePath } from "~/utils/generate-path";
-import { assertIt } from "~/utils/primitive";
+import { invariant } from "~/utils/primitive";
 
 export const request = axios.create({
   baseURL: API_URL,
@@ -27,13 +27,13 @@ export function rqFetch<TQueryKey extends QueryKey, TBody>({
   signal,
   meta,
 }: QueryFunctionContext<TQueryKey> & { meta: AxiosRequestConfig<TBody> | undefined }) {
-  assertIt(
+  invariant(
     typeof queryKey[0] === "string",
     `first element of the queryKey must be a string, received ${typeof queryKey[0]} with value: ${String(
       queryKey[0],
     )}`,
   );
-  assertIt(
+  invariant(
     queryKey[1] === undefined || isObject(queryKey[1]),
     `second element of the queryKey must be an object, received ${typeof queryKey[0]} with value: ${String(
       queryKey[0],
@@ -67,7 +67,7 @@ export async function rqMutate<
   await Promise.all(invalidatedKeys.map((key) => queryClient.cancelQueries(key)));
   const res = await request({ ...config, url: generatePath(url, path as any) }).catch(
     (e: AxiosError) => {
-      if (toastError) void message.error((e.response?.data as any).message || e.message);
+      if (toastError) void globalMessage.error((e.response?.data as any).message || e.message);
       console.error(e);
       throw e;
     },

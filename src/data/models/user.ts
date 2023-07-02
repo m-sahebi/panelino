@@ -7,6 +7,7 @@ export const UserModel = z.object({
   password: z.string().nullish(),
   email: z.string().email(),
   name: z.string().nullish(),
+  imageId: z.string().describe("file=image").nullish(),
   githubId: z.string().nullish(),
   role: z.enum(enumToArray(UserRole)),
   status: z.enum(enumToArray(UserStatus)),

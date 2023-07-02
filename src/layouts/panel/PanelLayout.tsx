@@ -1,11 +1,11 @@
 "use client";
 
-import React from "react";
+import { type PropsWithChildren } from "react";
 import { GlobalSearchProvider } from "~/components/GlobalSearch";
 import DashTitle from "~/layouts/panel/DashTitle";
 import { Sidebar } from "~/layouts/panel/Sidebar";
 
-type PanelLayoutProps = { children: React.ReactNode };
+type PanelLayoutProps = PropsWithChildren;
 function InnerPanelLayout({ children }: PanelLayoutProps) {
   return (
     <div className="relative mx-auto flex w-full max-w-[1440px]">

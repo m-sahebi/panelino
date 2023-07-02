@@ -1,12 +1,12 @@
 "use client";
 
 import { Button, Collapse, Form, Select, Table } from "antd";
-import { message } from "antd/lib";
 import { useMemo } from "react";
 import { type SzType } from "zodex";
 import { type RouterName } from "~/_server/routers";
 import { AntFormItem } from "~/components/AntFormItem";
 import JsonPrettied from "~/components/JsonPrettied";
+import { globalMessage } from "~/components/Providers/AntdProvider";
 import { trpc, type RouterInputs, type RouterOutputs } from "~/lib/trpc";
 import { useAntTableHandleChange } from "~/utils/hooks/useAntTableHandleChange";
 import { useColumnsFromMeta } from "~/utils/hooks/useColumnsFromMeta";
@@ -65,8 +65,8 @@ export default function DataViewPage<
   const { handleTableChange } = useAntTableHandleChange();
 
   const { mutate, isLoading: isLoadingM } = (trpc as any)[routeName]?.[methodName]?.useMutation({
-    onError: (e: any) => message.error(e.toString()),
-    onSuccess: () => message.success("Form submitted successfully"),
+    onError: (e: any) => globalMessage.error(e.toString()),
+    onSuccess: () => globalMessage.success("Form submitted successfully"),
   });
 
   const dataSchemaEntries = useMemo(

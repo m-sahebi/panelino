@@ -2,21 +2,18 @@
 
 import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
-import React from "react";
+import { type PropsWithChildren } from "react";
+import { GlobalLoadingProvider } from "~/components/GlobalLoading";
 import { AntdProvider } from "~/components/Providers/AntdProvider";
 import { TrpcProvider } from "~/components/Providers/TrpcProvider";
 
-export function Providers({
-  children,
-  session,
-}: {
-  children: React.ReactNode;
-  session?: Session | null;
-}) {
+export function Providers({ children, session }: PropsWithChildren<{ session?: Session | null }>) {
   return (
     <TrpcProvider>
       <SessionProvider session={session}>
-        <AntdProvider>{children}</AntdProvider>
+        <GlobalLoadingProvider>
+          <AntdProvider>{children}</AntdProvider>
+        </GlobalLoadingProvider>
       </SessionProvider>
     </TrpcProvider>
   );

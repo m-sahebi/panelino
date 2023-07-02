@@ -5,7 +5,7 @@ import { useMemo, type ReactNode } from "react";
 import { z } from "zod";
 import { zerialize, type SzObject, type SzType } from "zodex";
 import { SzDataType } from "~/data/types/basic";
-import { assertIt, camelCasePrettify } from "~/utils/primitive";
+import { camelCasePrettify, invariant } from "~/utils/primitive";
 import { cn } from "~/utils/tailwind";
 
 const getInputComponent: {
@@ -16,7 +16,7 @@ const getInputComponent: {
   [SzDataType.STRING]: (_sz) => <Input allowClear />,
   [SzDataType.NUMBER]: (_sz) => <InputNumber />,
   [SzDataType.ENUM]: (sz) => {
-    assertIt(sz.type === SzDataType.ENUM);
+    invariant(sz.type === SzDataType.ENUM);
     return <Select options={sz.values.map((el: string) => ({ label: el, value: el }))} />;
   },
   [SzDataType.DATE]: (_sz) => <DatePicker.RangePicker />,

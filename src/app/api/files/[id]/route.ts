@@ -4,6 +4,7 @@ import sanitize from "sanitize-filename";
 import { getServerAuthSession } from "~/_server/lib/next-auth";
 import { prisma } from "~/_server/lib/prisma";
 import { IS_DEV } from "~/data/configs";
+import { fileNameExtSplit } from "~/utils/primitive";
 
 export type ApiFileGetResponseType = Blob;
 export async function GET(req: Request) {
@@ -37,14 +38,12 @@ export async function GET(req: Request) {
 }
 
 export type ApiFileDeleteResponseType = { items: Prisma.FileGetPayload<{}> };
-export async function DELETE(req: Request) {
+export async function DELETE(req: Request, { params: { id } }: { params: { id: string } }) {
   try {
     const session = await getServerAuthSession();
     if (!session) return NextResponse.json({}, { status: 401 });
 
-    const { pathname } = new URL(req.url);
-    const fileId = pathname.split("/").at(-1);
-    const file = await prisma.file.findUnique({ where: { id: fileId } });
+    const file = await prisma.file.findUnique({ where: { id } });
 
     if (!file) return NextResponse.json({ message: "Not Found" }, { status: 404 });
     if (file.createdById !== session.user.id)
@@ -56,7 +55,7 @@ export async function DELETE(req: Request) {
       return NextResponse.json({}, { status: 500 });
     }
 
-    await prisma.file.delete({ where: { id: fileId }, select: null });
+    await prisma.file.delete({ where: { id }, select: null });
 
     return NextResponse.json({ items: file });
   } catch (e: any) {
@@ -74,17 +73,19 @@ export async function PATCH(req: NextRequest, { params: { id } }: { params: { id
     const session = await getServerAuthSession();
     if (!session) return NextResponse.json({}, { status: 401 });
 
-    const file = await prisma.file.findUnique({ where: { id } });
-
-    if (!file) return NextResponse.json({ message: "Not Found" }, { status: 404 });
-    if (file.createdById !== session.user.id)
-      return NextResponse.json({ message: "Not Found" }, { status: 404 });
-
     const reqBody = (await req.json()) as { name?: string };
-    const name = sanitize(String(reqBody.name ?? ""));
+    const name = sanitize(String(reqBody.name ?? "")).trim();
     if (!name) return NextResponse.json({ message: "Invalid file name" }, { status: 400 });
 
-    await prisma.file.update({ where: { id }, data: { name }, select: null });
+    const file = await prisma.file.findUnique({ where: { id } });
+
+    if (!file) return NextResponse.json({ message: "Not found" }, { status: 404 });
+    if (file.createdById !== session.user.id)
+      return NextResponse.json({ message: "Not found" }, { status: 404 });
+
+    const [, ext] = fileNameExtSplit(file.name);
+
+    await prisma.file.update({ where: { id }, data: { name: name + "." + ext }, select: null });
 
     return NextResponse.json({ items: file });
   } catch (e: any) {
