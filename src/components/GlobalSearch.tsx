@@ -1,5 +1,5 @@
 import { LoadingOutlined } from "@ant-design/icons";
-import { AutoComplete, ConfigProvider, Divider, Empty, Modal, Pagination, Spin } from "antd";
+import { AutoComplete, ConfigProvider, Divider, Empty, Modal, Pagination, Spin, Tag } from "antd";
 import {
   memo,
   useCallback,
@@ -134,7 +134,12 @@ const GlobalSearch = memo(function GlobalSearch() {
             options={data?.items.map((v) => ({
               key: v.id,
               // value: v.id,
-              label: <div className="text-base">{v.title}</div>,
+              label: (
+                <div className="flex items-center gap-1">
+                  <Tag>Post</Tag>
+                  <span className="text-base">{v.title}</span>
+                </div>
+              ),
             }))}
             notFoundContent={
               data == null ? (

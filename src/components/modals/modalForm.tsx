@@ -2,6 +2,7 @@ import { type FormInstance } from "antd";
 import { type ModalFuncProps } from "antd/es/modal/interface";
 import { type SimpleMerge } from "type-fest/source/merge";
 import { globalModal } from "~/components/Providers/AntdProvider";
+import { cn } from "~/utils/tailwind";
 
 export function modalForm<T>({
   form,
@@ -18,7 +19,9 @@ export function modalForm<T>({
   }
 >) {
   return globalModal.confirm({
+    icon: null,
     ...p,
+    wrapClassName: cn(p.icon && p.wrapClassName, "full-modal-confirm-content"),
     afterClose: () => {
       form.resetFields();
       p.afterClose?.();

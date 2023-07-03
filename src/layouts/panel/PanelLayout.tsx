@@ -10,7 +10,7 @@ function InnerPanelLayout({ children }: PanelLayoutProps) {
   return (
     <div className="relative mx-auto flex w-full max-w-[1440px]">
       <Sidebar />
-      <main className="min-w-0 flex-1 px-6 pt-4">
+      <main className="min-w-0 flex-1 px-6 py-4">
         <DashTitle />
         {children}
       </main>

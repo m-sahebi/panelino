@@ -5,35 +5,82 @@ import { type SimpleMerge } from "type-fest/source/merge";
 import { windowClearSelection } from "~/utils/primitive";
 import { type Nullish } from "~/utils/type";
 
-export function useSelectionArea<TKey extends {}>({
+type Key = string;
+
+export function useSelectionArea({
   onSelectionStart,
   onSelectionEnd,
   shouldStartSelecting,
-  getTarget,
-  setSelection,
+  dragContainer,
+  selectables,
+  onSelectionChange,
   ...opt
 }: SimpleMerge<
   UseSelectionContainerParams<HTMLElement>,
   {
-    getTarget?: () => Nullish<HTMLElement>;
-    setSelection?: (keys: TKey[]) => void;
+    dragContainer: { current: HTMLElement | null } | string;
+    selectables: { current: HTMLElement[] | null } | string;
+    onSelectionChange?: (keys: ((prevKeys: Key[]) => Key[]) | Key[]) => void;
   }
 >) {
-  const selectableItems = useRef<{ element: HTMLElement; key: TKey }[]>([]);
-  const selectableItemsKey = useRef<TKey[]>([]);
+  const dragContainerRef = useRef<HTMLElement | null>(null);
+  const selectableItems = useRef<HTMLElement[] | null>(null);
+  const selectableItemsKey = useRef<Key[] | null>(null);
   const dragging = useRef(false);
   const v = useSelectionContainer({
     onSelectionChange: (box) => {
-      const selections: TKey[] = [];
-      selectableItems.current.forEach((item) => {
-        if (boxesIntersect(box, item.element.getBoundingClientRect())) {
-          selections.push(item.key);
+      const selections: Key[] = [];
+      // selectableItems is already init in onSelectionStart
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      selectableItems.current!.forEach((item, idx) => {
+        if (boxesIntersect(box, item.getBoundingClientRect())) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          selections.push(selectableItemsKey.current![idx]);
         }
       });
-      setSelection?.(selections);
+      onSelectionChange?.(selections);
     },
     ...opt,
+    shouldStartSelecting(el) {
+      if (!(shouldStartSelecting?.(el) ?? true)) return false;
+      if (!dragContainer) {
+        windowClearSelection();
+        return true;
+      }
+      dragContainerRef.current ??=
+        typeof dragContainer === "string"
+          ? document.querySelector(dragContainer)
+          : dragContainer.current;
+      if (
+        dragContainerRef.current &&
+        el instanceof HTMLElement &&
+        dragContainerRef.current.contains(el)
+      ) {
+        windowClearSelection();
+        // setSelection?.([]);
+        return true;
+      }
+      return false;
+    },
     onSelectionStart(...args) {
+      if (
+        selectableItems.current == null &&
+        (typeof selectables === "string" || selectables.current)
+      ) {
+        const items =
+          typeof selectables === "string"
+            ? document.querySelectorAll(selectables)
+            : // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              selectables.current!;
+        selectableItems.current = [];
+        selectableItemsKey.current = [];
+        items.forEach((item) => {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          selectableItems.current!.push(item as HTMLElement);
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          selectableItemsKey.current!.push(item.getAttribute("data-key") ?? "");
+        });
+      }
       dragging.current = true;
       windowClearSelection();
       onSelectionStart?.(...args);
@@ -42,30 +89,15 @@ export function useSelectionArea<TKey extends {}>({
       onSelectionEnd?.(...args);
       setTimeout(() => (dragging.current = false), 0);
     },
-    shouldStartSelecting(el) {
-      if (!(shouldStartSelecting?.(el) ?? true)) return false;
-      if (!getTarget) {
-        windowClearSelection();
-        return true;
-      }
-      const t = getTarget();
-      if (t && el instanceof HTMLElement && t.contains(el)) {
-        windowClearSelection();
-        // setSelection?.([]);
-        return true;
-      }
-      return false;
-    },
   });
 
-  const addToSelectableItems = useCallback((el: Nullish<HTMLElement>, key: TKey) => {
+  const addToSelectableItems = useCallback((el: Nullish<HTMLElement>, key: Key) => {
     if (!el) return;
+    selectableItems.current ??= [];
+    selectableItemsKey.current ??= [];
     if (!selectableItemsKey.current.includes(key)) {
       selectableItemsKey.current.push(key);
-      selectableItems.current.push({
-        element: el,
-        key,
-      });
+      selectableItems.current.push(el);
     }
   }, []);
 

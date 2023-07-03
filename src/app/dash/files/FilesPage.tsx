@@ -10,7 +10,7 @@ export function FilesPage() {
   return (
     <div className="flex w-full flex-col gap-6">
       <FileUpload />
-      <FileBrowser />
+      <FileBrowser multiSelect />
       <Button
         onClick={() => {
           modalFilePicker({ onOk: console.log });

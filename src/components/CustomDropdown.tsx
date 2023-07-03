@@ -1,5 +1,6 @@
 import { Dropdown, type DropdownProps } from "antd";
 import {
+  Children,
   cloneElement,
   forwardRef,
   useImperativeHandle,
@@ -8,19 +9,19 @@ import {
   type ReactNode,
 } from "react";
 import { type SimpleMerge } from "type-fest/source/merge";
+import { type HTMLElementTagName } from "~/data/types/html";
 import { type Nullish } from "~/utils/type";
 
 export type CustomDropdownRef = { setOpen: (o: boolean) => void };
-export type CustomDropdownProps<
-  T extends keyof JSX.IntrinsicElements = keyof JSX.IntrinsicElements,
-> = SimpleMerge<
+export type CustomDropdownProps<T extends HTMLElementTagName = HTMLElementTagName> = SimpleMerge<
   DropdownProps,
   {
     scope?: string;
     targetClassName?: string;
     targetStyle?: React.HTMLAttributes<T>["style"];
-    renderChildren?: (children: ReactNode) => ReactElement;
+    renderChildren?: (children: ReactNode) => ReactElement<JSX.IntrinsicElements[T]>;
     onOpenChange?: (open: boolean) => Nullish<boolean>;
+    children?: ReactNode;
   }
 >;
 
@@ -35,7 +36,7 @@ function getCurrentOpenFn(scope: Nullish<string>) {
 }
 
 export const CustomDropdown = forwardRef<CustomDropdownRef, CustomDropdownProps>(
-  function CustomDropdown<T extends keyof JSX.IntrinsicElements>(
+  function CustomDropdown<T extends HTMLElementTagName>(
     {
       children,
       scope,
@@ -85,7 +86,10 @@ export const CustomDropdown = forwardRef<CustomDropdownRef, CustomDropdownProps>
       >
         {renderChildren ? (
           cloneElement(renderChildren(children), {
-            onContextMenu: (ev: any) => ev.stopPropagation?.(),
+            onContextMenu: (ev: React.MouseEvent<HTMLElement>) => {
+              ev.stopPropagation?.();
+              Children.only(renderChildren(children))?.props?.onContextMenu?.(ev as any);
+            },
           })
         ) : (
           <div

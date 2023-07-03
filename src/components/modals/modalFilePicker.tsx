@@ -8,10 +8,14 @@ import { FileUpload } from "~/components/file/FileUpload";
 import { globalModal } from "~/components/Providers/AntdProvider";
 import { cn } from "~/utils/tailwind";
 
-let _modal: ReturnType<ModalFunc>, _onOk: ((filesid: string[]) => void) | undefined;
+let _modal: ReturnType<ModalFunc>, _onOk: ((filesId: string[]) => void) | undefined;
 let _selectedFilesId: string[] = [];
+
 function handleSelect(ids: string[]) {
   _selectedFilesId = ids;
+  const okBtn = document.querySelector("[data-modal-ok-btn]");
+  if (ids.length) okBtn?.removeAttribute("disabled");
+  else okBtn?.setAttribute("disabled", "true");
 }
 function handleDoubleClick(fileId: string) {
   _selectedFilesId = [fileId];
@@ -19,12 +23,12 @@ function handleDoubleClick(fileId: string) {
   _modal.destroy();
 }
 export function modalFilePicker({
-  multiple = false,
+  multiSelect = false,
   ...p
 }: SimpleMerge<
   ModalFuncProps,
   {
-    multiple?: boolean;
+    multiSelect?: boolean;
     onOk?: (filesId: string[]) => void;
   }
 >) {
@@ -33,20 +37,19 @@ export function modalFilePicker({
   _modal = (globalModal ?? Modal).confirm({
     icon: null,
     width: "100%",
-    title: multiple ? "Choose files" : "Choose a file",
-    wrapClassName: "full-modal-confirm-content",
+    title: multiSelect ? "Choose files" : "Choose a file",
+    ...p,
     content: (
       <div className="flex w-full flex-col gap-6">
-        <style>{`.full-modal-confirm-content .ant-modal-confirm-content{max-width: 100% !important;}`}</style>
         <FileUpload />
         <FileBrowser
-          multiple={multiple}
+          multiSelect={multiSelect}
           onSelect={handleSelect}
           onDoubleClick={handleDoubleClick}
         />
       </div>
     ),
-    ...p,
+    wrapClassName: cn(p.icon && p.wrapClassName, "full-modal-confirm-content"),
     className: cn("top-4 max-w-screen-lg px-4", p.className),
     afterClose: () => {
       _selectedFilesId = [];
@@ -55,6 +58,7 @@ export function modalFilePicker({
     onOk: async () => {
       return p.onOk?.(_selectedFilesId);
     },
+    okButtonProps: { "data-modal-ok-btn": "" },
   });
   return _modal;
 }

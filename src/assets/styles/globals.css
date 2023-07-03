@@ -32,3 +32,6 @@ body {
 .ant-btn.ant-btn.ant-btn {
   font-weight: 500;
 }
+.full-modal-confirm-content .ant-modal-confirm-content {
+  max-width: 100% !important;
+}
