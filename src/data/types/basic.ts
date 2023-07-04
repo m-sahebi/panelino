@@ -1,3 +1,4 @@
+import { type HTTP_METHOD } from "next/dist/server/web/http";
 import { type SzType } from "zodex";
 import { type ObjectValues } from "~/utils/type";
 
@@ -32,3 +33,7 @@ export const SzDataType = {
 export type SzDataType = typeof SzDataType;
 
 const _test: { type: ObjectValues<SzDataType> } = { type: "string" } as SzType;
+
+export type HttpMethod = HTTP_METHOD;
+
+export type HTMLElementTagName = keyof HTMLElementTagNameMap;

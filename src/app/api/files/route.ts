@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
         name: data.originalName,
         createdById: session.user.id,
         mimeType: data.mimeType,
+        size: +data.size,
       },
     });
     return NextResponse.json({ items: f }, { status: 201 });

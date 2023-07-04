@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { type SimpleMerge } from "type-fest/source/merge";
-import { type HTMLElementTagName } from "~/data/types/html";
+import { type HTMLElementTagName } from "~/data/types/basic";
 import { type Nullish } from "~/utils/type";
 
 export type CustomDropdownRef = { setOpen: (o: boolean) => void };
@@ -30,10 +30,12 @@ function getScope(scope: Nullish<string>) {
   return scope ?? GLOBAL_SCOPE;
 }
 
-const currentOpenFn: Record<string, (s: boolean) => void> = {};
-function getCurrentOpenFn(scope: Nullish<string>) {
-  return currentOpenFn[getScope(scope)];
-}
+const currentDropdownProps: {
+  [p: string]: {
+    setOpen: (s: boolean) => void;
+    onOpenChange: Nullish<DropdownProps["onOpenChange"]>;
+  };
+} = {};
 
 export const CustomDropdown = forwardRef<CustomDropdownRef, CustomDropdownProps>(
   function CustomDropdown<T extends HTMLElementTagName>(
@@ -66,19 +68,20 @@ export const CustomDropdown = forwardRef<CustomDropdownRef, CustomDropdownProps>
         onOpenChange={(o) => {
           if (onOpenChange?.(o)) return;
           if (o) {
-            if (getCurrentOpenFn(scope) === setOpen) {
+            if (currentDropdownProps[getScope(scope)]?.setOpen === setOpen) {
               setOpen(true);
               return;
             }
-            // currentId = id.current;
-            getCurrentOpenFn(scope)?.(false);
-            currentOpenFn[getScope(scope)] = setOpen;
+            currentDropdownProps[getScope(scope)]?.setOpen(false);
+            currentDropdownProps[getScope(scope)]?.onOpenChange?.(false);
+            currentDropdownProps[getScope(scope)] = { setOpen, onOpenChange };
           }
           setOpen(o);
         }}
         menu={{
           onClick: (...args) => {
-            currentOpenFn[getScope(scope)]?.(false);
+            currentDropdownProps[getScope(scope)]?.setOpen(false);
+            currentDropdownProps[getScope(scope)]?.onOpenChange?.(false);
             menu?.onClick?.(...args);
           },
           ...menu,

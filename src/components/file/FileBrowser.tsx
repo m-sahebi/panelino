@@ -147,6 +147,7 @@ export const FileBrowser = React.memo(function FileBrowser({
                   <FileIcon
                     fileId={file.id}
                     fileName={file.name}
+                    fileSize={file.size}
                     fileMimeType={file.mimeType}
                     width={zoom}
                     formInstance={renameForm}

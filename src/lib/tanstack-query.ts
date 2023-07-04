@@ -8,7 +8,7 @@ import axios, { type AxiosError, type AxiosRequestConfig } from "axios";
 import { isObject } from "radash";
 import { type SimpleMerge } from "type-fest/source/merge";
 import { globalMessage } from "~/components/Providers/AntdProvider";
-import { API_URL, REQUEST_TIMEOUT } from "~/data/configs";
+import { API_URL, IS_DEV, REQUEST_TIMEOUT } from "~/data/configs";
 import { generatePath } from "~/utils/generate-path";
 import { invariant } from "~/utils/primitive";
 
@@ -44,7 +44,14 @@ export function rqFetch<TQueryKey extends QueryKey, TBody>({
     signal,
     params: queryKey[1] || {},
     ...meta,
-  }).then((res) => res.data);
+  })
+    .then((res) => res.data)
+    .catch((e: AxiosError) => {
+      if (e.code !== "ERR_CANCELED")
+        void globalMessage.error((e.response?.data as any)?.message || e.message);
+      else if (IS_DEV) console.info(e.config?.signal);
+      throw e;
+    });
 }
 
 // TODO use `Record<PathParam<TUrl, string | null> for TPath, but webstorm hangs after importing rqMutate anywhere
@@ -67,8 +74,9 @@ export async function rqMutate<
   await Promise.all(invalidatedKeys.map((key) => queryClient.cancelQueries(key)));
   const res = await request({ ...config, url: generatePath(url, path as any) }).catch(
     (e: AxiosError) => {
-      if (toastError) void globalMessage.error((e.response?.data as any).message || e.message);
-      console.error(e);
+      if (toastError && e.code !== "ERR_CANCELED")
+        void globalMessage.error((e.response?.data as any)?.message || e.message);
+      else if (IS_DEV) console.info(e.config?.signal);
       throw e;
     },
   );
