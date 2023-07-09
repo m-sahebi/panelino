@@ -10,8 +10,6 @@ export type UnionToTuple<T, Tuple extends unknown[] = []> = [T] extends [never]
 type CastToStringTuple<T> = T extends [any, ...any[]] ? T : never;
 export type UnionToTupleString<T> = CastToStringTuple<UnionToTuple<T>>;
 
-export type ObjectValue<T extends object> = T[keyof T];
-
 export type ArrayElement<ArrayType extends readonly unknown[]> =
   ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 

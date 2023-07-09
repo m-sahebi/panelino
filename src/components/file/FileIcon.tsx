@@ -126,28 +126,31 @@ export const FileIcon = React.memo(function FileIcon({
 
   return (
     <Tooltip
-      placement="leftTop"
+      placement="rightTop"
       open={fileInfoOpened}
       title={
-        <div className="max-w-[8rem]">
-          <div className="float-right cursor-pointer">
+        <div className="relative max-w-[8rem]">
+          <div
+            className={`absolute -right-3 -top-3 float-right cursor-pointer
+              rounded-full bg-black/70 p-0.5 leading-none text-white`}
+          >
             <CloseCircleOutlined onClick={toggleFileInfoOpened} />
           </div>
           <div>{fileName}</div>
-          <Divider className="my-1" />
+          <Divider className="my-1 border-daw-neutral-500" />
           <div>
-            <span className="float-left font-light">Size:&nbsp;</span>
-            {formatBytes(fileSize)}
+            <span className="font-light">Size:&nbsp;</span>
+            <span className="float-right">{formatBytes(fileSize)}</span>
           </div>
-          <Divider className="my-1" />
+          <Divider className="my-1 border-daw-neutral-500" />
           <div>
-            <span className="float-left font-light">Type:&nbsp;</span>
-            {fileMimeType}
+            <span className="font-light">Type:&nbsp;</span>
+            <span className="float-right">{fileMimeType}</span>
           </div>
-          <Divider className="my-1" />
+          <Divider className="my-1 border-daw-neutral-500" />
           <div>
-            <span className="float-left font-light">Id:&nbsp;</span>
-            <span className="break-all">{fileId}</span>
+            <span className="font-light">Id:&nbsp;</span>
+            <span className="float-right break-all">{fileId}</span>
           </div>
           <div className="clear-both" />
         </div>
@@ -191,7 +194,7 @@ export const FileIcon = React.memo(function FileIcon({
               icon={<FiMoreHorizontal />}
               onClick={(ev) => ev.preventDefault()}
               onDoubleClick={(ev) => ev.preventDefault()}
-              className="absolute right-1 top-1 text-lg"
+              className="absolute right-1 top-1 flex h-6 items-center justify-center text-lg"
               type="text"
             />
           )}

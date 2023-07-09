@@ -31,8 +31,10 @@ export const API_URL = `${BASE_URL}/api`;
 export const PAGE_SIZE = 10;
 export const PAGE_SIZE_LIMIT = 100;
 
-export const DATE_TIME_FORMAT = "YYYY-MM-DD_HH-mm";
+export const DATE_TIME_FORMAT = "YYYY-MM-DD HH:mm";
 
 export const REQUEST_TIMEOUT = 10000;
 
 export const FILE_UPLOAD_SIZE_LIMIT = 5000000;
+
+export const IMAGE_MEDIA_TYPE = ".jpg,.jpeg,.png,.webp,.gif";

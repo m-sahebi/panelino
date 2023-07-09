@@ -4,17 +4,13 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: 0, 187, 107;
-  --color-primary-value: rgba(0, 187, 107);
-  --color-secondary: 57, 120, 236;
-  --color-secondary-value: rgba(57, 120, 236);
+  --color-primary: 0 187 107;
+  --color-secondary: 57 120 236;
 }
 
 .dark {
-  --color-primary: 0, 187, 107;
-  --color-primary-value: rgba(0, 187, 107);
-  --color-secondary: 57, 120, 236;
-  --color-secondary-value: rgba(57, 120, 236);
+  --color-primary: 0 187 107;
+  --color-secondary: 57 120 236;
 }
 
 body {

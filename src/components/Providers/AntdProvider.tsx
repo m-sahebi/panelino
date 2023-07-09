@@ -2,14 +2,13 @@
 
 import { createCache, extractStyle, StyleProvider } from "@ant-design/cssinjs";
 import { ConfigProvider, message, Modal, theme } from "antd";
-import { type MessageInstance } from "antd/es/message/interface";
 import useMessage from "antd/es/message/useMessage";
 import useModal from "antd/es/modal/useModal";
 import { useServerInsertedHTML } from "next/navigation";
 import React, { useEffect, useState, type PropsWithChildren } from "react";
 import { IS_SERVER } from "~/data/configs";
-import { colors } from "~/data/theme.mjs";
-import { type ModalFactory } from "~/utils/ant";
+import { type MessageFactory, type ModalFactory } from "~/data/types/component";
+import { rgbToHex } from "~/utils/primitive";
 
 // suppress useLayoutEffect warnings when running outside a browser
 if (!process.browser) React.useLayoutEffect = React.useEffect;
@@ -17,8 +16,15 @@ if (!process.browser) React.useLayoutEffect = React.useEffect;
 const initDarkMode = !IS_SERVER && window.matchMedia?.("(prefers-color-scheme: dark)").matches;
 if (initDarkMode) document.documentElement.classList.add("dark");
 
+const primaryColor = rgbToHex(
+  ...((!IS_SERVER
+    ? window.getComputedStyle(document.body).getPropertyValue("--color-primary")
+    : "0, 0, 0"
+  ).split(" ") as [string, string, string]),
+);
+
 export let globalModal: ModalFactory = Modal;
-export let globalMessage: MessageInstance = message;
+export let globalMessage: MessageFactory = message;
 export function AntdProvider({ children }: PropsWithChildren) {
   const [modal, modalContextHolder] = useModal();
   const [message, messageContextHolder] = useMessage();
@@ -29,7 +35,6 @@ export function AntdProvider({ children }: PropsWithChildren) {
   const [cache] = useState(() => createCache());
   const [isDarkMode, setIsDarkMode] = useState(initDarkMode);
   const [isInit, setIsInit] = useState(false);
-
   useEffect(() => {
     setIsInit(true);
   }, []);
@@ -65,7 +70,7 @@ export function AntdProvider({ children }: PropsWithChildren) {
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: colors.primary,
+          colorPrimary: primaryColor,
           fontFamily: "inherit",
         },
         algorithm: [isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm],

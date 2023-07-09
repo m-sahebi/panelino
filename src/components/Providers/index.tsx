@@ -1,21 +1,25 @@
 "use client";
 
+import { Provider as JotaiProvider } from "jotai";
 import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import { type PropsWithChildren } from "react";
-import { GlobalLoadingProvider } from "~/components/GlobalLoading";
+import { GlobalLoading } from "~/components/GlobalLoading";
 import { AntdProvider } from "~/components/Providers/AntdProvider";
 import { TrpcProvider } from "~/components/Providers/TrpcProvider";
 
 export function Providers({ children, session }: PropsWithChildren<{ session?: Session | null }>) {
   return (
-    <TrpcProvider>
-      <SessionProvider session={session}>
-        <GlobalLoadingProvider>
-          <AntdProvider>{children}</AntdProvider>
-        </GlobalLoadingProvider>
-      </SessionProvider>
-    </TrpcProvider>
+    <JotaiProvider>
+      <TrpcProvider>
+        <SessionProvider session={session}>
+          <AntdProvider>
+            <GlobalLoading />
+            {children}
+          </AntdProvider>
+        </SessionProvider>
+      </TrpcProvider>
+    </JotaiProvider>
   );
 }
 

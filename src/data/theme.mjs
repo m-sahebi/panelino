@@ -4,11 +4,8 @@ export const fontFamily = {
 };
 
 export const colors = {
-  // TODO fix compile error on this line
-  // primary: "var(--color-primary) / <alpha-value>)",
-  // secondary: "var(--color-secondary) / <alpha-value>)",
-  primary: "#00b96b",
-  secondary: "#3978EC",
+  primary: { DEFAULT: "rgb(var(--color-primary) / <alpha-value>)" },
+  secondary: { DEFAULT: "rgb(var(--color-secondary) / <alpha-value>)" },
 };
 
 export const borderRadius = {

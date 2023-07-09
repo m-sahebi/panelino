@@ -5,19 +5,25 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import { Button, Divider, Menu, Tooltip, Typography } from "antd";
+import { useAtom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 import Link from "next/link";
 import { useRouter, useSelectedLayoutSegment } from "next/navigation";
-import React, { useState } from "react";
+import React from "react";
 import { useGlobalSearch } from "~/components/GlobalSearch";
 import { ProfileIcon } from "~/components/ProfileIcon";
 import { DASH_SIDEMENU_ITEMS } from "~/data/menus";
 import { cn } from "~/utils/tailwind";
 
+export const dashSidebarAtom = atomWithStorage("dashSidebarAtom", { collapsed: false });
+
 export function Sidebar() {
-  const { toggleGlobalSearch } = useGlobalSearch();
-  const [collapsed, setCollapsed] = useState(false);
+  const { toggleGlobalSearchOpened } = useGlobalSearch();
+  const [opt, setOpt] = useAtom(dashSidebarAtom);
   const segment = useSelectedLayoutSegment()?.split("/")[0] ?? "";
   const router = useRouter();
+
+  const { collapsed } = opt;
 
   return (
     <aside
@@ -44,7 +50,7 @@ export function Sidebar() {
           className={cn("absolute right-1 top-1 w-12", {
             "right-4 top-1": collapsed,
           })}
-          onClick={() => setCollapsed((c) => !c)}
+          onClick={() => setOpt((o) => ({ ...o, collapsed: !o.collapsed }))}
         >
           {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
         </Button>
@@ -55,7 +61,7 @@ export function Sidebar() {
           className={cn("mx-1 flex w-auto cursor-pointer items-center justify-center self-stretch")}
           type={collapsed ? "text" : "default"}
           icon={<SearchOutlined className={cn({ "text-daw-neutral-400": !collapsed })} />}
-          onClick={toggleGlobalSearch}
+          onClick={toggleGlobalSearchOpened}
         >
           {!collapsed && (
             <div className="flex w-full items-center text-start">

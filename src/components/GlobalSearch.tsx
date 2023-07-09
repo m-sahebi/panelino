@@ -1,39 +1,29 @@
 import { LoadingOutlined } from "@ant-design/icons";
 import { AutoComplete, ConfigProvider, Divider, Empty, Modal, Pagination, Spin, Tag } from "antd";
-import {
-  memo,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type PropsWithChildren,
-  type ReactNode,
-} from "react";
+import { atom, useAtom } from "jotai";
+import { memo, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { createStateContext, useDebounce } from "react-use";
+import { useDebounce } from "react-use";
+import { type SelectRef } from "~/data/types/component";
 import { trpc } from "~/lib/trpc";
-import { type SelectRef } from "~/utils/ant";
 
 type GlobalSearchState = { opened: boolean };
-const [_useGlobalSearch, _GlobalSearchProvider] = createStateContext({
-  opened: false,
-} as GlobalSearchState);
+const globalSearchAtom = atom({ opened: false } as GlobalSearchState);
 
 export function useGlobalSearch() {
-  const [state, setState] = _useGlobalSearch();
+  const [state, setState] = useAtom(globalSearchAtom);
   const stateRef = useRef(state);
   stateRef.current = state;
 
-  const toggleGlobalSearch = useCallback(
+  const toggleGlobalSearchOpened = useCallback(
     () => setState((s: GlobalSearchState) => ({ ...s, opened: !s.opened })),
     [setState],
   );
 
   return {
-    globalSearchState: state,
-    toggleGlobalSearch,
-    getGlobalSearchState: useCallback(() => stateRef.current, [stateRef]),
-    setGlobalSearchState: setState,
+    globalSearch: state,
+    toggleGlobalSearchOpened,
+    setGlobalSearch: setState,
   };
 }
 
@@ -51,8 +41,8 @@ const modalTheme = {
 
 const SEARCH_MIN_LENGTH = 3;
 
-const GlobalSearch = memo(function GlobalSearch() {
-  const { globalSearchState, toggleGlobalSearch } = useGlobalSearch();
+export const GlobalSearch = memo(function GlobalSearch() {
+  const { globalSearch, toggleGlobalSearchOpened } = useGlobalSearch();
   const [search, setSearch] = useState<string>();
   const [searchDebounced, setSearchDebounced] = useState<string>();
   useDebounce(() => setSearchDebounced(search), 500, [search]);
@@ -67,14 +57,14 @@ const GlobalSearch = memo(function GlobalSearch() {
   );
 
   useEffect(() => {
-    if (globalSearchState.opened) {
+    if (globalSearch.opened) {
       setTimeout(() => inputRef.current?.focus(), 100);
       setSearch(undefined);
       setSearchDebounced(undefined);
     }
-  }, [globalSearchState]);
+  }, [globalSearch]);
 
-  useHotkeys("/", toggleGlobalSearch, {}, [toggleGlobalSearch]);
+  useHotkeys("/", toggleGlobalSearchOpened, {}, [toggleGlobalSearchOpened]);
 
   const dropdownRender = useCallback(
     (menu: ReactNode) => (
@@ -104,16 +94,16 @@ const GlobalSearch = memo(function GlobalSearch() {
       <Modal
         className="-mt-16 p-0"
         maskStyle={{ backdropFilter: "blur(4px)" }}
-        open={globalSearchState.opened}
+        open={globalSearch.opened}
         footer={null}
         closable={false}
-        onCancel={toggleGlobalSearch}
+        onCancel={toggleGlobalSearchOpened}
         width={420}
         destroyOnClose
       >
         <div className="relative flex w-full items-center">
           <AutoComplete
-            onKeyDown={(ev) => ev.key === "Escape" && toggleGlobalSearch()}
+            onKeyDown={(ev) => ev.key === "Escape" && toggleGlobalSearchOpened()}
             allowClear
             showSearch
             className="m-0 w-full flex-1 px-3 py-2"
@@ -156,12 +146,3 @@ const GlobalSearch = memo(function GlobalSearch() {
     </ConfigProvider>
   );
 });
-
-export function GlobalSearchProvider({ children }: PropsWithChildren) {
-  return (
-    <_GlobalSearchProvider>
-      <GlobalSearch />
-      {children}
-    </_GlobalSearchProvider>
-  );
-}

@@ -7,14 +7,14 @@ import { ROLE_META } from "~/data/roles";
 import { cn } from "~/utils/tailwind";
 
 export function ProfileIcon({
-  collapsed,
+  collapsed = false,
   className,
   popoverPlacement,
   popoverClassName,
   collapsedWidth,
   avatarWidth,
 }: {
-  collapsed: boolean;
+  collapsed?: boolean;
   className?: string;
   popoverPlacement?: PopoverProps["placement"];
   popoverClassName?: string;

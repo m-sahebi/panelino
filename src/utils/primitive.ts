@@ -91,3 +91,12 @@ export function windowClearSelection() {
   if (typeof window === "undefined") return;
   window.getSelection?.()?.removeAllRanges();
 }
+
+export function numberToHex(c: number) {
+  const hex = c.toString(16);
+  return hex.length == 1 ? "0" + hex : hex;
+}
+
+export function rgbToHex(r: number | string, g: number | string, b: number | string) {
+  return "#" + numberToHex(+r) + numberToHex(+g) + numberToHex(+b);
+}

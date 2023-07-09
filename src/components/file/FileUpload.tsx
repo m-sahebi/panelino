@@ -46,7 +46,7 @@ export const FileUpload = React.memo(function FileUpload({ className }: { classN
         }
       }}
     >
-      <UploadOutlined className="text-lg text-daw-primary-dark" />
+      <UploadOutlined className="text-lg text-daw-primary" />
       &nbsp;&nbsp;
       <span className="text-lg font-normal">Click or drag file to Upload</span>
     </Upload.Dragger>

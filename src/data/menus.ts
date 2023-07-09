@@ -1,5 +1,6 @@
 import { AppstoreOutlined, MailOutlined, SettingOutlined } from "@ant-design/icons";
-import { getAntMenuItem, type AntMenuItem } from "~/utils/ant";
+import { AntMenuItem } from "~/data/types/component";
+import { getAntMenuItem } from "~/utils/ant";
 
 export const DASH_SIDEMENU_ITEMS: AntMenuItem[] = [
   getAntMenuItem("Overview", "/", MailOutlined),

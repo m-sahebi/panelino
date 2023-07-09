@@ -1,27 +1,28 @@
 "use client";
 
 import { useIsMutating } from "@tanstack/react-query";
-import { useLayoutEffect, type PropsWithChildren } from "react";
-import { createStateContext } from "react-use";
+import { atom, useAtomValue, useSetAtom } from "jotai";
+import { useLayoutEffect } from "react";
 import { clamp } from "~/utils/primitive";
+import { type Nullish } from "~/utils/type";
 
-const [useGLobalLoadingState, GlobalStateLoadingProvider] = createStateContext<
-  number | null | undefined
->(null);
+const globalLoadingAtom = atom(null as Nullish<number>);
+export function useGlobalLoading(val?: Nullish<number>) {
+  const setGlobalLoading = useSetAtom(globalLoadingAtom);
 
-export function useGlobalLoading(val?: number | null | undefined) {
-  const [, setGlobalLoading] = useGLobalLoadingState();
   useLayoutEffect(() => {
-    if (val !== undefined) setGlobalLoading(typeof val === "number" ? clamp(val, 0, 100) : val);
+    setGlobalLoading(val);
   }, [val, setGlobalLoading]);
+
   return { setGlobalLoading };
 }
 
-function InnerGlobalLoading() {
+export function GlobalLoading() {
   const rqLoading = useIsMutating();
-  const [globalLoading] = useGLobalLoadingState();
+  const globalLoading = useAtomValue(globalLoadingAtom);
+  const gLoading = typeof globalLoading === "number" ? clamp(globalLoading, 0, 100) : globalLoading;
 
-  const showRqLoading = !!rqLoading && !globalLoading;
+  const showRqLoading = !!rqLoading && !gLoading;
 
   const color = "blue";
 
@@ -54,11 +55,11 @@ function InnerGlobalLoading() {
       <div
         style={{
           height: "3px",
-          width: (globalLoading ?? 0) + "%",
+          width: (gLoading ?? 0) + "%",
           background: color,
           transition: "width .6s ease .15s," + " top .15s ease, opacity .15s ease",
           position: "fixed",
-          top: globalLoading ? 0 : "-5px",
+          top: gLoading ? 0 : "-5px",
           left: 0,
           zIndex: 100001,
         }}
@@ -87,14 +88,5 @@ function InnerGlobalLoading() {
         }}
       />
     </>
-  );
-}
-
-export function GlobalLoadingProvider({ children }: PropsWithChildren) {
-  return (
-    <GlobalStateLoadingProvider>
-      <InnerGlobalLoading />
-      {children}
-    </GlobalStateLoadingProvider>
   );
 }

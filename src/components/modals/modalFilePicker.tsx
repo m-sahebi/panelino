@@ -8,18 +8,21 @@ import { FileUpload } from "~/components/file/FileUpload";
 import { globalModal } from "~/components/Providers/AntdProvider";
 import { cn } from "~/utils/tailwind";
 
-let _modal: ReturnType<ModalFunc>, _onOk: ((filesId: string[]) => void) | undefined;
+let _modal: ReturnType<ModalFunc>, _onOk: ((filesId: string[], files: any[]) => void) | undefined;
 let _selectedFilesId: string[] = [];
+let _selectedFiles: any[] = [];
 
-function handleSelect(ids: string[]) {
+function handleSelect(ids: string[], files: any[]) {
   _selectedFilesId = ids;
+  _selectedFiles = files;
   const okBtn = document.querySelector("[data-modal-ok-btn]");
   if (ids.length) okBtn?.removeAttribute("disabled");
   else okBtn?.setAttribute("disabled", "true");
 }
-function handleDoubleClick(fileId: string) {
+function handleDoubleClick(fileId: string, file: any) {
   _selectedFilesId = [fileId];
-  _onOk?.([fileId]);
+  _selectedFiles = [file];
+  _onOk?.([fileId], [file]);
   _modal.destroy();
 }
 export function modalFilePicker({
@@ -29,11 +32,15 @@ export function modalFilePicker({
   ModalFuncProps,
   {
     multiSelect?: boolean;
-    onOk?: (filesId: string[]) => void;
+    onOk?: (filesId: string[], files: any[]) => void;
   }
 >) {
   _onOk = p.onOk;
   if (_modal) _modal.destroy();
+  setTimeout(
+    () => document.querySelector("[data-modal-ok-btn]")?.setAttribute("disabled", "true"),
+    0,
+  );
   _modal = (globalModal ?? Modal).confirm({
     icon: null,
     width: "100%",
@@ -53,10 +60,11 @@ export function modalFilePicker({
     className: cn("top-4 max-w-screen-lg px-4", p.className),
     afterClose: () => {
       _selectedFilesId = [];
+      _selectedFiles = [];
       p.afterClose?.();
     },
     onOk: async () => {
-      return p.onOk?.(_selectedFilesId);
+      return p.onOk?.(_selectedFilesId, _selectedFiles);
     },
     okButtonProps: { "data-modal-ok-btn": "" },
   });

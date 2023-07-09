@@ -8,6 +8,7 @@ import { type ApiFilesGetResponseType } from "~/app/api/files/route";
 import { CustomDropdown } from "~/components/CustomDropdown";
 import { FileIcon } from "~/components/file/FileIcon";
 import { useSelectionArea } from "~/utils/hooks/useSelectionArea";
+import { invariant } from "~/utils/primitive";
 import { cn } from "~/utils/tailwind";
 
 export const FileBrowser = React.memo(function FileBrowser({
@@ -16,14 +17,14 @@ export const FileBrowser = React.memo(function FileBrowser({
   multiSelect = false,
   className,
 }: {
-  onSelect?: (selectedFilesIds: string[]) => void;
-  onDoubleClick?: (selectedFileId: string) => void;
+  onSelect?: (selectedFilesIds: string[], selectedFiles: any[]) => void;
+  onDoubleClick?: (selectedFileId: string, selectedFile: any) => void;
   multiSelect?: boolean;
   className?: string;
 }) {
   const [renameForm] = Form.useForm<{ name: string }>();
   const [zoom, setZoom] = useState(7);
-  const { data, isFetching } = useQuery<ApiFilesGetResponseType>({ queryKey: ["/files"] });
+  const { data, isLoading } = useQuery<ApiFilesGetResponseType>({ queryKey: ["/files"] });
 
   const [getSelectedFilesId, setSelectedFilesId] = useGetSet<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -38,27 +39,32 @@ export const FileBrowser = React.memo(function FileBrowser({
     if (!multiSelect) return;
     const f = data?.items.map((itm) => itm.id) ?? [];
     setSelectedFilesId(f);
-    onSelect?.(f);
+    invariant(data);
+    onSelect?.(f, data.items);
   }, [multiSelect, setSelectedFilesId, onSelect, data]);
 
   const selectNone = useCallback(() => {
     if (!getSelectedFilesId().length) return;
     setSelectedFilesId([]);
-    onSelect?.([]);
+    onSelect?.([], []);
   }, [setSelectedFilesId, getSelectedFilesId, onSelect]);
 
   const selectFile = useCallback(
     (fileId: string) => {
+      invariant(data);
       if (multiSelect) {
         const s = toggle(getSelectedFilesId(), fileId);
         setSelectedFilesId(s);
-        onSelect?.(s);
+        onSelect?.(
+          s,
+          data.items.filter((item) => s.includes(item.id)),
+        );
       } else {
         setSelectedFilesId([fileId]);
-        onSelect?.([fileId]);
+        onSelect?.([fileId], [data.items.find((item) => item.id === fileId)]);
       }
     },
-    [setSelectedFilesId, getSelectedFilesId, onSelect, multiSelect],
+    [data, setSelectedFilesId, getSelectedFilesId, onSelect, multiSelect],
   );
 
   const contextMenu = useMemo(() => {
@@ -86,11 +92,15 @@ export const FileBrowser = React.memo(function FileBrowser({
   const handleFileDelete = useCallback(
     (id: string) => {
       if (!getSelectedFilesId().includes(id)) return;
-      const newSelections = toggle(getSelectedFilesId(), id);
-      setSelectedFilesId(newSelections);
-      onSelect?.(newSelections);
+      invariant(data);
+      const s = toggle(getSelectedFilesId(), id);
+      setSelectedFilesId(s);
+      onSelect?.(
+        s,
+        data.items.filter((item) => item.id !== id),
+      );
     },
-    [onSelect, getSelectedFilesId, setSelectedFilesId],
+    [data, onSelect, getSelectedFilesId, setSelectedFilesId],
   );
 
   return (
@@ -116,7 +126,7 @@ export const FileBrowser = React.memo(function FileBrowser({
         ref={containerRef}
         onClick={(ev) => !ev.defaultPrevented && !dragging.current && selectNone()}
       >
-        <Spin spinning={isFetching} className={cn("w-full", className)}>
+        <Spin spinning={isLoading} className={cn("w-full", className)}>
           <ul
             className="grid w-full place-content-center place-items-center justify-start p-4"
             style={{
@@ -138,7 +148,7 @@ export const FileBrowser = React.memo(function FileBrowser({
                   }}
                   onDoubleClick={(ev) =>
                     !ev.defaultPrevented && onDoubleClick
-                      ? onDoubleClick(file.id)
+                      ? onDoubleClick(file.id, file)
                       : window.open(`/api/files/${file.id}`, "_blank")
                   }
                   onKeyDown={(ev) => ev.code === "Space" && selectFile(file.id)}

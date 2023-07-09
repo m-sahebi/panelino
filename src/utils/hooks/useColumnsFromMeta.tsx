@@ -21,8 +21,8 @@ import {
   type TableColumnFilter,
   type TableColumnOptions,
 } from "~/data/schemas/table";
+import { RangePickerRef, SelectRef } from "~/data/types/component";
 import { dayjs } from "~/lib/dayjs";
-import { type RangePickerRef, type SelectRef } from "~/utils/ant";
 import { useQueryParamsObject } from "~/utils/hooks/useQueryParamsObject";
 import { camelCasePrettify, jsonParse } from "~/utils/primitive";
 import { cn } from "~/utils/tailwind";
