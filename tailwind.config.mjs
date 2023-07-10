@@ -11,6 +11,9 @@ const config = {
       borderRadius,
       screens,
       fontFamily,
+      lineHeight: {
+        "0": "0rem",
+      },
     },
   },
   plugins: [require("tailwind-dark-aware")({})],

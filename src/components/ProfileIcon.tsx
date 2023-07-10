@@ -67,11 +67,11 @@ export function ProfileIcon({
               </Button>
               <Divider className="my-1" />
               <Segmented
-                value={globalSettings.darkMode}
+                value={globalSettings.darkModeSetting}
                 onChange={(val) =>
                   setGlobalSettings((s) => ({
                     ...s,
-                    darkMode: val as ObjectValues<DarkModeOptions>,
+                    darkModeSetting: val as ObjectValues<DarkModeOptions>,
                   }))
                 }
                 options={[

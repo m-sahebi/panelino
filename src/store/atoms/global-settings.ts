@@ -8,5 +8,5 @@ export const DarkModeOptionsList = Object.values(
 ) as ObjectValues<DarkModeOptions>[];
 
 export const globalSettingsAtom = atomWithStorage("globalSettings", {
-  darkMode: "system" as ObjectValues<DarkModeOptions>,
+  darkModeSetting: "system" as ObjectValues<DarkModeOptions>,
 });

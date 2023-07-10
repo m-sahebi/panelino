@@ -131,8 +131,8 @@ export const FileIcon = React.memo(function FileIcon({
       title={
         <div className="relative max-w-[8rem]">
           <div
-            className={`absolute -right-3 -top-3 float-right cursor-pointer
-              rounded-full bg-black/70 p-0.5 leading-none text-white`}
+            className={`absolute -right-4 -top-4 float-right cursor-pointer
+              rounded-full bg-black p-0.5 text-lg leading-0 text-white`}
           >
             <LuXCircle onClick={toggleFileInfoOpened} />
           </div>

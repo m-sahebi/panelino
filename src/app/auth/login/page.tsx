@@ -40,8 +40,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="mx-auto mt-10 mt-[15vh] flex max-w-lg flex-col items-stretch gap-4">
-      <Button onClick={() => void signIn("github")} icon={<LuGithub />}>
+    <div className="mx-auto mt-[15vh] flex max-w-lg flex-col items-stretch gap-4">
+      <Button
+        className="flex-center-center leading-0"
+        onClick={() => void signIn("github")}
+        icon={<LuGithub />}
+      >
         Sign in with GitHub
       </Button>
       <Divider className="my-0">or</Divider>

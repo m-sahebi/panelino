@@ -13,22 +13,22 @@ export function useDarkMode() {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
 
     const onDarkModeChange = (event?: MediaQueryListEvent, darkMode = false) => {
-      console.log("CHANGE", event?.matches, darkMode);
-      setDarkMode(event?.matches ?? darkMode);
-      if (event?.matches ?? darkMode) document.documentElement.classList.add("dark");
+      const isDark = event?.matches ?? darkMode;
+      setDarkMode(isDark);
+      if (isDark) document.documentElement.classList.add("dark");
       else document.documentElement.classList.remove("dark");
     };
 
-    if (globalSettings.darkMode === DarkModeOptions.ON) {
+    if (globalSettings.darkModeSetting === DarkModeOptions.ON) {
       onDarkModeChange(undefined, true);
       return;
-    } else if (globalSettings.darkMode === DarkModeOptions.OFF) {
+    } else if (globalSettings.darkModeSetting === DarkModeOptions.OFF) {
       onDarkModeChange(undefined, false);
       return;
     } else onDarkModeChange(undefined, media.matches);
 
     media.addEventListener("change", onDarkModeChange);
     return () => media.removeEventListener("change", onDarkModeChange);
-  }, [globalSettings.darkMode]);
+  }, [globalSettings.darkModeSetting]);
   return { darkMode };
 }
