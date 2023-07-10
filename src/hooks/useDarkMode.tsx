@@ -10,6 +10,8 @@ export function useDarkMode() {
   const globalSettings = useAtomValue(globalSettingsAtom);
   const [darkMode, setDarkMode] = useState(initDarkMode);
   useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+
     const onDarkModeChange = (event?: MediaQueryListEvent, darkMode = false) => {
       console.log("CHANGE", event?.matches, darkMode);
       setDarkMode(event?.matches ?? darkMode);
@@ -23,15 +25,10 @@ export function useDarkMode() {
     } else if (globalSettings.darkMode === DarkModeOptions.OFF) {
       onDarkModeChange(undefined, false);
       return;
-    } else onDarkModeChange(undefined, window.matchMedia?.("(prefers-color-scheme: dark)").matches);
+    } else onDarkModeChange(undefined, media.matches);
 
-    window
-      .matchMedia?.("(prefers-color-scheme: dark)")
-      .addEventListener("change", onDarkModeChange);
-    return () =>
-      window
-        .matchMedia?.("(prefers-color-scheme: dark)")
-        .removeEventListener("change", onDarkModeChange);
+    media.addEventListener("change", onDarkModeChange);
+    return () => media.removeEventListener("change", onDarkModeChange);
   }, [globalSettings.darkMode]);
   return { darkMode };
 }
