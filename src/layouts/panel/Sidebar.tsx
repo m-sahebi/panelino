@@ -80,9 +80,9 @@ export function Sidebar() {
           type="text"
           icon={<LuHome />}
           className={cn(
-            "mx-1 flex w-auto items-center self-stretch transition-all",
+            "mx-1 w-auto self-stretch transition-all",
             "h-10 overflow-hidden rounded-lg text-start",
-            { "text-center": collapsed, "ps-6": !collapsed },
+            { "text-center": collapsed, "flex items-center ps-6": !collapsed },
           )}
           onClick={() => router.push("/")}
         >
