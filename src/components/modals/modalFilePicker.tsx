@@ -5,7 +5,7 @@ import React from "react";
 import { type SimpleMerge } from "type-fest/source/merge";
 import { FileBrowser } from "~/components/file/FileBrowser";
 import { FileUpload } from "~/components/file/FileUpload";
-import { globalModal } from "~/components/Providers/AntdProvider";
+import { globalModal } from "~/components/Providers/AntProvider";
 import { cn } from "~/utils/tailwind";
 
 let _modal: ReturnType<ModalFunc>, _onOk: ((filesId: string[], files: any[]) => void) | undefined;

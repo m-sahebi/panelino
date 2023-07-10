@@ -1,21 +1,9 @@
 "use client";
 
 import { useIsMutating } from "@tanstack/react-query";
-import { atom, useAtomValue, useSetAtom } from "jotai";
-import { useLayoutEffect } from "react";
+import { useAtomValue } from "jotai";
+import { globalLoadingAtom } from "~/store/atoms/global-loading";
 import { clamp } from "~/utils/primitive";
-import { type Nullish } from "~/utils/type";
-
-const globalLoadingAtom = atom(null as Nullish<number>);
-export function useGlobalLoading(val?: Nullish<number>) {
-  const setGlobalLoading = useSetAtom(globalLoadingAtom);
-
-  useLayoutEffect(() => {
-    setGlobalLoading(val);
-  }, [val, setGlobalLoading]);
-
-  return { setGlobalLoading };
-}
 
 export function GlobalLoading() {
   const rqLoading = useIsMutating();

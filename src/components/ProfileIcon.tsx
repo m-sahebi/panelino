@@ -1,10 +1,13 @@
-import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
 import { UserRole } from "@prisma/client";
-import { Avatar, Button, Popover, Tag, type PopoverProps } from "antd";
+import { Avatar, Button, Divider, Popover, Segmented, Tag, type PopoverProps } from "antd";
+import { useAtom } from "jotai";
 import { signIn, signOut, useSession } from "next-auth/react";
 import React from "react";
+import { LuLogOut, LuMonitor, LuMoon, LuSun, LuUser } from "react-icons/lu";
 import { ROLE_META } from "~/data/roles";
+import { DarkModeOptions, globalSettingsAtom } from "~/store/atoms/global-settings";
 import { cn } from "~/utils/tailwind";
+import { type ObjectValues } from "~/utils/type";
 
 export function ProfileIcon({
   collapsed = false,
@@ -27,6 +30,8 @@ export function ProfileIcon({
   const widthAvatar = avatarWidth ?? "2.5rem";
   const heightAvatar = avatarWidth ?? "2.5rem";
   const widthCollapsed = collapsedWidth ?? "10rem";
+
+  const [globalSettings, setGlobalSettings] = useAtom(globalSettingsAtom);
 
   return (
     <div className={cn("transition-all", className)}>
@@ -54,12 +59,27 @@ export function ProfileIcon({
               <Button
                 type="text"
                 size="small"
-                icon={<LogoutOutlined />}
+                icon={<LuLogOut />}
                 className="flex items-center"
                 onClick={() => (user ? void signOut() : void signIn())}
               >
                 {user ? "Log out" : "Log in"}
               </Button>
+              <Divider className="my-1" />
+              <Segmented
+                value={globalSettings.darkMode}
+                onChange={(val) =>
+                  setGlobalSettings((s) => ({
+                    ...s,
+                    darkMode: val as ObjectValues<DarkModeOptions>,
+                  }))
+                }
+                options={[
+                  { value: DarkModeOptions.ON, icon: <LuMoon /> },
+                  { value: DarkModeOptions.SYSTEM, icon: <LuMonitor /> },
+                  { value: DarkModeOptions.OFF, icon: <LuSun /> },
+                ]}
+              />
             </div>
           }
         >
@@ -72,7 +92,7 @@ export function ProfileIcon({
             <Avatar
               className="flex flex-shrink-0 items-center justify-center"
               style={{ width: widthAvatar, height: heightAvatar }}
-              icon={!user && <UserOutlined />}
+              icon={<LuUser />}
               src={user?.image}
             />
           </div>

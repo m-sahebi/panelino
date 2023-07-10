@@ -7,7 +7,7 @@ import {
 import axios, { type AxiosError, type AxiosRequestConfig } from "axios";
 import { isObject } from "radash";
 import { type SimpleMerge } from "type-fest/source/merge";
-import { globalMessage } from "~/components/Providers/AntdProvider";
+import { globalMessage } from "~/components/Providers/AntProvider";
 import { API_URL, IS_DEV, REQUEST_TIMEOUT } from "~/data/configs";
 import { generatePath } from "~/utils/generate-path";
 import { invariant } from "~/utils/primitive";

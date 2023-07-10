@@ -1,4 +1,3 @@
-import { FilterFilled, FilterOutlined } from "@ant-design/icons";
 import { Button, DatePicker, Input, InputNumber, Select, Tag, Tooltip, type InputRef } from "antd";
 import { type RangePickerProps } from "antd/es/date-picker";
 import { type ColumnsType, type ColumnType } from "antd/es/table";
@@ -15,15 +14,16 @@ import {
   type ReactNode,
   type Ref,
 } from "react";
+import { LuFilter } from "react-icons/lu";
 import { DATE_TIME_FORMAT } from "~/data/configs";
 import {
   TableColumnType,
   type TableColumnFilter,
   type TableColumnOptions,
 } from "~/data/schemas/table";
-import { RangePickerRef, SelectRef } from "~/data/types/component";
+import { type RangePickerRef, type SelectRef } from "~/data/types/ant";
+import { useQueryParamsObject } from "~/hooks/useQueryParamsObject";
 import { dayjs } from "~/lib/dayjs";
-import { useQueryParamsObject } from "~/utils/hooks/useQueryParamsObject";
 import { camelCasePrettify, jsonParse } from "~/utils/primitive";
 import { cn } from "~/utils/tailwind";
 
@@ -228,9 +228,9 @@ export const useColumnsFromMeta = <
             filterIcon: () => {
               const isSelected = !!searches[_dataIndex];
               return isSelected ? (
-                <FilterFilled className="text-daw-primary" style={{ scale: "1.2" }} />
+                <LuFilter className="fill-current text-daw-primary" style={{ scale: "1.2" }} />
               ) : (
-                <FilterOutlined className={cn("transition-all")} style={{ scale: "1.2" }} />
+                <LuFilter className={cn("transition-all")} style={{ scale: "1.2" }} />
               );
             },
 

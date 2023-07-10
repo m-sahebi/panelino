@@ -1,21 +1,14 @@
-import {
-  HomeOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
 import { Button, Divider, Menu, Tooltip, Typography } from "antd";
 import { useAtom } from "jotai";
-import { atomWithStorage } from "jotai/utils";
 import Link from "next/link";
 import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 import React from "react";
-import { useGlobalSearch } from "~/components/GlobalSearch";
+import { LuHome, LuPanelLeftClose, LuPanelLeftOpen, LuSearch } from "react-icons/lu";
 import { ProfileIcon } from "~/components/ProfileIcon";
 import { DASH_SIDEMENU_ITEMS } from "~/data/menus";
+import { useGlobalSearch } from "~/hooks/useGlobalSearch";
+import { dashSidebarAtom } from "~/store/atoms/dash-sidebar";
 import { cn } from "~/utils/tailwind";
-
-export const dashSidebarAtom = atomWithStorage("dashSidebarAtom", { collapsed: false });
 
 export function Sidebar() {
   const { toggleGlobalSearchOpened } = useGlobalSearch();
@@ -47,12 +40,13 @@ export function Sidebar() {
           className={cn("ms-1 min-w-0 flex-1", { "ms-5 mt-12": collapsed })}
         />
         <Button
-          className={cn("absolute right-1 top-1 w-12", {
+          type="text"
+          className={cn("absolute right-1 top-1 w-12 text-xl", {
             "right-4 top-1": collapsed,
           })}
           onClick={() => setOpt((o) => ({ ...o, collapsed: !o.collapsed }))}
         >
-          {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          {collapsed ? <LuPanelLeftOpen /> : <LuPanelLeftClose />}
         </Button>
       </div>
 
@@ -60,7 +54,7 @@ export function Sidebar() {
         <Button
           className={cn("mx-1 flex w-auto cursor-pointer items-center justify-center self-stretch")}
           type={collapsed ? "text" : "default"}
-          icon={<SearchOutlined className={cn({ "text-daw-neutral-400": !collapsed })} />}
+          icon={<LuSearch className={cn({ "text-daw-neutral-400": !collapsed })} />}
           onClick={toggleGlobalSearchOpened}
         >
           {!collapsed && (
@@ -84,9 +78,9 @@ export function Sidebar() {
       <Tooltip title="Home" placement="right" overlayClassName={cn({ hidden: !collapsed })}>
         <Button
           type="text"
-          icon={<HomeOutlined />}
+          icon={<LuHome />}
           className={cn(
-            "mx-1 w-auto self-stretch transition-all",
+            "mx-1 flex w-auto items-center self-stretch transition-all",
             "h-10 overflow-hidden rounded-lg text-start",
             { "text-center": collapsed, "ps-6": !collapsed },
           )}

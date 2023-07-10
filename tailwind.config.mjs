@@ -4,7 +4,7 @@ import { borderRadius, colors, fontFamily, screens } from "./src/data/theme.mjs"
 const config = {
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
   darkMode: "class",
-  important: true,
+  important: "#app",
   theme: {
     extend: {
       colors,

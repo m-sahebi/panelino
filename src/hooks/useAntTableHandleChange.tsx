@@ -2,7 +2,7 @@ import { type TableProps } from "antd";
 import { type SorterResult } from "antd/es/table/interface";
 import { mapValues, shake } from "radash";
 import { useCallback } from "react";
-import { useQueryParams } from "~/utils/hooks/useQueryParams";
+import { useQueryParams } from "~/hooks/useQueryParams";
 
 const dir = { ascend: "asc", descend: "desc" };
 

@@ -1,11 +1,11 @@
 "use client";
 
-import { GithubOutlined } from "@ant-design/icons";
 import { Button, Divider, Form, Input } from "antd";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import { globalMessage } from "~/components/Providers/AntdProvider";
+import { LuGithub } from "react-icons/lu";
+import { globalMessage } from "~/components/Providers/AntProvider";
 import { IS_DEV } from "~/data/configs";
 
 const errors = {
@@ -41,7 +41,7 @@ export default function LoginPage() {
 
   return (
     <div className="mx-auto mt-10 mt-[15vh] flex max-w-lg flex-col items-stretch gap-4">
-      <Button onClick={() => void signIn("github")} icon={<GithubOutlined />}>
+      <Button onClick={() => void signIn("github")} icon={<LuGithub />}>
         Sign in with GitHub
       </Button>
       <Divider className="my-0">or</Divider>

@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint --fix",
-    "format": "prettier . --write",
+    "format": "prettier --write \"**/*.{js,cjs,mjs,ts,tsx,md,json}\" --ignore-path .gitignore",
     "test": "jest",
     "prepare": "husky install",
     "storybook": "storybook dev -p 6006",
@@ -16,8 +16,7 @@
   },
   "dependencies": {
     "@air/react-drag-to-select": "^5.0.8",
-    "@ant-design/cssinjs": "^1.10.1",
-    "@ant-design/icons": "^5.1.4",
+    "@ant-design/cssinjs": "^1.11.1",
     "@prisma/client": "4.14.1",
     "@tanstack/react-query": "^4.29.5",
     "@trpc/client": "^10.26.0",
@@ -27,7 +26,7 @@
     "@types/node": "18.15.11",
     "@types/react": "18.0.33",
     "@types/react-dom": "18.0.11",
-    "antd": "^5.6.1",
+    "antd": "^5.6.4",
     "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
     "clsx": "^1.2.1",
@@ -41,7 +40,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hotkeys-hook": "^4.4.0",
-    "react-icons": "^4.8.0",
+    "react-icons": "^4.10.1",
     "react-use": "^17.4.0",
     "sanitize-filename": "^1.6.3",
     "tailwind-merge": "^1.12.0",
@@ -60,6 +59,7 @@
     "@storybook/nextjs": "^7.0.26",
     "@storybook/react": "^7.0.26",
     "@storybook/testing-library": "^0.0.14-next.2",
+    "@swc-jotai/debug-label": "^0.0.10",
     "@swc-jotai/react-refresh": "^0.0.8",
     "@total-typescript/ts-reset": "^0.4.2",
     "@types/bcryptjs": "^2.4.2",
@@ -82,12 +82,5 @@
     "type-fest": "^3.12.0",
     "typescript": "5.0.4",
     "zod-prisma": "^0.5.4"
-  },
-  "pnpm": {
-    "overrides": {
-      "@trivago/prettier-plugin-sort-imports>@babel/core": "7.20.12",
-      "@trivago/prettier-plugin-sort-imports>@babel/parser": "7.20.15",
-      "@trivago/prettier-plugin-sort-imports>@babel/traverse": "7.20.13"
-    }
   }
 }

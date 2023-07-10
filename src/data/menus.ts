@@ -1,13 +1,13 @@
-import { AppstoreOutlined, MailOutlined, SettingOutlined } from "@ant-design/icons";
-import { AntMenuItem } from "~/data/types/component";
+import { LuChevronsRight } from "react-icons/lu";
+import { type AntMenuItem } from "~/data/types/ant";
 import { getAntMenuItem } from "~/utils/ant";
 
 export const DASH_SIDEMENU_ITEMS: AntMenuItem[] = [
-  getAntMenuItem("Overview", "/", MailOutlined),
-  getAntMenuItem("Posts", "/posts", AppstoreOutlined),
-  getAntMenuItem("Users", "/users", SettingOutlined),
-  getAntMenuItem("Data View", "/dataview", SettingOutlined),
-  getAntMenuItem("Files", "/files", SettingOutlined),
+  getAntMenuItem("Overview", "/", LuChevronsRight),
+  getAntMenuItem("Posts", "/posts", LuChevronsRight),
+  getAntMenuItem("Users", "/users", LuChevronsRight),
+  getAntMenuItem("Data View", "/dataview", LuChevronsRight),
+  getAntMenuItem("Files", "/files", LuChevronsRight),
 ];
 
 export const HOME_MAINMENU_ITEMS: AntMenuItem[] = [

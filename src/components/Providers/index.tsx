@@ -5,18 +5,19 @@ import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import { type PropsWithChildren } from "react";
 import { GlobalLoading } from "~/components/GlobalLoading";
-import { AntdProvider } from "~/components/Providers/AntdProvider";
+import { AntProvider } from "~/components/Providers/AntProvider";
 import { TrpcProvider } from "~/components/Providers/TrpcProvider";
+import { globalStore } from "~/store";
 
 export function Providers({ children, session }: PropsWithChildren<{ session?: Session | null }>) {
   return (
-    <JotaiProvider>
+    <JotaiProvider store={globalStore}>
       <TrpcProvider>
         <SessionProvider session={session}>
-          <AntdProvider>
+          <AntProvider>
             <GlobalLoading />
             {children}
-          </AntdProvider>
+          </AntProvider>
         </SessionProvider>
       </TrpcProvider>
     </JotaiProvider>

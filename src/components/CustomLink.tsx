@@ -1,7 +1,10 @@
 import Link from "next/link";
 import React from "react";
-import { CustomLinkProps } from "~/data/types/component";
 import { cn } from "~/utils/tailwind";
+
+export type CustomLinkProps<T = typeof Link> = T extends React.ForwardRefExoticComponent<infer I>
+  ? I
+  : never;
 
 function CustomLink({ children, className, ...props }: CustomLinkProps) {
   return (

@@ -1,31 +1,11 @@
-import { LoadingOutlined } from "@ant-design/icons";
 import { AutoComplete, ConfigProvider, Divider, Empty, Modal, Pagination, Spin, Tag } from "antd";
-import { atom, useAtom } from "jotai";
 import { memo, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { LuLoader2 } from "react-icons/lu";
 import { useDebounce } from "react-use";
-import { type SelectRef } from "~/data/types/component";
+import { type SelectRef } from "~/data/types/ant";
+import { useGlobalSearch } from "~/hooks/useGlobalSearch";
 import { trpc } from "~/lib/trpc";
-
-type GlobalSearchState = { opened: boolean };
-const globalSearchAtom = atom({ opened: false } as GlobalSearchState);
-
-export function useGlobalSearch() {
-  const [state, setState] = useAtom(globalSearchAtom);
-  const stateRef = useRef(state);
-  stateRef.current = state;
-
-  const toggleGlobalSearchOpened = useCallback(
-    () => setState((s: GlobalSearchState) => ({ ...s, opened: !s.opened })),
-    [setState],
-  );
-
-  return {
-    globalSearch: state,
-    toggleGlobalSearchOpened,
-    setGlobalSearch: setState,
-  };
-}
 
 const modalTheme = {
   components: {
@@ -68,7 +48,7 @@ export const GlobalSearch = memo(function GlobalSearch() {
 
   const dropdownRender = useCallback(
     (menu: ReactNode) => (
-      <Spin size="large" spinning={isLoading} indicator={<LoadingOutlined />}>
+      <Spin size="large" spinning={isLoading} indicator={<LuLoader2 className="animate-spin" />}>
         {menu}
         <Divider className="my-2" />
         <Pagination

@@ -17,7 +17,7 @@ export const metadata = {
 export default async function RootLayout({ children }: PropsWithChildren) {
   const session = await getServerSession(authOptions);
   return (
-    <html lang="en">
+    <html lang="en" id="app">
       <body className={cn(FONT_SANS.variable, "font-sans")}>
         <StrictMode>
           <Providers session={session}>{children}</Providers>

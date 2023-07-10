@@ -1,6 +1,6 @@
 import type React from "react";
 import { createElement } from "react";
-import { type AntMenuItem } from "~/data/types/component";
+import { type AntMenuItem } from "~/data/types/ant";
 
 export function getAntMenuItem<T extends object>(
   label: React.ReactNode,

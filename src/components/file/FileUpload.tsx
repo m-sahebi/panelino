@@ -1,10 +1,10 @@
-import { UploadOutlined } from "@ant-design/icons";
 import { useMutation } from "@tanstack/react-query";
 import { Upload } from "antd";
 import React from "react";
+import { LuUpload } from "react-icons/lu";
 import { type ApiFilePostResponseType } from "~/app/api/files/route";
-import { useGlobalLoading } from "~/components/GlobalLoading";
-import { globalMessage } from "~/components/Providers/AntdProvider";
+import { globalMessage } from "~/components/Providers/AntProvider";
+import { useGlobalLoading } from "~/hooks/useGlobalLoading";
 import { queryClient, rqMutation } from "~/lib/tanstack-query";
 import { cn } from "~/utils/tailwind";
 
@@ -46,7 +46,7 @@ export const FileUpload = React.memo(function FileUpload({ className }: { classN
         }
       }}
     >
-      <UploadOutlined className="text-lg text-daw-primary" />
+      <LuUpload className="align-sub text-lg" />
       &nbsp;&nbsp;
       <span className="text-lg font-normal">Click or drag file to Upload</span>
     </Upload.Dragger>

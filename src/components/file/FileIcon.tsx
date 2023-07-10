@@ -1,13 +1,13 @@
-import { CloseCircleOutlined, FileOutlined } from "@ant-design/icons";
 import { useMutation } from "@tanstack/react-query";
 import { Button, Divider, Form, Input, Tooltip, type FormInstance, type MenuProps } from "antd";
 import Image from "next/image";
 import React, { useMemo, type ReactNode } from "react";
 import { FiMoreHorizontal } from "react-icons/fi";
+import { LuFile, LuXCircle } from "react-icons/lu";
 import { useToggle } from "react-use";
 import { CustomDropdown } from "~/components/CustomDropdown";
 import { modalForm } from "~/components/modals/modalForm";
-import { globalMessage, globalModal } from "~/components/Providers/AntdProvider";
+import { globalMessage, globalModal } from "~/components/Providers/AntProvider";
 import { rqMutation } from "~/lib/tanstack-query";
 import { fileNameExtSplit, formatBytes } from "~/utils/primitive";
 import { cn } from "~/utils/tailwind";
@@ -134,7 +134,7 @@ export const FileIcon = React.memo(function FileIcon({
             className={`absolute -right-3 -top-3 float-right cursor-pointer
               rounded-full bg-black/70 p-0.5 leading-none text-white`}
           >
-            <CloseCircleOutlined onClick={toggleFileInfoOpened} />
+            <LuXCircle onClick={toggleFileInfoOpened} />
           </div>
           <div>{fileName}</div>
           <Divider className="my-1 border-daw-neutral-500" />
@@ -213,7 +213,7 @@ export const FileIcon = React.memo(function FileIcon({
               className="max-h-full max-w-full object-contain transition-all"
             />
           ) : (
-            <FileOutlined
+            <LuFile
               className="transition-all text-daw-blue-500"
               style={{ fontSize: `${width / 1.4}rem` }}
             />

@@ -2,7 +2,7 @@ import { type InitialHookStatus } from "@react-buddy/ide-toolbox-next";
 import { useState } from "react";
 
 export function useInitial(): InitialHookStatus {
-  const [status, setStatus] = useState<InitialHookStatus>({
+  const [status, _setStatus] = useState<InitialHookStatus>({
     loading: false,
     error: false,
   });

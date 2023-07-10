@@ -7,7 +7,7 @@ import { useGetSet } from "react-use";
 import { type ApiFilesGetResponseType } from "~/app/api/files/route";
 import { CustomDropdown } from "~/components/CustomDropdown";
 import { FileIcon } from "~/components/file/FileIcon";
-import { useSelectionArea } from "~/utils/hooks/useSelectionArea";
+import { useSelectionArea } from "~/hooks/useSelectionArea";
 import { invariant } from "~/utils/primitive";
 import { cn } from "~/utils/tailwind";
 

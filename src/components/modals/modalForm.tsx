@@ -1,7 +1,7 @@
 import { type FormInstance } from "antd";
 import { type ModalFuncProps } from "antd/es/modal/interface";
 import { type SimpleMerge } from "type-fest/source/merge";
-import { globalModal } from "~/components/Providers/AntdProvider";
+import { globalModal } from "~/components/Providers/AntProvider";
 import { cn } from "~/utils/tailwind";
 
 export function modalForm<T>({
