@@ -35,9 +35,9 @@ export default function LoginPage() {
     return () => globalMessage.destroy("serverSigninError");
   }, [query]);
 
-  const onFinish = (values: any) => {
+  function handleFinnish(values: { email: string; password: string }) {
     void signIn("credentials", { callbackUrl: "/", ...values });
-  };
+  }
 
   return (
     <div className="mx-auto mt-[15vh] flex max-w-lg flex-col items-stretch gap-4">
@@ -53,7 +53,7 @@ export default function LoginPage() {
         name="basic"
         layout="vertical"
         initialValues={{}}
-        onFinish={onFinish}
+        onFinish={handleFinnish}
         requiredMark={false}
       >
         <Form.Item
