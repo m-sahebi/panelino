@@ -66,6 +66,7 @@ export function AntProvider({ children }: PropsWithChildren) {
         token: {
           colorPrimary: primaryColor,
           fontFamily: "inherit",
+          colorBgMask: darkMode ? "rgba(200, 200, 200, 0.35)" : "rgba(0, 0, 0, 0.45)",
         },
         algorithm: [darkMode ? theme.darkAlgorithm : theme.defaultAlgorithm],
       }}

@@ -6,20 +6,22 @@ import { type SimpleMerge } from "type-fest/source/merge";
 import { FileBrowser } from "~/components/file/FileBrowser";
 import { FileUpload } from "~/components/file/FileUpload";
 import { globalModal } from "~/components/Providers/AntProvider";
+import { type FileModel } from "~/data/models/file";
 import { cn } from "~/utils/tailwind";
 
-let _modal: ReturnType<ModalFunc>, _onOk: ((filesId: string[], files: any[]) => void) | undefined;
+let _modal: ReturnType<ModalFunc>,
+  _onOk: ((filesId: string[], files: FileModel[]) => void) | undefined;
 let _selectedFilesId: string[] = [];
-let _selectedFiles: any[] = [];
+let _selectedFiles: FileModel[] = [];
 
-function handleSelect(ids: string[], files: any[]) {
+function handleSelect(ids: string[], files: FileModel[]) {
   _selectedFilesId = ids;
   _selectedFiles = files;
   const okBtn = document.querySelector("[data-modal-ok-btn]");
   if (ids.length) okBtn?.removeAttribute("disabled");
   else okBtn?.setAttribute("disabled", "true");
 }
-function handleDoubleClick(fileId: string, file: any) {
+function handleDoubleClick(fileId: string, file: FileModel) {
   _selectedFilesId = [fileId];
   _selectedFiles = [file];
   _onOk?.([fileId], [file]);
@@ -27,12 +29,14 @@ function handleDoubleClick(fileId: string, file: any) {
 }
 export function modalFilePicker({
   multiSelect = false,
+  fileTypes,
   ...p
 }: SimpleMerge<
   ModalFuncProps,
   {
     multiSelect?: boolean;
-    onOk?: (filesId: string[], files: any[]) => void;
+    onOk?: (filesId: string[], files: FileModel[]) => void;
+    fileTypes?: string;
   }
 >) {
   _onOk = p.onOk;
@@ -48,9 +52,10 @@ export function modalFilePicker({
     ...p,
     content: (
       <div className="flex w-full flex-col gap-6">
-        <FileUpload />
+        <FileUpload fileTypes={fileTypes} />
         <FileBrowser
           multiSelect={multiSelect}
+          fileTypes={fileTypes}
           onSelect={handleSelect}
           onDoubleClick={handleDoubleClick}
         />

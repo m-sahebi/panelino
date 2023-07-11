@@ -37,4 +37,4 @@ export const REQUEST_TIMEOUT = 10000;
 
 export const FILE_UPLOAD_SIZE_LIMIT = 5000000;
 
-export const IMAGE_MEDIA_TYPE = ".jpg,.jpeg,.png,.webp,.gif";
+export const IMAGE_MEDIA_TYPE = ".jpg,.png,.webp";

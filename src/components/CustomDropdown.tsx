@@ -64,6 +64,7 @@ export const CustomDropdown = forwardRef<CustomDropdownRef, CustomDropdownProps>
     return (
       <Dropdown
         open={open}
+        autoFocus
         {...props}
         onOpenChange={(o) => {
           if (onOpenChange?.(o)) return;

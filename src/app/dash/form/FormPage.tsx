@@ -1,64 +1,17 @@
 "use client";
 
-import { Button, Form, Input, InputNumber, Select, Tag } from "antd";
-import { useMemo, useState, type ReactNode } from "react";
+import { Button, Form, Input, InputNumber, Select } from "antd";
+import { useMemo, type ReactNode } from "react";
 import { z } from "zod";
 import { zerialize, type SzObject, type SzType } from "zodex";
 import { CustomDatePicker } from "~/components/CustomDatePicker";
-import { modalFilePicker } from "~/components/modals/modalFilePicker";
+import { FilePickerButton } from "~/components/file/FilePickerButton";
 import { IS_DEV } from "~/data/configs";
 import { UserModel } from "~/data/models/user";
 import { SzDataType } from "~/data/types/basic";
 import { camelCasePrettify, invariant } from "~/utils/primitive";
 import { queryParamsParse } from "~/utils/query-params";
 import { cn } from "~/utils/tailwind";
-
-function FilePickerButton({
-  onChange,
-  value,
-}: {
-  onChange?: (fileId: string | undefined) => void;
-  value?: string | undefined;
-}) {
-  const [selectedFile, setSelectedFile] = useState<any>();
-  return (
-    <div className="flex flex-col items-start gap-1.5">
-      <Button
-        onClick={() =>
-          modalFilePicker({
-            multiSelect: false,
-            onOk: ([id], [file]) => {
-              setSelectedFile(file);
-              onChange?.(id);
-            },
-          })
-        }
-      >
-        Choose file
-      </Button>
-      <div className="ms-2 border-0 border-s-2 border-solid px-2 border-daw-neutral-300">
-        <Tag
-          hidden={!selectedFile && !value}
-          closable
-          onClose={(e) => {
-            e.preventDefault();
-            onChange?.(undefined);
-            setSelectedFile(undefined);
-          }}
-        >
-          {selectedFile
-            ? selectedFile.name
-            : value && (
-                <>
-                  <span className="font-light">id:&nbsp;</span>
-                  {value}
-                </>
-              )}
-        </Tag>
-      </div>
-    </div>
-  );
-}
 
 const getSzInputComponent: {
   [p in SzDataType["STRING"] | SzDataType["NUMBER"] | SzDataType["ENUM"] | SzDataType["DATE"]]: (

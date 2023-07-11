@@ -1,30 +1,42 @@
 import { useQuery } from "@tanstack/react-query";
-import { Form, Slider, Spin } from "antd";
+import { Form, Slider, Spin, Tag, Tooltip } from "antd";
+import { useAtom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 import { toggle } from "radash";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
+import { LuInfo } from "react-icons/lu";
 import { useGetSet } from "react-use";
 import { type ApiFilesGetResponseType } from "~/app/api/files/route";
 import { CustomDropdown } from "~/components/CustomDropdown";
 import { FileIcon } from "~/components/file/FileIcon";
+import { type FileModel } from "~/data/models/file";
 import { useSelectionArea } from "~/hooks/useSelectionArea";
-import { invariant } from "~/utils/primitive";
+import { fileNameExt, invariant, nonNullable } from "~/utils/primitive";
 import { cn } from "~/utils/tailwind";
+
+const fileViewZoomAtom = atomWithStorage("fileViewZoomAtom", 7);
 
 export const FileBrowser = React.memo(function FileBrowser({
   onSelect,
   onDoubleClick,
   multiSelect = false,
   className,
+  fileTypes,
 }: {
-  onSelect?: (selectedFilesIds: string[], selectedFiles: any[]) => void;
-  onDoubleClick?: (selectedFileId: string, selectedFile: any) => void;
+  onSelect?: (selectedFilesIds: string[], selectedFiles: FileModel[]) => void;
+  onDoubleClick?: (selectedFileId: string, selectedFile: FileModel) => void;
   multiSelect?: boolean;
   className?: string;
+  fileTypes?: string;
 }) {
   const [renameForm] = Form.useForm<{ name: string }>();
-  const [zoom, setZoom] = useState(7);
+  const [zoom, setZoom] = useAtom(fileViewZoomAtom);
   const { data, isLoading } = useQuery<ApiFilesGetResponseType>({ queryKey: ["/files"] });
+  const items = useMemo(() => {
+    const types = fileTypes?.split(",");
+    return types ? data?.items.filter((itm) => types.includes(fileNameExt(itm.name))) : data?.items;
+  }, [fileTypes, data]);
 
   const [getSelectedFilesId, setSelectedFilesId] = useGetSet<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -37,11 +49,11 @@ export const FileBrowser = React.memo(function FileBrowser({
 
   const selectAll = useCallback(() => {
     if (!multiSelect) return;
-    const f = data?.items.map((itm) => itm.id) ?? [];
+    const f = items?.map((itm) => itm.id) ?? [];
     setSelectedFilesId(f);
-    invariant(data);
-    onSelect?.(f, data.items);
-  }, [multiSelect, setSelectedFilesId, onSelect, data]);
+    invariant(items);
+    onSelect?.(f, items);
+  }, [multiSelect, setSelectedFilesId, onSelect, items]);
 
   const selectNone = useCallback(() => {
     if (!getSelectedFilesId().length) return;
@@ -51,20 +63,20 @@ export const FileBrowser = React.memo(function FileBrowser({
 
   const selectFile = useCallback(
     (fileId: string) => {
-      invariant(data);
+      invariant(items);
       if (multiSelect) {
         const s = toggle(getSelectedFilesId(), fileId);
         setSelectedFilesId(s);
         onSelect?.(
           s,
-          data.items.filter((item) => s.includes(item.id)),
+          items.filter((item) => s.includes(item.id)),
         );
       } else {
         setSelectedFilesId([fileId]);
-        onSelect?.([fileId], [data.items.find((item) => item.id === fileId)]);
+        onSelect?.([fileId], [nonNullable(items.find((item) => item.id === fileId))]);
       }
     },
-    [data, setSelectedFilesId, getSelectedFilesId, onSelect, multiSelect],
+    [items, setSelectedFilesId, getSelectedFilesId, onSelect, multiSelect],
   );
 
   const contextMenu = useMemo(() => {
@@ -92,15 +104,15 @@ export const FileBrowser = React.memo(function FileBrowser({
   const handleFileDelete = useCallback(
     (id: string) => {
       if (!getSelectedFilesId().includes(id)) return;
-      invariant(data);
+      invariant(items);
       const s = toggle(getSelectedFilesId(), id);
       setSelectedFilesId(s);
       onSelect?.(
         s,
-        data.items.filter((item) => item.id !== id),
+        items.filter((item) => item.id !== id),
       );
     },
-    [data, onSelect, getSelectedFilesId, setSelectedFilesId],
+    [items, onSelect, getSelectedFilesId, setSelectedFilesId],
   );
 
   return (
@@ -120,6 +132,17 @@ export const FileBrowser = React.memo(function FileBrowser({
           onChange={setZoom}
         />
       </div>
+      {fileTypes && (
+        <div className="flex-center">
+          <Tooltip title="Only these file types are available">
+            <LuInfo className="text-daw-neutral-400" />
+          </Tooltip>
+          &nbsp;&nbsp;
+          {fileTypes.split(",").map((t) => (
+            <Tag key={t}>{t}</Tag>
+          ))}
+        </div>
+      )}
       <div
         tabIndex={0}
         className="w-full overflow-hidden rounded-lg outline outline-1 outline-daw-neutral-300"
@@ -132,10 +155,10 @@ export const FileBrowser = React.memo(function FileBrowser({
             style={{
               gridTemplateColumns: `repeat(auto-fit, minmax(min(${zoom}rem, 100%), 1fr))`,
               gridGap: "1rem 1rem",
-              maxWidth: `${zoom * 1.4 * (data?.items.length ?? 0)}rem`,
+              maxWidth: `${zoom * 1.4 * (items?.length ?? 0)}rem`,
             }}
           >
-            {data?.items.map((file) => {
+            {items?.map((file) => {
               const isSelected = getSelectedFilesId().includes(file.id);
 
               return (

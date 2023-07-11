@@ -6,7 +6,6 @@ import { postsRouter } from "~/_server/routers/posts";
 import { usersRouter } from "~/_server/routers/users";
 import { createTRPCRouter, publicProcedure } from "~/_server/trpc";
 import { type UnionKeys, type UnionToTuple } from "~/utils/type";
-import { zodCreateUnionSchema } from "~/utils/zod";
 
 /**
  * This is the primary router for your server.
@@ -30,7 +29,7 @@ type _RouterNames = keyof _Routers;
 export const schemasRouter = createTRPCRouter({
   getRoutes: publicProcedure.query(() => _routerNames),
   getRouteMethods: publicProcedure
-    .input(z.object({ route: zodCreateUnionSchema(_routerNames) }))
+    .input(z.object({ route: z.enum(_routerNames) }))
     .query(
       ({ input: { route } }) =>
         diff(Object.keys(_routers[route]), excludedMethods) as UnionToTuple<

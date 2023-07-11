@@ -10,6 +10,15 @@ export function fileNameExtSplit(fullName: string) {
   return [name, fullName.slice(idx + 1)];
 }
 
+export function fileNameExt(fullName: string) {
+  const idx = fullName.lastIndexOf(".");
+  if (idx === -1) return "";
+  const name = fullName.slice(0, idx);
+  // file name is like `.example`
+  if (!name) return "";
+  return fullName.slice(idx);
+}
+
 export function formatBytes(bytes: number, decimals = 1) {
   if (bytes == 0) return "0 Bytes";
   const k = 1024;

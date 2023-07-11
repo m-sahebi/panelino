@@ -6,9 +6,12 @@ import { type ApiFilePostResponseType } from "~/app/api/files/route";
 import { globalMessage } from "~/components/Providers/AntProvider";
 import { useGlobalLoading } from "~/hooks/useGlobalLoading";
 import { queryClient, rqMutation } from "~/lib/tanstack-query";
+import { fileNameExt } from "~/utils/primitive";
 import { cn } from "~/utils/tailwind";
 
-export const FileUpload = React.memo(function FileUpload({ className }: { className?: string }) {
+type Props = { className?: string; fileTypes?: string };
+
+export const FileUpload = React.memo(function FileUpload({ className, fileTypes }: Props) {
   const { setGlobalLoading } = useGlobalLoading();
   const { mutateAsync: deleteFile } = useMutation(
     rqMutation({ url: "/files/:id", invalidatedKeys: [["/files"]] }),
@@ -16,11 +19,17 @@ export const FileUpload = React.memo(function FileUpload({ className }: { classN
 
   return (
     <Upload.Dragger
+      accept={fileTypes}
       name="myFile"
       progress={{ className: "hidden" }}
       action="/api/files"
       className={cn("w-full", className)}
       showUploadList={{ showDownloadIcon: true, showRemoveIcon: true, showPreviewIcon: true }}
+      beforeUpload={(f) => {
+        const isValidExt = fileTypes?.split(",").includes(fileNameExt(f.name));
+        if (isValidExt === false) void globalMessage.error("Invalid file type");
+        return isValidExt ?? true;
+      }}
       onChange={(info) => {
         if (info.file.status === "uploading") {
           setGlobalLoading(info.file.percent);
@@ -31,7 +40,7 @@ export const FileUpload = React.memo(function FileUpload({ className }: { classN
             const res = info.file.response.items as ApiFilePostResponseType["items"];
             deleteFile({ method: "DELETE", path: { id: res.id } }).then(
               () => globalMessage.success(`Deleted ${res.id}`),
-              (e: any) => globalMessage.error(e.toString()),
+              null,
             );
           } else if (info.file.status === "done") {
             void queryClient.invalidateQueries({ queryKey: ["/files"] });

@@ -52,7 +52,13 @@ export async function POST(req: NextRequest) {
   } catch (e: any) {
     console.error(e);
     return NextResponse.json(
-      { message: IS_DEV ? e.toString() : "Something went wrong!" },
+      {
+        message: IS_DEV
+          ? e.cause?.code === "ECONNREFUSED"
+            ? "Can't connect to file server"
+            : e.toString()
+          : "Something went wrong!",
+      },
       { status: 500 },
     );
   }
@@ -70,7 +76,13 @@ export async function GET() {
   } catch (e: any) {
     console.error(e);
     return NextResponse.json(
-      { message: IS_DEV ? e.toString() : "Something went wrong!" },
+      {
+        message: IS_DEV
+          ? e.cause?.code === "ECONNREFUSED"
+            ? "Can't connect to file server"
+            : e.toString()
+          : "Something went wrong!",
+      },
       { status: 500 },
     );
   }
