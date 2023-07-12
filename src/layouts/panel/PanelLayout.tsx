@@ -10,9 +10,9 @@ export function PanelLayout({ children }: PanelLayoutProps) {
   return (
     <>
       <GlobalSearch />
-      <div className="relative mx-auto flex w-full max-w-[1440px]">
+      <div className="relative mx-auto flex w-full max-w-[1440px] items-start">
         <Sidebar />
-        <main className="min-w-0 flex-1 px-6 py-4">
+        <main className="min-w-0 flex-1 px-5 py-4">
           <DashTitle />
           {children}
         </main>

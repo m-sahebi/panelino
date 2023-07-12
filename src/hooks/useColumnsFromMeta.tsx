@@ -228,7 +228,7 @@ export const useColumnsFromMeta = <
             filterIcon: () => {
               const isSelected = !!searches[_dataIndex];
               return isSelected ? (
-                <LuFilter className="fill-current text-daw-primary" style={{ scale: "1.2" }} />
+                <LuFilter className="fill-current text-primary" style={{ scale: "1.2" }} />
               ) : (
                 <LuFilter className={cn("transition-all")} style={{ scale: "1.2" }} />
               );

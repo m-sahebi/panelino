@@ -1,6 +1,7 @@
 "use client";
 
 import { Menu, Tooltip } from "antd";
+import Image from "next/image";
 import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { useWindowScroll } from "react-use";
@@ -10,7 +11,7 @@ import { dayjs } from "~/lib/dayjs";
 import { trpc } from "~/lib/trpc";
 import { cn } from "~/utils/tailwind";
 
-const WindowScrollYTracker = React.memo(function ScrollTracker({
+const ScrollYTracker = React.memo(function ScrollTracker({
   limit,
   onPassLimit,
 }: {
@@ -28,16 +29,14 @@ const WindowScrollYTracker = React.memo(function ScrollTracker({
     if (y > limit && prevY.current <= limit) onPassLimit(true);
     else if (y <= limit && prevY.current > limit) onPassLimit(false);
     prevY.current = y;
-    // no need to recall onPassLimit on reference change
-    /* eslint-disable react-hooks/exhaustive-deps */
-  }, [limit, y]);
+  }, [limit, y, onPassLimit]);
 
   return null;
 });
 
 export function HomePage() {
   // const { data: session } = useSession();
-  const { data: posts } = trpc.posts.getMany.useQuery({});
+  const { data: posts } = trpc.posts.getMany.useQuery({ sort: "createdAt", pageSize: 100 });
   const [scrolled, setScrolled] = useState(false);
   // const { data } = useQuery({ queryKey: ["https://dev.to/api/articles"] });
   const router = useRouter();
@@ -45,10 +44,10 @@ export function HomePage() {
 
   return (
     <>
-      <WindowScrollYTracker limit={20} onPassLimit={(s) => setScrolled(s)} />
+      <ScrollYTracker limit={20} onPassLimit={setScrolled} />
       <div
         className={cn(
-          "sticky top-0 z-10 mx-auto mb-6 mt-4 w-[948px] max-w-full rounded-lg border-0 border-transparent px-6 transition-all duration-300",
+          "sticky -top-px z-10 mx-auto mb-6 mt-4 w-[948px] max-w-full rounded-lg border-0 border-transparent px-5 transition-all duration-300",
           {
             "w-full rounded-none border-0 border-b border-solid bg-neutral-200 bg-opacity-70 border-daw-neutral-300 dark:bg-neutral-800 dark:bg-opacity-70":
               scrolled,
@@ -58,13 +57,14 @@ export function HomePage() {
       >
         <header
           className={cn(
-            "mx-auto flex w-full max-w-[900px] items-center justify-center rounded-lg px-6 py-3 duration-300 bg-daw-neutral-200",
+            "mx-auto flex w-full max-w-[900px] items-center justify-center rounded-lg px-5 py-3 duration-300 bg-daw-neutral-200",
             {
               "bg-transparent": scrolled,
             },
           )}
         >
-          <nav className="max-w-[900px] flex-1 self-center transition-all">
+          <ProfileIcon collapsed avatarWidth={32} />
+          <nav className="flex max-w-[900px] flex-1 justify-end self-center transition-all">
             <Menu
               className={cn("border-0 bg-transparent leading-6")}
               mode="horizontal"
@@ -73,16 +73,31 @@ export function HomePage() {
               onClick={({ key }) => router.push(`${key}`)}
             />
           </nav>
-
-          <ProfileIcon collapsed avatarWidth={32} />
         </header>
       </div>
-      <div className="mx-auto flex w-full max-w-[948px] flex-col gap-8 px-6">
+
+      <div className="mx-auto flex w-full max-w-[948px] flex-col gap-8 px-5">
         <main className="flex flex-col gap-6">
           {posts?.items.map((post) => (
-            <div key={post.id} className="flex flex-col items-start p-3">
+            <div key={post.id} className="flex flex-col items-start py-3">
               <h2>{post.title}</h2>
-              <Tooltip placement="right" title={dayjs(post.createdAt).format("YYYY-MM-DD HH:mm")}>
+
+              {post.featuredImageId && (
+                <div className="relative mb-3 aspect-[21/9] w-full">
+                  <Image
+                    src={`/api/files/${post.featuredImageId}`}
+                    alt=""
+                    className="w-full rounded-lg object-cover"
+                    fill
+                  />
+                </div>
+              )}
+
+              <Tooltip
+                className="text-daw-neutral-400"
+                placement="right"
+                title={dayjs(post.createdAt).format("YYYY-MM-DD HH:mm")}
+              >
                 {dayjs().from(post.createdAt)}
               </Tooltip>
             </div>

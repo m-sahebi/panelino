@@ -1,15 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { Form, Slider, Spin, Tag, Tooltip } from "antd";
+import { Form, Slider, Spin, Tooltip } from "antd";
 import { useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { toggle } from "radash";
 import React, { useCallback, useMemo, useRef } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { LuInfo } from "react-icons/lu";
+import { LuEye } from "react-icons/lu";
 import { useGetSet } from "react-use";
 import { type ApiFilesGetResponseType } from "~/app/api/files/route";
 import { CustomDropdown } from "~/components/CustomDropdown";
 import { FileIcon } from "~/components/file/FileIcon";
+import { FileTypesInfo } from "~/components/file/FileTypesInfo";
 import { type FileModel } from "~/data/models/file";
 import { useSelectionArea } from "~/hooks/useSelectionArea";
 import { fileNameExt, invariant, nonNullable } from "~/utils/primitive";
@@ -23,12 +24,14 @@ export const FileBrowser = React.memo(function FileBrowser({
   multiSelect = false,
   className,
   fileTypes,
+  hideFileTypesInfo = false,
 }: {
   onSelect?: (selectedFilesIds: string[], selectedFiles: FileModel[]) => void;
   onDoubleClick?: (selectedFileId: string, selectedFile: FileModel) => void;
   multiSelect?: boolean;
   className?: string;
   fileTypes?: string;
+  hideFileTypesInfo?: boolean;
 }) {
   const [renameForm] = Form.useForm<{ name: string }>();
   const [zoom, setZoom] = useAtom(fileViewZoomAtom);
@@ -117,32 +120,26 @@ export const FileBrowser = React.memo(function FileBrowser({
 
   return (
     <CustomDropdown
-      renderChildren={(c) => <div className={cn("flex w-full flex-col gap-6", className)}>{c}</div>}
+      renderChildren={(c) => <div className={cn("flex w-full flex-col gap-4", className)}>{c}</div>}
       trigger={["contextMenu"]}
       menu={contextMenu}
     >
-      <div className="flex items-center gap-3">
-        Zoom:
-        <Slider
-          className="max-w-[12rem] flex-1"
-          min={4}
-          max={30}
-          step={0.5}
-          value={zoom}
-          onChange={setZoom}
-        />
-      </div>
-      {fileTypes && (
-        <div className="flex-center">
-          <Tooltip title="Only these file types are available">
-            <LuInfo className="text-daw-neutral-400" />
+      <div className="flex-center w-full flex-wrap justify-between gap-3">
+        {!hideFileTypesInfo && <FileTypesInfo fileTypes={fileTypes} />}
+        <div className="flex-center w-[12rem] max-w-full gap-2">
+          <Tooltip title="Zoom level">
+            <LuEye className="text-primary" size={18} />
           </Tooltip>
-          &nbsp;&nbsp;
-          {fileTypes.split(",").map((t) => (
-            <Tag key={t}>{t}</Tag>
-          ))}
+          <Slider
+            className="my-1 flex-1"
+            min={4}
+            max={30}
+            step={0.5}
+            value={zoom}
+            onChange={setZoom}
+          />
         </div>
-      )}
+      </div>
       <div
         tabIndex={0}
         className="w-full overflow-hidden rounded-lg outline outline-1 outline-daw-neutral-300"

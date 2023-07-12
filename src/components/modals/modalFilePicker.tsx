@@ -4,6 +4,7 @@ import { type ModalFuncProps } from "antd/es/modal/interface";
 import React from "react";
 import { type SimpleMerge } from "type-fest/source/merge";
 import { FileBrowser } from "~/components/file/FileBrowser";
+import { FileTypesInfo } from "~/components/file/FileTypesInfo";
 import { FileUpload } from "~/components/file/FileUpload";
 import { globalModal } from "~/components/Providers/AntProvider";
 import { type FileModel } from "~/data/models/file";
@@ -48,12 +49,18 @@ export function modalFilePicker({
   _modal = (globalModal ?? Modal).confirm({
     icon: null,
     width: "100%",
-    title: multiSelect ? "Choose files" : "Choose a file",
+    title: (
+      <div className="flex-center gap-2">
+        {multiSelect ? "Choose files" : "Choose a file"}
+        <FileTypesInfo fileTypes={fileTypes} />
+      </div>
+    ),
     ...p,
     content: (
       <div className="flex w-full flex-col gap-6">
-        <FileUpload fileTypes={fileTypes} />
+        <FileUpload hideFileTypesInfo fileTypes={fileTypes} />
         <FileBrowser
+          hideFileTypesInfo
           multiSelect={multiSelect}
           fileTypes={fileTypes}
           onSelect={handleSelect}

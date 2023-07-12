@@ -2,6 +2,8 @@
 
 import { createCache, extractStyle, StyleProvider } from "@ant-design/cssinjs";
 import { ConfigProvider, message, Modal, theme } from "antd";
+import { useAtomValue } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 import { useServerInsertedHTML } from "next/navigation";
 import React, { useEffect, useState, type PropsWithChildren } from "react";
 import { IS_SERVER } from "~/data/configs";
@@ -12,11 +14,14 @@ import { rgbToHex } from "~/utils/primitive";
 // suppress useLayoutEffect warnings when running outside a browser
 // if (!process.browser) React.useLayoutEffect = React.useEffect;
 
-const primaryColor = rgbToHex(
-  ...((!IS_SERVER
-    ? window.getComputedStyle(document.body).getPropertyValue("--color-primary")
-    : "75 38 122"
-  ).split(" ") as [string, string, string]),
+export const globalColorPrimaryAtom = atomWithStorage(
+  "globalColorPrimary",
+  rgbToHex(
+    ...((!IS_SERVER
+      ? window.getComputedStyle(document.body).getPropertyValue("--color-primary")
+      : "75 38 122"
+    ).split(" ") as [string, string, string]),
+  ),
 );
 
 export let globalModal: ModalFactory = Modal;
@@ -42,6 +47,7 @@ function ContextHolder() {
 export function AntProvider({ children }: PropsWithChildren) {
   const { darkMode } = useDarkMode();
   const [cache] = useState(() => createCache());
+  const globalColorPrimary = useAtomValue(globalColorPrimaryAtom);
 
   const [isInit, setIsInit] = useState(false);
   useEffect(() => {
@@ -64,7 +70,7 @@ export function AntProvider({ children }: PropsWithChildren) {
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: primaryColor,
+          colorPrimary: globalColorPrimary,
           fontFamily: "inherit",
           colorBgMask: darkMode ? "rgba(200, 200, 200, 0.35)" : "rgba(0, 0, 0, 0.45)",
         },

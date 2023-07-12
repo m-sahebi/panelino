@@ -1,35 +1,15 @@
 "use client";
 
-import { Button, Form, Input, InputNumber, Select } from "antd";
-import { useMemo, type ReactNode } from "react";
-import { z } from "zod";
+import { Button, Form } from "antd";
+import { useMemo } from "react";
 import { zerialize, type SzObject, type SzType } from "zodex";
-import { CustomDatePicker } from "~/components/CustomDatePicker";
-import { FilePickerButton } from "~/components/file/FilePickerButton";
+import { globalMessage } from "~/components/Providers/AntProvider";
+import { szInputComponent } from "~/components/szInputComponent";
 import { IS_DEV } from "~/data/configs";
-import { UserModel } from "~/data/models/user";
-import { SzDataType } from "~/data/types/basic";
-import { camelCasePrettify, invariant } from "~/utils/primitive";
-import { queryParamsParse } from "~/utils/query-params";
+import { PostModel } from "~/data/models/post";
+import { trpc } from "~/lib/trpc";
+import { camelCasePrettify } from "~/utils/primitive";
 import { cn } from "~/utils/tailwind";
-
-const getSzInputComponent: {
-  [p in SzDataType["STRING"] | SzDataType["NUMBER"] | SzDataType["ENUM"] | SzDataType["DATE"]]: (
-    sz: SzType,
-  ) => ReactNode;
-} = {
-  [SzDataType.STRING]: (_sz) => {
-    const p = queryParamsParse(_sz.description ?? "");
-    if ("file" in p) return <FilePickerButton />;
-    else return <Input allowClear />;
-  },
-  [SzDataType.NUMBER]: (_sz) => <InputNumber />,
-  [SzDataType.ENUM]: (sz) => {
-    invariant(sz.type === SzDataType.ENUM);
-    return <Select options={sz.values.map((el: string) => ({ label: el, value: el }))} />;
-  },
-  [SzDataType.DATE]: (_sz) => <CustomDatePicker />,
-};
 
 export function ZodForm<TShape extends Record<string, SzType>>({
   szObject,
@@ -38,16 +18,17 @@ export function ZodForm<TShape extends Record<string, SzType>>({
   szObject: SzObject<TShape>;
   itemClassName?: string;
 }) {
+  const { mutateAsync } = trpc.posts.create.useMutation({
+    onSuccess: () => globalMessage.success("Success!"),
+  });
   const keys = useMemo(() => Object.keys(szObject.properties), [szObject]);
 
   return (
-    <Form layout="vertical" className="flex flex-col gap-6" onFinish={console.log}>
+    <Form layout="vertical" className="flex flex-col gap-6" onFinish={void mutateAsync}>
       {keys.map((k) => {
         const t = szObject.properties[k].type;
         const input =
-          t in getSzInputComponent
-            ? getSzInputComponent[t as keyof typeof getSzInputComponent]
-            : null;
+          t in szInputComponent ? szInputComponent[t as keyof typeof szInputComponent] : null;
         return (
           <Form.Item
             className={cn("m-0", itemClassName)}
@@ -75,12 +56,14 @@ export function ZodForm<TShape extends Record<string, SzType>>({
   );
 }
 
-const schema = z.object({
-  name: z.string(),
-  email: z.string().email(),
-  imageId: z.string().describe("file=image"),
-});
+// const schema = z.object({
+//   name: z.string(),
+//   email: z.string().email(),
+//   imageId: z.string().describe("file=image"),
+// });
 export function FormPage() {
-  const sz = zerialize(UserModel);
+  const sz = zerialize(
+    PostModel.omit({ createdAt: true, updatedAt: true, deletedAt: true, authorId: true, id: true }),
+  );
   return <ZodForm szObject={sz} />;
 }

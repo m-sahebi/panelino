@@ -4,14 +4,15 @@ import { Button, Collapse, Form, Select, Table } from "antd";
 import { useMemo } from "react";
 import { type SzType } from "zodex";
 import { type RouterName } from "~/_server/routers";
-import { AntFormItem } from "~/components/AntFormItem";
 import JsonPrettied from "~/components/JsonPrettied";
 import { globalMessage } from "~/components/Providers/AntProvider";
+import { szInputComponent } from "~/components/szInputComponent";
 import { useAntTableHandleChange } from "~/hooks/useAntTableHandleChange";
 import { useColumnsFromMeta } from "~/hooks/useColumnsFromMeta";
 import { usePaginationQueryParams } from "~/hooks/usePaginationQueryParams";
 import { useQueryParams } from "~/hooks/useQueryParams";
 import { trpc, type RouterInputs, type RouterOutputs } from "~/lib/trpc";
+import { camelCasePrettify } from "~/utils/primitive";
 import { type Nullish } from "~/utils/type";
 
 export default function DataViewPage<
@@ -123,7 +124,18 @@ export default function DataViewPage<
           <Collapse.Panel key={1} header="Parameters">
             <div className="mb-6 grid gap-4 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
               {dataSchemaEntries.map(([p, t]) => {
-                return AntFormItem[t.type as keyof typeof AntFormItem]?.(p, t);
+                return (
+                  <Form.Item
+                    className="m-0"
+                    key={p}
+                    name={p}
+                    label={camelCasePrettify(p)}
+                    rules={[{ required: !t.isOptional }]}
+                  >
+                    {szInputComponent[t.type as keyof typeof szInputComponent]?.(t) ??
+                      `unsupported type: ${t.type}`}
+                  </Form.Item>
+                );
               })}
             </div>
             {dataSchemaEntries.length ? (

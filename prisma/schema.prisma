@@ -60,15 +60,17 @@ model Group {
 }
 
 model Post {
-  id        String     @id @unique @default(nanoid(7))
-  title     String
-  content   String?
-  status    PostStatus @default(DRAFT)
-  author    User       @relation(fields: [authorId], references: [id])
-  authorId  String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  deletedAt DateTime?
+  id              String     @id @unique @default(nanoid(7))
+  title           String
+  content         String?
+  featuredImage   File?      @relation(fields: [featuredImageId], references: [id])
+  featuredImageId String?
+  status          PostStatus @default(DRAFT)
+  author          User       @relation(fields: [authorId], references: [id])
+  authorId        String
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  deletedAt       DateTime?
 }
 
 model Flow {
@@ -82,14 +84,15 @@ model Flow {
 }
 
 model File {
-  id            String  @id @unique @default(nanoid(20))
-  key           String
-  name          String
-  size          Int
-  mimeType      String?
-  createdBy     User    @relation("UploadedFiles", fields: [createdById], references: [id])
-  createdById   String
-  usedByAsImage User[]  @relation("ProfileImage")
+  id                String  @id @unique @default(nanoid(20))
+  key               String
+  name              String
+  size              Int
+  mimeType          String?
+  createdBy         User    @relation("UploadedFiles", fields: [createdById], references: [id])
+  createdById       String
+  usedByAsImage     User[]  @relation("ProfileImage")
+  postFeaturedImage Post[]
 }
 
 enum PostStatus {

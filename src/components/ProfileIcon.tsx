@@ -65,7 +65,7 @@ export function ProfileIcon({
               >
                 {user ? "Log out" : "Log in"}
               </Button>
-              <Divider className="my-1" />
+              <Divider className="m-0" />
               <Segmented
                 value={globalSettings.darkModeSetting}
                 onChange={(val) =>

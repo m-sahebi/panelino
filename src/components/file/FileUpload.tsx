@@ -3,15 +3,24 @@ import { Upload } from "antd";
 import React from "react";
 import { LuUpload } from "react-icons/lu";
 import { type ApiFilePostResponseType } from "~/app/api/files/route";
+import { FileTypesInfo } from "~/components/file/FileTypesInfo";
 import { globalMessage } from "~/components/Providers/AntProvider";
 import { useGlobalLoading } from "~/hooks/useGlobalLoading";
 import { queryClient, rqMutation } from "~/lib/tanstack-query";
 import { fileNameExt } from "~/utils/primitive";
 import { cn } from "~/utils/tailwind";
 
-type Props = { className?: string; fileTypes?: string };
+type Props = {
+  className?: string;
+  fileTypes?: string;
+  hideFileTypesInfo?: boolean;
+};
 
-export const FileUpload = React.memo(function FileUpload({ className, fileTypes }: Props) {
+export const FileUpload = React.memo(function FileUpload({
+  className,
+  fileTypes,
+  hideFileTypesInfo = false,
+}: Props) {
   const { setGlobalLoading } = useGlobalLoading();
   const { mutateAsync: deleteFile } = useMutation(
     rqMutation({ url: "/files/:id", invalidatedKeys: [["/files"]] }),
@@ -55,9 +64,16 @@ export const FileUpload = React.memo(function FileUpload({ className, fileTypes 
         }
       }}
     >
-      <LuUpload className="align-sub text-lg" />
-      &nbsp;&nbsp;
-      <span className="text-lg font-normal">Click or drag file to Upload</span>
+      <div className="flex flex-col gap-3 px-3">
+        <div>
+          <LuUpload className="align-sub text-lg" />
+          &nbsp;&nbsp;
+          <span className="text-lg font-normal">Click or drag file to Upload</span>
+        </div>
+        {!hideFileTypesInfo && (
+          <FileTypesInfo fileTypes={fileTypes} className="flex-center-center" />
+        )}
+      </div>
     </Upload.Dragger>
   );
 });
