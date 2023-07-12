@@ -23,15 +23,12 @@
 }
 
 body {
-  font-weight: 500;
-  width: 100%;
   height: unset;
-  min-height: 100%;
-  background-image: radial-gradient(rgba(127, 127, 127, 0.15) 10%, transparent 10%),
-    radial-gradient(rgba(127, 127, 127, 0.15) 10%, transparent 10%);
+  background-image: radial-gradient(rgba(127, 127, 127, 0.1) 10%, transparent 10%),
+    radial-gradient(rgba(127, 127, 127, 0.1) 10%, transparent 10%);
   background-size: 18px 18px;
-  background-position: 0 0,9px 9px;
-  @apply flex flex-col bg-daw-neutral-50 text-daw-neutral-900;
+  background-position: 0 0, 9px 9px;
+  @apply flex min-h-full w-full flex-col font-medium bg-daw-neutral-50 text-daw-neutral-900;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -41,8 +38,8 @@ body {
 }
 
 .ant-btn.ant-btn.ant-btn {
-  font-weight: 500;
+  @apply font-medium;
 }
 .full-modal-confirm-content .ant-modal-confirm-content {
-  max-width: 100% !important;
+  @apply !max-w-full;
 }
