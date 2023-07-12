@@ -36,7 +36,11 @@ const ScrollYTracker = React.memo(function ScrollTracker({
 
 export function HomePage() {
   // const { data: session } = useSession();
-  const { data: posts } = trpc.posts.getMany.useQuery({ sort: "createdAt", pageSize: 100 });
+  const { data: posts } = trpc.posts.getMany.useQuery({
+    sort: "createdAt",
+    order: "desc",
+    pageSize: 100,
+  });
   const [scrolled, setScrolled] = useState(false);
   // const { data } = useQuery({ queryKey: ["https://dev.to/api/articles"] });
   const router = useRouter();
@@ -47,24 +51,24 @@ export function HomePage() {
       <ScrollYTracker limit={20} onPassLimit={setScrolled} />
       <div
         className={cn(
-          "sticky -top-px z-10 mx-auto mb-6 mt-4 w-[948px] max-w-full rounded-lg border-0 border-transparent px-5 transition-all duration-300",
+          "sticky -top-px z-10 mx-auto mb-6 mt-4 w-[1200px] max-w-full rounded-lg border-0 border-transparent px-5 transition-all duration-300",
           {
             "w-full rounded-none border-0 border-b border-solid bg-neutral-200 bg-opacity-70 border-daw-neutral-300 dark:bg-neutral-800 dark:bg-opacity-70":
               scrolled,
           },
         )}
-        style={{ backdropFilter: "blur(4px)" }}
+        style={{ backdropFilter: "blur(6px)" }}
       >
         <header
           className={cn(
-            "mx-auto flex w-full max-w-[900px] items-center justify-center rounded-lg px-5 py-3 duration-300 bg-daw-neutral-200",
+            "mx-auto flex w-full max-w-screen-xl items-center justify-center rounded-lg px-5 py-3 duration-300 bg-daw-neutral-200",
             {
               "bg-transparent": scrolled,
             },
           )}
         >
           <ProfileIcon collapsed avatarWidth={32} />
-          <nav className="flex max-w-[900px] flex-1 justify-end self-center transition-all">
+          <nav className="flex max-w-screen-xl flex-1 justify-end self-center transition-all">
             <Menu
               className={cn("border-0 bg-transparent leading-6")}
               mode="horizontal"
@@ -76,32 +80,40 @@ export function HomePage() {
         </header>
       </div>
 
-      <div className="mx-auto flex w-full max-w-[948px] flex-col gap-8 px-5">
-        <main className="flex flex-col gap-6">
-          {posts?.items.map((post) => (
-            <div key={post.id} className="flex flex-col items-start py-3">
-              <h2>{post.title}</h2>
+      <div className="flex w-full max-w-screen-xl flex-col gap-8 self-center px-5">
+        <main className="flex w-full flex-col gap-6">
+          <div
+            className="grid w-full place-content-center place-items-center justify-start"
+            style={{
+              gridTemplateColumns: `repeat(auto-fit, minmax(min(20rem, 100%), 1fr))`,
+              gridGap: "2rem 1.5rem",
+              // maxWidth: `${zoom * 1.4 * (items?.length ?? 0)}rem`,
+            }}
+          >
+            {posts?.items.map((post) => (
+              <div key={post.id} className="flex w-full flex-col items-start py-3">
+                {post.featuredImageId && (
+                  <div className="relative mb-3 aspect-video w-full">
+                    <Image
+                      src={`/api/files/${post.featuredImageId}`}
+                      alt=""
+                      className="w-full rounded-lg object-cover"
+                      fill
+                    />
+                  </div>
+                )}
 
-              {post.featuredImageId && (
-                <div className="relative mb-3 aspect-[21/9] w-full">
-                  <Image
-                    src={`/api/files/${post.featuredImageId}`}
-                    alt=""
-                    className="w-full rounded-lg object-cover"
-                    fill
-                  />
-                </div>
-              )}
-
-              <Tooltip
-                className="text-daw-neutral-400"
-                placement="right"
-                title={dayjs(post.createdAt).format("YYYY-MM-DD HH:mm")}
-              >
-                {dayjs().from(post.createdAt)}
-              </Tooltip>
-            </div>
-          ))}
+                <h2>{post.title}</h2>
+                <Tooltip
+                  className="text-daw-neutral-400"
+                  placement="right"
+                  title={dayjs(post.createdAt).format("YYYY-MM-DD HH:mm")}
+                >
+                  {dayjs().from(post.createdAt)}
+                </Tooltip>
+              </div>
+            ))}
+          </div>
         </main>
       </div>
     </>
