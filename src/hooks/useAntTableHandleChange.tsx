@@ -3,6 +3,7 @@ import { type SorterResult } from "antd/es/table/interface";
 import { mapValues, shake } from "radash";
 import { useCallback } from "react";
 import { useQueryParams } from "~/hooks/useQueryParams";
+import { encodeQueryParamObjectValue } from "~/utils/helpers";
 
 const dir = { ascend: "asc", descend: "desc" };
 
@@ -18,7 +19,7 @@ export function useAntTableHandleChange<TData extends object>() {
       if (action === "filter") {
         const f = shake(mapValues(filters, (v) => v?.[0]));
         setQueryParams({
-          filter: Object.keys(f).length ? encodeURIComponent(JSON.stringify(f)) : undefined,
+          filter: encodeQueryParamObjectValue(f),
         });
       } else if (action === "paginate") setQueryParams({ page: current, pageSize });
       else if (action === "sort") {

@@ -7,8 +7,8 @@ import {
 import axios, { type AxiosError, type AxiosRequestConfig } from "axios";
 import { isObject } from "radash";
 import { type SimpleMerge } from "type-fest/source/merge";
-import { globalMessage } from "~/components/Providers/AntProvider";
-import { API_URL, IS_DEV, REQUEST_TIMEOUT } from "~/data/configs";
+import { globalMessage } from "~/components/configs/Providers/AntProvider";
+import { API_URL, REQUEST_TIMEOUT } from "~/data/configs";
 import { generatePath } from "~/utils/generate-path";
 import { invariant } from "~/utils/primitive";
 
@@ -49,7 +49,7 @@ export function rqFetch<TQueryKey extends QueryKey, TBody>({
     .catch((e: AxiosError) => {
       if (e.code !== "ERR_CANCELED")
         void globalMessage.error((e.response?.data as any)?.message || e.message);
-      else if (IS_DEV) console.info(e.config?.signal);
+      // else if (IS_DEV) console.info(e.config?.signal);
       throw e;
     });
 }
@@ -76,7 +76,7 @@ export async function rqMutate<
     (e: AxiosError) => {
       if (toastError && e.code !== "ERR_CANCELED")
         void globalMessage.error((e.response?.data as any)?.message || e.message);
-      else if (IS_DEV) console.info(e.config?.signal);
+      // else if (IS_DEV) console.info(e.config?.signal);
       throw e;
     },
   );

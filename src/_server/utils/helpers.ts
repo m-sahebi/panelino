@@ -1,3 +1,4 @@
+import { pick } from "radash";
 import { z } from "zod";
 import { zerialize, type SzEnum, type SzObject, type SzType } from "zodex";
 import { DATE_TIME_FORMAT } from "~/data/configs";
@@ -5,7 +6,8 @@ import { PaginatedRes } from "~/data/schemas/paginated-res";
 import { Res } from "~/data/schemas/res";
 import { TableColumnOptions } from "~/data/schemas/table";
 import { SzDataType } from "~/data/types/basic";
-import { dayjs } from "~/lib/dayjs";
+import { dateTime } from "~/lib/dayjs";
+import { decodeQueryParamObjectValue } from "~/utils/helpers";
 import { invariant } from "~/utils/primitive";
 
 export function makeResSchema<
@@ -44,11 +46,13 @@ export function makeResMeta<TShape extends [string, ...string[]], TEnum extends 
 }
 
 export function parseFilter<T extends Record<string, SzType>>(
-  rawFilter: {
-    [p: string]: unknown;
-  },
+  filter: string | object,
   parsedOutput: SzObject<T>,
+  filterableColumns?: string[],
 ): Record<string, any> {
+  const filterObj: Record<string, any> =
+    typeof filter === "string" ? decodeQueryParamObjectValue(filter) : filter;
+  const rawFilter = filterableColumns ? pick(filterObj, filterableColumns) : filterObj;
   const where: Record<string, any> = {};
   const obj = parsedOutput.properties;
   if (obj == null) return where;
@@ -67,10 +71,10 @@ export function parseFilter<T extends Record<string, SzType>>(
         : undefined;
     else if (obj[k].type === SzDataType.DATE && typeof val === "string") {
       const vals = val.split(".");
-      const rawFrom = dayjs(vals[0], DATE_TIME_FORMAT);
+      const rawFrom = dateTime(vals[0], DATE_TIME_FORMAT);
       const from = rawFrom.isValid() ? rawFrom.toDate() : undefined;
 
-      const rawTo = dayjs(vals[1], DATE_TIME_FORMAT);
+      const rawTo = dateTime(vals[1], DATE_TIME_FORMAT);
       const to = rawTo.isValid() ? rawTo.toDate() : undefined;
 
       where[k] = { gte: from, lte: to };

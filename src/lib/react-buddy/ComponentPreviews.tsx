@@ -1,9 +1,9 @@
 import { ComponentPreview, Previews } from "@react-buddy/ide-toolbox-next";
 import React from "react";
 import { CustomDatePicker } from "~/components/CustomDatePicker";
-import { FileBrowser } from "~/components/file/FileBrowser";
 import { GlobalSearch } from "~/components/GlobalSearch";
-import { ProfileIcon } from "~/components/ProfileIcon";
+import { FileBrowser } from "~/features/file/components/FileBrowser";
+import { ProfileIcon } from "~/features/user/components/ProfileIcon";
 import { PaletteTree } from "~/lib/react-buddy/PaletteTree";
 
 export default function ComponentPreviews() {

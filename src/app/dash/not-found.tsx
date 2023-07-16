@@ -1,7 +1,7 @@
 "use client";
 
-import { Empty } from "antd";
+import { CustomEmpty } from "~/components/CustomEmpty";
 
 export default function DashNotFound() {
-  return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />;
+  return <CustomEmpty />;
 }

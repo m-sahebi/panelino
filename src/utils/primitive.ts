@@ -101,11 +101,11 @@ export function windowClearSelection() {
   window.getSelection?.()?.removeAllRanges();
 }
 
-export function numberToHex(c: number) {
-  const hex = c.toString(16);
+export function numberToHex(c: number | string) {
+  const hex = (+c).toString(16);
   return hex.length == 1 ? "0" + hex : hex;
 }
 
-export function rgbToHex(r: number | string, g: number | string, b: number | string) {
-  return "#" + numberToHex(+r) + numberToHex(+g) + numberToHex(+b);
+export function rgbToHex(color: `${number} ${number} ${number}` | string) {
+  return "#" + color.split(" ").map(numberToHex).join("");
 }

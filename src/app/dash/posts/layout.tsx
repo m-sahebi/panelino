@@ -1,5 +1,5 @@
 import type React from "react";
-import "~/assets/styles/globals.css";
+import "~/assets/styles/globals.scss";
 
 export const metadata = {
   title: "Posts",

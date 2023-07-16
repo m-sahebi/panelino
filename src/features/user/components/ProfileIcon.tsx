@@ -31,7 +31,7 @@ export function ProfileIcon({
   const heightAvatar = avatarWidth ?? "2.5rem";
   const widthCollapsed = collapsedWidth ?? "10rem";
 
-  const [globalSettings, setGlobalSettings] = useAtom(globalSettingsAtom);
+  const [{ darkModeSetting }, setGlobalSettings] = useAtom(globalSettingsAtom);
 
   return (
     <div className={cn("transition-all", className)}>
@@ -67,7 +67,7 @@ export function ProfileIcon({
               </Button>
               <Divider className="m-0" />
               <Segmented
-                value={globalSettings.darkModeSetting}
+                value={darkModeSetting}
                 onChange={(val) =>
                   setGlobalSettings((s) => ({
                     ...s,

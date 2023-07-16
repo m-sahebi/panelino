@@ -1,4 +1,4 @@
-import { useAtom } from "jotai/index";
+import { useAtom } from "jotai";
 import { useCallback, useRef } from "react";
 import { globalSearchAtom } from "~/store/atoms/global-search";
 

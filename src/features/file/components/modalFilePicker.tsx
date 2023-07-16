@@ -3,11 +3,11 @@ import { type ModalFunc } from "antd/es/modal/confirm";
 import { type ModalFuncProps } from "antd/es/modal/interface";
 import React from "react";
 import { type SimpleMerge } from "type-fest/source/merge";
-import { FileBrowser } from "~/components/file/FileBrowser";
-import { FileTypesInfo } from "~/components/file/FileTypesInfo";
-import { FileUpload } from "~/components/file/FileUpload";
-import { globalModal } from "~/components/Providers/AntProvider";
+import { globalModal } from "~/components/configs/Providers/AntProvider";
 import { type FileModel } from "~/data/models/file";
+import { FileBrowser } from "~/features/file/components/FileBrowser";
+import { FileTypesInfo } from "~/features/file/components/FileTypesInfo";
+import { FileUpload } from "~/features/file/components/FileUpload";
 import { cn } from "~/utils/tailwind";
 
 let _modal: ReturnType<ModalFunc>,
@@ -68,7 +68,7 @@ export function modalFilePicker({
         />
       </div>
     ),
-    wrapClassName: cn(p.icon && p.wrapClassName, "full-modal-confirm-content"),
+    wrapClassName: cn(p.wrapClassName, "full-modal-confirm-content"),
     className: cn("top-4 max-w-screen-lg px-4", p.className),
     afterClose: () => {
       _selectedFilesId = [];

@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useRouter, useSelectedLayoutSegment } from "next/navigation";
 import React from "react";
 import { LuHome, LuPanelLeftClose, LuPanelLeftOpen, LuSearch } from "react-icons/lu";
-import { ProfileIcon } from "~/components/ProfileIcon";
 import { DASH_SIDEMENU_ITEMS } from "~/data/menus";
+import { ProfileIcon } from "~/features/user/components/ProfileIcon";
 import { useGlobalSearch } from "~/hooks/useGlobalSearch";
 import { dashSidebarAtom } from "~/store/atoms/dash-sidebar";
 import { cn } from "~/utils/tailwind";
@@ -22,7 +22,7 @@ export function Sidebar() {
     <aside
       className={cn(
         "sticky top-0 flex h-screen w-64 flex-col items-center py-4",
-        "gap-3 transition-all duration-500",
+        "gap-4 transition-all duration-500",
         {
           "w-20": collapsed,
           "px-3": !collapsed,
@@ -67,6 +67,7 @@ export function Sidebar() {
           )}
         </Button>
       </Tooltip>
+
       <Menu
         mode="inline"
         inlineCollapsed={collapsed}

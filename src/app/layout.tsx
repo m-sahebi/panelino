@@ -1,9 +1,9 @@
 import "~/env";
-import "~/assets/styles/globals.css";
+import "~/assets/styles/globals.scss";
 import { getServerSession } from "next-auth";
 import { StrictMode, type PropsWithChildren } from "react";
 import { authOptions } from "~/_server/lib/next-auth";
-import { Providers } from "~/components/Providers";
+import { Providers } from "~/components/configs/Providers";
 import { FONT_SANS } from "~/data/configs";
 import { cn } from "~/utils/tailwind";
 

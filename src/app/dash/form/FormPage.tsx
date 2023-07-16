@@ -3,7 +3,7 @@
 import { Button, Form } from "antd";
 import { useMemo } from "react";
 import { zerialize, type SzObject, type SzType } from "zodex";
-import { globalMessage } from "~/components/Providers/AntProvider";
+import { globalMessage } from "~/components/configs/Providers/AntProvider";
 import { szInputComponent } from "~/components/szInputComponent";
 import { IS_DEV } from "~/data/configs";
 import { PostModel } from "~/data/models/post";

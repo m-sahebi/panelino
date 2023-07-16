@@ -1,8 +1,9 @@
-import { AutoComplete, ConfigProvider, Divider, Empty, Modal, Pagination, Spin, Tag } from "antd";
+import { AutoComplete, ConfigProvider, Divider, Modal, Pagination, Spin, Tag } from "antd";
 import { memo, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { LuLoader2 } from "react-icons/lu";
 import { useDebounce } from "react-use";
+import { CustomEmpty } from "~/components/CustomEmpty";
 import { type SelectRef } from "~/data/types/ant";
 import { useGlobalSearch } from "~/hooks/useGlobalSearch";
 import { trpc } from "~/lib/trpc";
@@ -111,13 +112,7 @@ export const GlobalSearch = memo(function GlobalSearch() {
                 </div>
               ),
             }))}
-            notFoundContent={
-              data == null ? (
-                <div className="h-32" />
-              ) : (
-                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-              )
-            }
+            notFoundContent={data == null ? <div className="h-32" /> : <CustomEmpty />}
             dropdownRender={dropdownRender}
             dropdownAlign={{ offset: [-12, 20] }}
           />

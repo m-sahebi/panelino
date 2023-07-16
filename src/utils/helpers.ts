@@ -1,5 +1,5 @@
 import { PAGE_SIZE, PAGE_SIZE_LIMIT } from "~/data/configs";
-import { toNumber } from "~/utils/primitive";
+import { jsonParse, toNumber } from "~/utils/primitive";
 
 export function paginate(
   {
@@ -48,4 +48,13 @@ export function paginateParams(p: {
     offset,
     limit,
   })[1];
+}
+
+export function encodeQueryParamObjectValue(obj: object) {
+  return Object.keys(obj).length ? encodeURIComponent(JSON.stringify(obj)) : undefined;
+}
+export function decodeQueryParamObjectValue<
+  T extends Record<string, string | number | boolean | T[] | Record<string, T> | null>,
+>(str: string) {
+  return jsonParse<T>(decodeURIComponent(str));
 }

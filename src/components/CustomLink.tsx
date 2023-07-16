@@ -6,9 +6,9 @@ export type CustomLinkProps<T = typeof Link> = T extends React.ForwardRefExoticC
   ? I
   : never;
 
-function CustomLink({ children, className, ...props }: CustomLinkProps) {
+export function CustomLink({ children, className, ...props }: CustomLinkProps) {
   return (
-    <Link className={cn("text-current no-underline", className)} {...props}>
+    <Link className={cn("text-current no-underline", className)} target="_blank" {...props}>
       {children}
     </Link>
   );

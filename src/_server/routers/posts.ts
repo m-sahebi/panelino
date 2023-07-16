@@ -1,6 +1,6 @@
 import { PostStatus, type Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-import { listify, mapValues, objectify, pick } from "radash";
+import { listify, mapValues, objectify } from "radash";
 import { z } from "zod";
 import { AccessLevel, Permission } from "~/_server/data/roles";
 import { protectedProcedure } from "~/_server/procedures/protected";
@@ -12,7 +12,6 @@ import { Id } from "~/data/schemas/id";
 import { PaginatedReq } from "~/data/schemas/paginated-req";
 import { TableColumnType } from "~/data/schemas/table";
 import { paginate } from "~/utils/helpers";
-import { jsonParse } from "~/utils/primitive";
 
 const PostModelNoDeletedAt = PostModel.omit({ deletedAt: true });
 const PostModelNoMeta = PostModelNoDeletedAt.omit({
@@ -150,10 +149,7 @@ export const postsRouter = createTRPCRouter({
         const s = decodeURIComponent(search ?? "");
         whereQuery = {
           ...(filter
-            ? parseFilter(
-                pick(jsonParse(decodeURIComponent(filter ?? "")), opt.filterableColumns),
-                opt.outputItemsSchemaParsed,
-              )
+            ? parseFilter(filter, opt.outputItemsSchemaParsed, opt.filterableColumns)
             : {}),
           OR: s
             ? listify(

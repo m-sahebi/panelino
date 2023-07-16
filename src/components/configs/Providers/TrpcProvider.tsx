@@ -2,7 +2,7 @@
 
 import { QueryClientProvider } from "@tanstack/react-query";
 import { type PropsWithChildren } from "react";
-import { queryClient } from "~/lib/tanstack-query";
+import { queryClient } from "~/lib/react-query";
 import { trpcReact, trpcReactClient } from "~/lib/trpc";
 
 export function TrpcProvider(p: PropsWithChildren) {

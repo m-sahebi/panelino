@@ -1,0 +1,11 @@
+$color-primary-light: 0 187 107;
+$color-primary-dark: 200 60 237;
+$color-secondary-light: 0 187 107;
+$color-secondary-dark: 0 187 107;
+
+:export {
+  colorPrimaryLight: $color-primary-light;
+  colorPrimaryDark: $color-primary-dark;
+  colorSecondaryLight: $color-secondary-light;
+  colorSecondaryDark: $color-secondary-dark;
+}

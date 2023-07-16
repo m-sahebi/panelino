@@ -5,7 +5,7 @@ import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { LuGithub } from "react-icons/lu";
-import { globalMessage } from "~/components/Providers/AntProvider";
+import { globalMessage } from "~/components/configs/Providers/AntProvider";
 import { IS_DEV } from "~/data/configs";
 
 const errors = {

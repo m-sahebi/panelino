@@ -1,0 +1,46 @@
+@import "antd/dist/reset.css";
+// @tailwind base;
+// @tailwind components;
+@tailwind utilities;
+@import "vars.module";
+
+@layer utilities {
+  .flex-center-center {
+    @apply flex items-center justify-center;
+  }
+  .flex-center {
+    @apply flex items-center;
+  }
+}
+
+:root {
+  --color-primary: #{$color-primary-light};
+  --color-secondary: #{$color-secondary-light};
+}
+
+.dark {
+  --color-primary: #{$color-primary-dark};
+  --color-secondary: #{$color-secondary-dark};
+}
+
+body {
+  height: unset;
+  //background-image: radial-gradient(rgba(127, 127, 127, 0.1) 10%, transparent 10%),
+  //  radial-gradient(rgba(127, 127, 127, 0.1) 10%, transparent 10%);
+  //background-size: 18px 18px;
+  //background-position: 0 0, 9px 9px;
+  @apply flex min-h-full w-full flex-col font-medium bg-daw-neutral-50 text-daw-neutral-900;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
+
+.ant-btn.ant-btn.ant-btn {
+  @apply font-medium;
+}
+#app :is(.full-modal-confirm-content .ant-modal-confirm-content) {
+  @apply max-w-full;
+}

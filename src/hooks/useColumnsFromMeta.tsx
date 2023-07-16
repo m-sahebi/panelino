@@ -23,14 +23,15 @@ import {
 } from "~/data/schemas/table";
 import { type RangePickerRef, type SelectRef } from "~/data/types/ant";
 import { useQueryParamsObject } from "~/hooks/useQueryParamsObject";
-import { dayjs } from "~/lib/dayjs";
-import { camelCasePrettify, jsonParse } from "~/utils/primitive";
+import { dateTime } from "~/lib/dayjs";
+import { decodeQueryParamObjectValue } from "~/utils/helpers";
+import { camelCasePrettify } from "~/utils/primitive";
 import { cn } from "~/utils/tailwind";
 
 const renderers = {
   [TableColumnType.DATE]: (_filter: TableColumnFilter[TableColumnType.DATE]) => (text: string) => {
-    const d = dayjs(text);
-    return <Tooltip title={d.format("YYYY-MM-DD HH:mm")}>{dayjs().from(d)}</Tooltip>;
+    const d = dateTime(text);
+    return <Tooltip title={d.format("YYYY-MM-DD HH:mm")}>{dateTime().from(d)}</Tooltip>;
   },
   [TableColumnType.ENUM]: (filter: TableColumnFilter[TableColumnType.ENUM]) => (text: string) => {
     const i = filter.values.indexOf(text);
@@ -97,14 +98,16 @@ const getInputComponent: {
       showTime={{ format: "HH:mm" }}
       format={DATE_TIME_FORMAT}
       value={
-        value?.split(".").map((v) => v && dayjs(v, DATE_TIME_FORMAT)) as RangePickerProps["value"]
+        value
+          ?.split(".")
+          .map((v) => v && dateTime(v, DATE_TIME_FORMAT)) as RangePickerProps["value"]
       }
       onChange={(val) => {
         if (!val) setSelectedKeys([]);
       }}
       onOk={(val) => {
         setSelectedKeys(
-          val ? [val.map((v) => v && dayjs(v).format(DATE_TIME_FORMAT)).join(".")] : [],
+          val ? [val.map((v) => v && dateTime(v).format(DATE_TIME_FORMAT)).join(".")] : [],
         );
       }}
     />
@@ -134,7 +137,7 @@ export const useColumnsFromMeta = <
   }, []);
 
   const [searches, setSearches] = useState<Record<string, string | undefined>>(() =>
-    jsonParse<Record<string, string>>(decodeURIComponent(String(queryParams.filter ?? ""))),
+    decodeQueryParamObjectValue<Record<string, string>>(String(queryParams.filter ?? "")),
   );
 
   const searchedColumns = Object.keys(searches);

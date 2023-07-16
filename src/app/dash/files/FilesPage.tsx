@@ -1,8 +1,8 @@
 "use client";
 
-import { FileBrowser } from "~/components/file/FileBrowser";
-import { FileUpload } from "~/components/file/FileUpload";
 import { IMAGE_MEDIA_TYPE } from "~/data/configs";
+import { FileBrowser } from "~/features/file/components/FileBrowser";
+import { FileUpload } from "~/features/file/components/FileUpload";
 
 export function FilesPage() {
   return (

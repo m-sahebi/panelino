@@ -1,6 +1,6 @@
 import { UserRole, type Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-import { listify, mapValues, objectify, pick } from "radash";
+import { listify, mapValues, objectify } from "radash";
 import { z } from "zod";
 import { protectedProcedure } from "~/_server/procedures/protected";
 import { createTRPCRouter, publicProcedure } from "~/_server/trpc";
@@ -10,7 +10,7 @@ import { Id } from "~/data/schemas/id";
 import { PaginatedReq } from "~/data/schemas/paginated-req";
 import { TableColumnType } from "~/data/schemas/table";
 import { paginate } from "~/utils/helpers";
-import { jsonParse, nonNullable } from "~/utils/primitive";
+import { nonNullable } from "~/utils/primitive";
 
 const UserModelNoDeletedAt = UserModel.omit({ deletedAt: true });
 const UserModelNoMeta = UserModelNoDeletedAt.omit({
@@ -66,12 +66,7 @@ export const usersRouter = createTRPCRouter({
 
       const s = decodeURIComponent(search ?? "");
       whereQuery = {
-        ...(filter
-          ? parseFilter(
-              pick(jsonParse(decodeURIComponent(filter ?? "")), opt.filterableColumns),
-              opt.outputItemsSchemaParsed,
-            )
-          : {}),
+        ...(filter ? parseFilter(filter, opt.outputItemsSchemaParsed, opt.filterableColumns) : {}),
         OR: s
           ? listify(
               parseFilter(

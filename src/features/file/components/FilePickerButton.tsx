@@ -1,8 +1,8 @@
 import { Button, Tag } from "antd";
 import { useState } from "react";
-import { FileTypesInfo } from "~/components/file/FileTypesInfo";
-import { modalFilePicker } from "~/components/modals/modalFilePicker";
 import { type FileModel } from "~/data/models/file";
+import { FileTypesInfo } from "~/features/file/components/FileTypesInfo";
+import { modalFilePicker } from "~/features/file/components/modalFilePicker";
 
 export function FilePickerButton({
   onChange,

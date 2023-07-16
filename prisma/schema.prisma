@@ -84,15 +84,16 @@ model Flow {
 }
 
 model File {
-  id                String  @id @unique @default(nanoid(20))
+  id                String   @id @unique @default(nanoid(20))
   key               String
   name              String
   size              Int
   mimeType          String?
-  createdBy         User    @relation("UploadedFiles", fields: [createdById], references: [id])
+  createdBy         User     @relation("UploadedFiles", fields: [createdById], references: [id])
   createdById       String
-  usedByAsImage     User[]  @relation("ProfileImage")
+  usedByAsImage     User[]   @relation("ProfileImage")
   postFeaturedImage Post[]
+  createdAt         DateTime @default(now())
 }
 
 enum PostStatus {

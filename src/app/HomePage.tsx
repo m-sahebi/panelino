@@ -1,118 +1,116 @@
 "use client";
 
-import { Menu, Tooltip } from "antd";
-import Image from "next/image";
-import { useRouter, useSelectedLayoutSegment } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
-import { useWindowScroll } from "react-use";
-import { ProfileIcon } from "~/components/ProfileIcon";
-import { HOME_MAINMENU_ITEMS } from "~/data/menus";
-import { dayjs } from "~/lib/dayjs";
+import { useQuery } from "@tanstack/react-query";
+import { Divider } from "antd";
+import React from "react";
+import { CustomEmpty } from "~/components/CustomEmpty";
+import { CustomLink } from "~/components/CustomLink";
+import { ArticleCard, ArticleCardSkeleton } from "~/features/landing/components/ArticleCard";
+import { LandingHeader } from "~/features/landing/components/LandingHeader";
 import { trpc } from "~/lib/trpc";
-import { cn } from "~/utils/tailwind";
+import { encodeQueryParamObjectValue } from "~/utils/helpers";
 
-const ScrollYTracker = React.memo(function ScrollTracker({
-  limit,
-  onPassLimit,
-}: {
-  limit: number;
-  onPassLimit: (passed: boolean) => void;
-}) {
-  const { y } = useWindowScroll();
-  const prevY = useRef<number>();
-
-  useEffect(() => {
-    if (prevY.current === undefined) {
-      prevY.current = y;
-      if (y > limit) onPassLimit(true);
-    }
-    if (y > limit && prevY.current <= limit) onPassLimit(true);
-    else if (y <= limit && prevY.current > limit) onPassLimit(false);
-    prevY.current = y;
-  }, [limit, y, onPassLimit]);
-
-  return null;
-});
+function ArticlesLoading({ active = false }) {
+  return (
+    <>
+      {new Array(9).fill(0).map((_, idx) => (
+        <ArticleCardSkeleton key={idx} active={active} />
+      ))}
+    </>
+  );
+}
 
 export function HomePage() {
-  // const { data: session } = useSession();
-  const { data: posts } = trpc.posts.getMany.useQuery({
+  const { data: posts, isLoading: isLoadingPosts } = trpc.posts.getMany.useQuery({
     sort: "createdAt",
     order: "desc",
+    filter: encodeQueryParamObjectValue({ status: "PUBLISHED" }),
     pageSize: 100,
   });
-  const [scrolled, setScrolled] = useState(false);
-  // const { data } = useQuery({ queryKey: ["https://dev.to/api/articles"] });
-  const router = useRouter();
-  const segment = useSelectedLayoutSegment()?.split("/")[0] ?? "";
+  const { data: devtoArticles, isLoading: isLoadingDevtoArticles } = useQuery<any>({
+    queryKey: ["https://dev.to/api/articles", { per_page: 10 }],
+  });
 
   return (
     <>
-      <ScrollYTracker limit={20} onPassLimit={setScrolled} />
-      <div
-        className={cn(
-          "sticky -top-px z-10 mx-auto mb-6 mt-4 w-[1200px] max-w-full rounded-lg border-0 border-transparent px-5 transition-all duration-300",
-          {
-            "w-full rounded-none border-0 border-b border-solid bg-neutral-200 bg-opacity-70 border-daw-neutral-300 dark:bg-neutral-800 dark:bg-opacity-70":
-              scrolled,
-          },
-        )}
-        style={{ backdropFilter: "blur(6px)" }}
-      >
-        <header
-          className={cn(
-            "mx-auto flex w-full max-w-screen-xl items-center justify-center rounded-lg px-5 py-3 duration-300 bg-daw-neutral-200",
-            {
-              "bg-transparent": scrolled,
-            },
-          )}
-        >
-          <ProfileIcon collapsed avatarWidth={32} />
-          <nav className="flex max-w-screen-xl flex-1 justify-end self-center transition-all">
-            <Menu
-              className={cn("border-0 bg-transparent leading-6")}
-              mode="horizontal"
-              selectedKeys={[`/${segment}`]}
-              items={HOME_MAINMENU_ITEMS}
-              onClick={({ key }) => router.push(`${key}`)}
-            />
-          </nav>
-        </header>
-      </div>
+      <LandingHeader />
+      <div className="flex w-full max-w-screen-xl flex-col gap-10 self-center px-6">
+        <main className="flex w-full flex-col gap-10">
+          <div className="flex w-full flex-col gap-10">
+            <div>
+              <h1 className="mb-2 font-bold">Latest Posts</h1>
+              <Divider
+                className="m-0 text-daw-neutral-400"
+                orientation="left"
+                orientationMargin={0}
+              >
+                Latest articles from our authors
+              </Divider>
+            </div>
 
-      <div className="flex w-full max-w-screen-xl flex-col gap-8 self-center px-5">
-        <main className="flex w-full flex-col gap-6">
-          <div
-            className="grid w-full place-content-center place-items-center justify-start"
-            style={{
-              gridTemplateColumns: `repeat(auto-fit, minmax(min(20rem, 100%), 1fr))`,
-              gridGap: "2rem 1.5rem",
-              // maxWidth: `${zoom * 1.4 * (items?.length ?? 0)}rem`,
-            }}
-          >
-            {posts?.items.map((post) => (
-              <div key={post.id} className="flex w-full flex-col items-start py-3">
-                {post.featuredImageId && (
-                  <div className="relative mb-3 aspect-video w-full">
-                    <Image
-                      src={`/api/files/${post.featuredImageId}`}
-                      alt=""
-                      className="w-full rounded-lg object-cover"
-                      fill
-                    />
-                  </div>
-                )}
+            <div
+              className="grid w-full place-content-center place-items-center justify-start"
+              style={{
+                gridTemplateColumns: `repeat(auto-fit, minmax(min(20rem, 100%), 1fr))`,
+                gridGap: "2rem 2rem",
+              }}
+            >
+              {!posts && <ArticlesLoading active={isLoadingPosts} />}
+              {posts?.items.length ? (
+                posts?.items.map((post) => (
+                  <ArticleCard
+                    key={post.id}
+                    url="#"
+                    title={post.title}
+                    coverImage={post.featuredImageId && `/api/files/${post.featuredImageId}`}
+                    publishedAt={post.createdAt}
+                    userName={post.author.name}
+                    userProfileImage={post.author.imageId && `/api/files/${post.author.imageId}`}
+                  />
+                ))
+              ) : (
+                <CustomEmpty className="my-24" description="No post!" />
+              )}
+            </div>
+          </div>
 
-                <h2>{post.title}</h2>
-                <Tooltip
-                  className="text-daw-neutral-400"
-                  placement="right"
-                  title={dayjs(post.createdAt).format("YYYY-MM-DD HH:mm")}
-                >
-                  {dayjs().from(post.createdAt)}
-                </Tooltip>
-              </div>
-            ))}
+          <div className="flex w-full flex-col gap-10">
+            <div>
+              <h1 className="mb-2 font-bold">Latest From Dev.to</h1>
+              <Divider
+                className="m-0 text-daw-neutral-400"
+                orientation="left"
+                orientationMargin={0}
+              >
+                Latest articles from <CustomLink href="https://dev.to">dev.to</CustomLink>
+              </Divider>
+            </div>
+
+            <div
+              className="grid w-full place-content-center place-items-start justify-start"
+              style={{
+                gridTemplateColumns: `repeat(auto-fit, minmax(min(20rem, 100%), 1fr))`,
+                gridGap: "2rem 2rem",
+              }}
+            >
+              {!devtoArticles && <ArticlesLoading active={isLoadingDevtoArticles} />}
+              {devtoArticles?.map((article: any) => (
+                <ArticleCard
+                  key={article.path}
+                  url={article.canonical_url}
+                  title={article.title}
+                  coverImage={article.cover_image}
+                  coverImageUnoptimized
+                  publishedAt={article.published_at}
+                  userName={article.user.name}
+                  userProfileImage={article.user.profile_image_90}
+                  userProfileImageUnoptimized
+                  userWebsiteUrl={article.user.website_url}
+                  userTwitterUsername={article.user.twitter_username}
+                  userGithubUsername={article.user.github_username}
+                />
+              ))}
+            </div>
           </div>
         </main>
       </div>

@@ -1,12 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
 import { Upload } from "antd";
+import { useAtom } from "jotai";
 import React from "react";
 import { LuUpload } from "react-icons/lu";
 import { type ApiFilePostResponseType } from "~/app/api/files/route";
-import { FileTypesInfo } from "~/components/file/FileTypesInfo";
-import { globalMessage } from "~/components/Providers/AntProvider";
-import { useGlobalLoading } from "~/hooks/useGlobalLoading";
-import { queryClient, rqMutation } from "~/lib/tanstack-query";
+import { globalMessage } from "~/components/configs/Providers/AntProvider";
+import { FileTypesInfo } from "~/features/file/components/FileTypesInfo";
+import { queryClient, rqMutation } from "~/lib/react-query";
+import { globalLoadingAtom } from "~/store/atoms/global-loading";
 import { fileNameExt } from "~/utils/primitive";
 import { cn } from "~/utils/tailwind";
 
@@ -21,7 +22,7 @@ export const FileUpload = React.memo(function FileUpload({
   fileTypes,
   hideFileTypesInfo = false,
 }: Props) {
-  const { setGlobalLoading } = useGlobalLoading();
+  const [, setGlobalLoading] = useAtom(globalLoadingAtom);
   const { mutateAsync: deleteFile } = useMutation(
     rqMutation({ url: "/files/:id", invalidatedKeys: [["/files"]] }),
   );
